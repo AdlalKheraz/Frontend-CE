@@ -1,0 +1,51 @@
+<div class="login-container" [ngClass]="{'logged-in': isLoggedIn}">
+  <!-- Partie formulaire de connexion -->
+    <div class="login-form bg-base-100 p-8">
+        <div class="max-w-md mx-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-primary">Chrono Explorer</h1>
+                <p class="text-base-content/70 mt-2">Connectez-vous pour accéder à votre espace</p>
+            </div>
+            <div>
+            </div>
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body">
+                    <form (ngSubmit)="onLogin()">
+                        <div class="form-control">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Email</legend>
+                                <input type="email" class="email" placeholder="Example@email.com" class="input input-bordered" required/>
+                            </fieldset>
+                        </div>
+                        
+                        <div class="form-control mt-4">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Password</legend>
+                                <input type="text" class="input" placeholder="Minimum 8 caractères" class="input input-bordered" required/>
+                            </fieldset>
+                            <label class="label">
+                                <a href="#" class="label-text-alt link link-hover">Mot de passe oublié?</a>
+                            </label>
+                        </div>
+                        <div class="form-control mt-6">
+                            <button type="submit" class="btn btn-primary">Se connecter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <p>Vous n'avez pas de compte? <a routerLink="/register" class="link link-primary">S'inscrire</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image à droite qui s'agrandit après connexion -->
+    <div class="image-container" style="background-image: url('assets/images/chrono-explorer.jpg');">
+        <div class="welcome-message">
+        <h2 class="text-4xl font-bold text-white mb-2">Bienvenue sur Chrono Explorer</h2>
+        <p class="text-xl text-white">Explorez l'histoire à votre rythme</p>
+        <button class="btn btn-secondary mt-6" (click)="goToDashboard()">Accéder au tableau de bord</button>
+        </div>
+    </div>
+</div>
