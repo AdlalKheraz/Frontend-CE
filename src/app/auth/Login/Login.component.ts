@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
@@ -16,16 +16,13 @@ export class LoginComponent {
 	email = '';
 	password = '';
 
-	constructor(private router: Router, private cdr: ChangeDetectorRef) {}
+	constructor(private router: Router) {}
 
 	onLogin(e: Event) {
 		e.preventDefault();
-		console.log('🚀 ~ LoginComponent ~ onLogin ~ e:', e)
 		// Ici, ajoutez votre logique d'authentification
 		if (this.email && this.password) {
 			this.isLoggedIn = true;
-			this.cdr.detectChanges(); // Force la détection des changements
-			
 			// Donner le temps de voir l'animation avant la redirection
 			setTimeout(() => {
 				this.router.navigate(['/dashboard']);

@@ -26,9 +26,9 @@
   position: relative;
   transform-origin: right;
   /* Image ne prend pas toute la hauteur au login */
-  height: 70%;
-  margin: auto 0;
-  border-radius: 1rem 0 0 1rem;
+  height: 85%;
+  margin: auto 50px;
+  border-radius: 1rem;
 }
 
 .welcome-message {
@@ -53,6 +53,7 @@
 .logged-in .image-container {
   flex: 2;
   height: 100%; /* Prend toute la hauteur après connexion */
+  margin: auto 0;
   border-radius: 0;
 }
 
