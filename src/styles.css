@@ -1,0 +1,37 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+    name: "louvre";
+    default: false;
+    prefersdark: false;
+    color-scheme: "light";
+    --color-base-100: oklch(98% 0.001 106.423);
+    --color-base-200: #e1d8cd;
+    --color-base-300: oklch(92% 0.003 48.717);
+    --color-base-content: oklch(21% 0.006 56.043);
+    --color-primary: #929f92;
+    --color-primary-content: oklch(97% 0.017 320.058);
+    --color-secondary: oklch(76% 0.188 70.08);
+    --color-secondary-content: oklch(98% 0.022 95.277);
+    --color-accent: #008472;
+    --color-accent-content: oklch(98% 0.003 247.858);
+    --color-neutral: #FEFFFE;
+    --color-neutral-content: #141211;
+    --color-info: oklch(70% 0.165 254.624);
+    --color-info-content: oklch(28% 0.091 267.935);
+    --color-success: oklch(76% 0.177 163.223);
+    --color-success-content: oklch(26% 0.051 172.552);
+    --color-warning: #c09144;
+    --color-warning-content: oklch(28% 0.066 53.813);
+    --color-error: #c7343c;
+    --color-error-content: oklch(28% 0.109 3.907);
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 1rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1.5px;
+    --depth: 0;
+    --noise: 1;
+}
