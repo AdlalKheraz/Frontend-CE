@@ -1,21 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
 	selector: 'app-login',
-	imports: [CommonModule,FormsModule],
+	standalone: true,
+	imports: [CommonModule, FormsModule, RouterModule],
 	templateUrl: './Login.component.html',
 	styleUrls: ['./Login.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent {
+export class LoginComponent {	
 	isLoggedIn = false;
 	email = '';
 	password = '';
 
-	constructor(private router: Router) {}
+	constructor(private router: Router, private cdr: ChangeDetectorRef) {}
 
 	onLogin(e: Event) {
 		e.preventDefault();
@@ -23,11 +24,14 @@ export class LoginComponent {
 		// Ici, ajoutez votre logique d'authentification
 		if (this.email && this.password) {
 			this.isLoggedIn = true;
-
+			this.cdr.detectChanges(); // Force la détection des changements
+			
 			// Donner le temps de voir l'animation avant la redirection
 			setTimeout(() => {
-				this.router.navigate(['/dashboard']); // Décommentez pour la redirection
+				this.router.navigate(['/dashboard']);
 			}, 2000);
+		} else {
+			alert('Veuillez remplir tous les champs');
 		}
 	}
 

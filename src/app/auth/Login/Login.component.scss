@@ -60,7 +60,7 @@
   opacity: 1;
 }
 
-/* Responsive pour les petits écrans */
+/* Styles responsifs */
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
@@ -73,5 +73,6 @@
   .logged-in .image-container {
     display: block;
     height: 100%;
+    width: 100%;
   }
 }

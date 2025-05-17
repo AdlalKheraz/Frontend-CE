@@ -6,23 +6,22 @@
                 <h1 class="text-4xl font-bold text-primary">Chrono Explorer</h1>
                 <p class="text-base-content/70 mt-2">Connectez-vous pour accéder à votre espace</p>
             </div>
-            <div>
-            </div>
+            
             <div class="card bg-base-200 shadow-xl">
                 <div class="card-body">
                     <form (ngSubmit)="onLogin($event)">
                         <div class="form-control">
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Email</legend>
-                                <input type="email" class="email" [(ngModel)]="email" placeholder="Example@email.com" class="input input-bordered" required/>
+                                <input type="email" name="email" [(ngModel)]="email" placeholder="Example@email.com" class="input input-bordered" required/>
                             </fieldset>
                         </div>
                         
                         <div class="form-control mt-4">
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Password</legend>
-                                <input type="text" class="input" placeholder="Minimum 8 caractères" [(ngModel)]="password" class="input input-bordered" required/>
-                            </fieldset>
+                            <label class="label">
+                                <span class="label-text">Mot de passe</span>
+                            </label>
+                            <input type="password" name="password" [(ngModel)]="password" placeholder="Minimum 8 caractères" class="input input-bordered" required/>
                             <label class="label">
                                 <a href="#" class="label-text-alt link link-hover">Mot de passe oublié?</a>
                             </label>
