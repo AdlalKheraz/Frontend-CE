@@ -1,0 +1,57 @@
+<div class="signup-container" [ngClass]="{'signed-up': isSignedUp|async}">
+    <!-- Partie formulaire d'inscription -->
+    <div class="signup-form bg-base-100 p-8">
+        <div class="max-w-md mx-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-primary">Chrono Explorer</h1>
+                <p class="text-base-content/70 mt-2">Créez votre compte pour commencer l'aventure</p>
+            </div>
+            
+            <div class="card bg-base-200 shadow-xl">
+                <div class="card-body">
+                    <form (ngSubmit)="onSignUp($event)">
+                        <div class="form-control">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Nom</legend>
+                                <input type="text" name="name" [(ngModel)]="name" placeholder="Votre nom" class="input input-bordered" required/>
+                            </fieldset>
+                        </div>
+                        
+                        <div class="form-control mt-4">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Email</legend>
+                                <input type="email" name="email" [(ngModel)]="email" placeholder="Example@email.com" class="input input-bordered" required/>
+                            </fieldset>
+                        </div>
+                        
+                        <div class="form-control mt-4">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Mot de passe</legend>
+                                <input type="password" name="password" [(ngModel)]="password" placeholder="Minimum 8 caractères" class="input input-bordered" required/>
+                            </fieldset>
+                        </div>
+                        
+                        <div class="form-control mt-4">
+                            <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Confirmer le mot de passe</legend>
+                                <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Confirmez votre mot de passe" class="input input-bordered" required/>
+                            </fieldset>
+                        </div>
+                        
+                        <div class="form-control mt-6">
+                            <button type="submit" class="btn btn-primary">S'inscrire</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <p>Vous avez déjà un compte? <a routerLink="/login" class="link link-primary">Se connecter</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image à droite qui s'agrandit après inscription -->
+    <div class="image-container">
+    </div>
+</div>
