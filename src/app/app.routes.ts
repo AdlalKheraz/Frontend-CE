@@ -13,7 +13,7 @@ export const routes: Routes = [
     path: 'admin',
     children: [
         {path:'dashboard', component: DashboardComponent},
-        {path: 'new-event', component: NewEventComponent, canActivate: [AuthGuard]},
+        {path: 'new-event', component: NewEventComponent},
     ]
   },
   // Rediriger toutes les autres routes vers la page de login
