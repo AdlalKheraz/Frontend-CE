@@ -1,4 +1,4 @@
-<div class="login-container" [ngClass]="{'logged-in': isLoggedIn}">
+<div class="login-container" [ngClass]="{'logged-in': isLoggedIn|async}">
     <!-- Partie formulaire de connexion -->
     <div class="login-form bg-base-100 p-8">
         <div class="max-w-md mx-auto">

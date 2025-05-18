@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '@core/auth/auth.service';
+import { AuthStoreService } from '@core/auth/auth.store';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-login',
@@ -11,24 +14,29 @@ import { Router, RouterModule } from '@angular/router';
 	styleUrls: ['./Login.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent {	
-	isLoggedIn = false;
+export class LoginComponent  {
 	email = '';
 	password = '';
+	private router:Router = inject(Router);
+	private authService: AuthService = inject(AuthService);
+	// authStoreService:AuthStoreService = inject(AuthStoreService);
+	isLoggedIn =this.authService.isLoggedIn$
 
-	constructor(private router: Router) {}
+
 
 	onLogin(e: Event) {
 		e.preventDefault();
-		// Ici, ajoutez votre logique d'authentification
-		if (this.email && this.password) {
-			this.isLoggedIn = true;
-			// Donner le temps de voir l'animation avant la redirection
-			setTimeout(() => {
-				this.router.navigate(['/home']);
-			}, 1100);
-		} else {
-			alert('Veuillez remplir tous les champs');
-		}
+		// Utiliser le service d'authentification pour se connecter
+		this.authService.signIn({ email: this.email, password: this.password }).subscribe({
+			next: () => {
+				// Donner le temps de voir l'animation avant la redirection
+				setTimeout(() => {
+					this.router.navigate(['/home']);
+				}, 1100);
+			},
+			error: () => {
+				alert('Identifiants incorrects ou problème de connexion');
+			},
+		});
 	}
 }
