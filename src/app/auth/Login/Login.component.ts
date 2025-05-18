@@ -25,14 +25,10 @@ export class LoginComponent {
 			this.isLoggedIn = true;
 			// Donner le temps de voir l'animation avant la redirection
 			setTimeout(() => {
-				this.router.navigate(['/dashboard']);
-			}, 2000);
+				this.router.navigate(['/home']);
+			}, 1100);
 		} else {
 			alert('Veuillez remplir tous les champs');
 		}
-	}
-
-	goToDashboard() {
-		this.router.navigate(['/dashboard']);
 	}
 }
