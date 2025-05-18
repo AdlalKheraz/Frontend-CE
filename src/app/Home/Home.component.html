@@ -1,20 +1,15 @@
 <div class="home-container">
     <!-- Image à droite qui s'agrandit après connexion -->
-    <div class="image-container logged-in" #container>
-        <div class="instructions text-xl font-bold">Déplacez votre souris dans cette fenêtre</div>
-        
-        <button class="follow-button btn" #followButton (click)="buttonClicked()">Clique</button>
-        
+    <div class="image-container logged-in" #container>  
         <div class="welcome-message">
             <ul class="timeline timeline-vertical">
                 <li>
-                    <div class="timeline-start timeline-box">First Macintosh computer</div>
                     <div class="timeline-middle">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="text-primary h-5 w-5"
+                        class="h-5 w-5"
                     >
                         <path
                         fill-rule="evenodd"
@@ -23,16 +18,17 @@
                         />
                     </svg>
                     </div>
-                    <hr class="bg-primary" />
+                    <div class="timeline-end timeline-box">First Macintosh computer</div>
+                    <hr />
                 </li>
                 <li>
-                    <hr class="bg-primary" />
+                    <hr />
                     <div class="timeline-middle">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="text-primary h-5 w-5"
+                        class="h-5 w-5"
                     >
                         <path
                         fill-rule="evenodd"
@@ -42,17 +38,16 @@
                     </svg>
                     </div>
                     <div class="timeline-end timeline-box">iMac</div>
-                    <hr class="bg-primary" />
+                    <hr />
                 </li>
                 <li>
-                    <hr class="bg-primary" />
-                    <div class="timeline-start timeline-box">iPod</div>
+                    <hr />
                     <div class="timeline-middle">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="text-primary h-5 w-5"
+                        class="h-5 w-5"
                     >
                         <path
                         fill-rule="evenodd"
@@ -61,6 +56,7 @@
                         />
                     </svg>
                     </div>
+                    <div class="timeline-end timeline-box">iPod</div>
                     <hr />
                 </li>
                 <li>
@@ -84,7 +80,6 @@
                 </li>
                 <li>
                     <hr />
-                    <div class="timeline-start timeline-box">Apple Watch</div>
                     <div class="timeline-middle">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -99,10 +94,14 @@
                         />
                     </svg>
                     </div>
+                    <div class="timeline-end timeline-box">Apple Watch</div>
                 </li>
             </ul>
-            <h2 class="text-4xl font-bold text-white mb-2">Bienvenue sur Chrono Explorer</h2>
-            <p class="text-xl text-white">Explorez l'histoire à votre rythme</p>
+            <div class="content">
+                <h2 class="text-4xl font-bold text-white mb-2">Bienvenue sur Chrono Explorer</h2>
+                <p class="text-xl text-white">Explorez l'histoire à votre rythme</p>
+            </div>
         </div>
     </div>
+    <button class="follow-button btn" #followButton (click)="buttonClicked()">Clique</button>
 </div>
