@@ -12,7 +12,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     children: [
-        {path:'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
+        {path:'dashboard', component: DashboardComponent},
         {path: 'new-event', component: NewEventComponent, canActivate: [AuthGuard]},
     ]
   },
