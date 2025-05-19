@@ -4,12 +4,12 @@ import { AuthService } from '@core/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 // import { AuthStoreService } from '@core/auth/auth.store';
-import { ImageScrolleComponent } from './ImageScrolle/ImageScrolle.component';
+import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule,ImageScrolleComponent],
+    imports: [CommonModule,TimeLineScrolleComponent],
     templateUrl: './Home.component.html',
     styleUrl: './Home.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
