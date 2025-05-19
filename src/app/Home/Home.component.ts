@@ -44,6 +44,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         'Toutes'
     ];
     selectedCivilization = this.civilizations[0];
+    
+    // Pour l'affichage des civilisations en boutons
+    displayedCivilizations: string[] = [];
+    showMoreCivilizations = false;
+    civilizationsPanelOpen = false;
+    
     userName = 'Visiteur'; // Valeur par défaut
     islandExpanded = false;
     
@@ -99,6 +105,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     private mouseMoveListener: any;
 
     ngOnInit(): void {
+        // Initialiser les civilisations à afficher (3 max)
+        this.updateDisplayedCivilizations();
+        
         // Vérifier si l'utilisateur est connecté
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
             this.isLoggedIn = isLoggedIn;
@@ -207,15 +216,55 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         });
     }
     
+    // Méthode pour mettre à jour les civilisations affichées
+    updateDisplayedCivilizations(): void {
+        // On affiche max 3 civilisations dans la Dynamic Island
+        this.displayedCivilizations = this.civilizations.slice(0, 3);
+        this.showMoreCivilizations = this.civilizations.length > 3;
+    }
+    
+    // Méthode pour sélectionner une civilisation
+    selectCivilization(civ: string): void {
+        this.selectedCivilization = civ;
+        
+        // Si c'est une des 3 premières, on ne change rien
+        if (this.displayedCivilizations.includes(civ)) {
+            return;
+        }
+        
+        // Sinon, on met la civilisation sélectionnée en premier
+        const updatedCivs = [civ];
+        for (let i = 0; i < 2 && i < this.civilizations.length - 1; i++) {
+            if (this.civilizations[i] !== civ) {
+                updatedCivs.push(this.civilizations[i]);
+            }
+        }
+        this.displayedCivilizations = updatedCivs;
+    }
+    
+    // Méthode pour ouvrir/fermer le panneau des civilisations
+    toggleCivilizationsPanel(): void {
+        this.civilizationsPanelOpen = !this.civilizationsPanelOpen;
+    }
+    
     // Méthode pour basculer l'état de l'îlot dynamique
     toggleIsland(): void {
         this.islandExpanded = !this.islandExpanded;
+        
+        // Fermer le panneau des civilisations si on ferme l'island
+        if (!this.islandExpanded) {
+            this.civilizationsPanelOpen = false;
+        }
     }
     
     // Méthode pour ouvrir/fermer le panneau de commentaires
     toggleComments(): void {
         this.commentsOpen = !this.commentsOpen;
-        // On n'a plus besoin de gérer le shifting ici car c'est fait par le binding dans le template
+        
+        // Si on ouvre les commentaires, on s'assure que l'island est fermée
+        if (this.commentsOpen) {
+            this.islandExpanded = false;
+        }
     }
     
     // Méthode pour ajouter un nouveau commentaire

@@ -1,21 +1,59 @@
-<div class="home-container" [class.shifted]="commentsOpen">
-    <!-- Dynamic Island (style iPhone) amélioré -->
+<div class="home-container">
+    <!-- Dynamic Island (style iPhone) minimaliste avec boutons intégrés -->
     <div class="dynamic-island" [class.expanded]="islandExpanded" (click)="toggleIsland()">
         <div class="island-content">
             <div class="island-icon">
                 <div class="dynamic-pill"></div>
             </div>
             <div class="island-text" *ngIf="islandExpanded">
-                <div class="civilization-filter" (click)="$event.stopPropagation()">
-                    <label>Civilisation</label>
-                    <select [(ngModel)]="selectedCivilization">
-                        <option *ngFor="let civ of civilizations" [value]="civ">{{ civ }}</option>
-                    </select>
-                </div>
+                <!-- Nom utilisateur avec avatar -->
                 <div class="user-info">
                     <span class="user-avatar"></span>
                     <span>{{ userName }}</span>
                 </div>
+
+                <!-- Actions: Civilisations et Commentaires -->
+                <div class="island-actions" (click)="$event.stopPropagation()">
+                    <!-- Sélecteur de civilisations en boutons -->
+                    <div class="civilization-buttons">
+                        <button 
+                            *ngFor="let civ of displayedCivilizations" 
+                            class="civ-btn" 
+                            [class.active]="selectedCivilization === civ"
+                            (click)="selectCivilization(civ)">
+                            {{ civ }}
+                        </button>
+                        <button 
+                            class="civ-btn more-btn" 
+                            *ngIf="showMoreCivilizations"
+                            (click)="toggleCivilizationsPanel()">
+                            ...
+                        </button>
+                    </div>
+                    
+                    <!-- Bouton commentaire dans la Dynamic Island -->
+                    <button class="island-comment-btn" (click)="toggleComments(); $event.stopPropagation()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel civilisations (s'affiche quand on clique sur "...") -->
+    <div class="civilizations-panel" *ngIf="civilizationsPanelOpen" (click)="toggleCivilizationsPanel()">
+        <div class="panel-content" (click)="$event.stopPropagation()">
+            <h4>Civilisations</h4>
+            <div class="civ-grid">
+                <button 
+                    *ngFor="let civ of civilizations" 
+                    class="civ-grid-btn"
+                    [class.active]="selectedCivilization === civ"
+                    (click)="selectCivilization(civ); toggleCivilizationsPanel()">
+                    {{ civ }}
+                </button>
             </div>
         </div>
     </div>
@@ -29,23 +67,10 @@
     <!-- Overlay pour fermer les commentaires en cliquant ailleurs -->
     <div class="overlay" *ngIf="commentsOpen" (click)="toggleComments()"></div>
     
-    <!-- Bouton commentaire -->
-    <button class="comment-fab" [class.hidden]="commentsOpen" (click)="toggleComments()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-        </svg>
-    </button>
-
-    <!-- Panneau de commentaires amélioré -->
+    <!-- Panneau de commentaires simplifié -->
     <div class="comments-panel" [class.open]="commentsOpen">
         <div class="comments-header">
             <h3>Commentaires</h3>
-            <button class="close-comments" (click)="toggleComments()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
         </div>
         
         <div class="comments-list">

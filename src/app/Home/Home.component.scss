@@ -7,7 +7,6 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  transition: all 1s ease;
 }
 .image-container {
   width: 100%;
@@ -91,34 +90,36 @@
   }
 }
 
-/* Dynamic Island (style iPhone) - AMÉLIORÉ */
+/* Dynamic Island (style iPhone) - MINIMALISTE AMÉLIORÉ */
 .dynamic-island {
   position: fixed;
-  top: 25px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.9);
-  border-radius: 30px;
-  width: 120px;
-  height: 38px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 25px;
+  width: 110px;
+  height: 34px;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
   cursor: pointer;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   
   &.expanded {
-    width: 350px;
-    height: 90px;
-    border-radius: 40px;
+    width: 360px;
+    height: 85px;
+    background-color: rgba(0, 0, 0, 0.75);
+    border-radius: 35px;
   }
   
   &:hover {
     transform: translateX(-50%) scale(1.03);
+    background-color: rgba(0, 0, 0, 0.8);
   }
   
   &:active {
@@ -127,20 +128,20 @@
 }
 
 .dynamic-pill {
-  width: 60px;
-  height: 6px;
-  background: #555;
-  border-radius: 3px;
+  width: 45px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
   position: relative;
   overflow: hidden;
   
   &::before {
     content: '';
     position: absolute;
-    width: 20px;
+    width: 15px;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    animation: shimmer 1.5s infinite;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    animation: shimmer 2s infinite;
   }
 }
 
@@ -161,7 +162,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
+  min-width: 16px;
 }
 
 .island-text {
@@ -169,79 +170,153 @@
   color: white;
   flex: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  animation: fadeIn 0.3s ease;
-  gap: 15px;
-}
-
-.civilization-filter {
-  display: flex;
   flex-direction: column;
-  position: relative;
-  z-index: 1001;
-  
-  label {
-    font-size: 11px;
-    opacity: 0.7;
-    margin-bottom: 3px;
-  }
-  
-  select {
-    background: transparent;
-    color: white;
-    border: none;
-    outline: none;
-    font-size: 15px;
-    font-weight: 500;
-    appearance: none;
-    padding-right: 15px;
-    cursor: pointer;
-    position: relative;
-    z-index: 1002;
-    
-    &:hover, &:focus {
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-    }
-    
-    option {
-      background-color: #333;
-      color: white;
-      padding: 8px;
-    }
-  }
-  
-  &::after {
-    content: '▼';
-    position: absolute;
-    right: 0;
-    bottom: 5px;
-    font-size: 8px;
-    color: white;
-    pointer-events: none;
-  }
+  animation: fadeIn 0.3s ease;
+  gap: 12px;
 }
 
 .user-info {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
+  opacity: 0.95;
   
   .user-avatar {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: linear-gradient(135deg, #6e8efb, #4f5cff);
     display: block;
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* Nouveaux styles pour les boutons de civilisation */
+.island-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.civilization-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.civ-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 12px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+  
+  &.active {
+    background: rgba(94, 104, 241, 0.4);
+    color: white;
+  }
+  
+  &.more-btn {
+    width: 30px;
+    padding: 5px 0;
+    font-weight: bold;
+  }
+}
+
+.island-comment-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: rgba(94, 104, 241, 0.4);
+    transform: scale(1.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Panel des civilisations */
+.civilizations-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(3px);
+}
+
+.panel-content {
+  background-color: rgba(30, 32, 40, 0.95);
+  border-radius: 20px;
+  padding: 25px;
+  width: 350px;
+  max-width: 90vw;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  
+  h4 {
+    margin: 0 0 20px;
+    color: white;
+    font-size: 17px;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0.8;
+  }
+}
+
+.civ-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.civ-grid-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 5px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    background: rgba(94, 104, 241, 0.4);
+    color: white;
+  }
 }
 
 /* Overlay pour fermer les commentaires en cliquant ailleurs */
@@ -258,119 +333,72 @@
 
 /* Bouton commentaire et panneau - AMÉLIORÉ */
 .comment-fab {
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
-  width: 65px;
-  height: 65px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7e8efb, #5f6cff);
-  color: white;
-  border: none;
-  box-shadow: 0 6px 25px rgba(94, 104, 241, 0.4);
-  cursor: pointer;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  
-  svg {
-    transition: transform 0.3s ease;
-  }
-  
-  &:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 8px 30px rgba(94, 104, 241, 0.5);
-    
-    svg {
-      transform: scale(1.1);
-    }
-  }
-  
-  &:active {
-    transform: scale(0.95);
-    box-shadow: 0 4px 15px rgba(94, 104, 241, 0.3);
-  }
-  
-  &.hidden {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0);
-  }
+  display: none;
 }
 
 .comments-panel {
   position: fixed;
   top: 0;
-  right: -480px;
-  width: 480px;
+  right: -450px;
+  width: 450px;
+  max-width: 90vw;
   height: 100vh;
-  background-color: rgba(18, 20, 30, 0.95);
-  backdrop-filter: blur(10px);
+  background-color: rgba(22, 24, 29, 0.92);
+  backdrop-filter: blur(12px);
   color: white;
   z-index: 45;
-  transition: right 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
-  box-shadow: -8px 0 25px rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
   display: flex;
   flex-direction: column;
   
   &.open {
     right: 0;
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.3);
   }
 }
 
 .comments-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 25px 30px 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px 0 15px;
+  position: relative;
   
   h3 {
     margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-  }
-  
-  .close-comments {
-    background: transparent;
-    border: none;
-    color: #aaa;
-    cursor: pointer;
-    padding: 5px;
-    margin: -5px;
-    transition: color 0.2s;
-    
-    &:hover {
-      color: white;
-    }
+    font-size: 18px;
+    font-weight: 500;
+    opacity: 0.7;
+    letter-spacing: 1px;
+    text-transform: uppercase;
   }
 }
 
 .comments-list {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 30px;
+  padding: 10px 25px 20px;
   
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
   
   &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
   }
   
   &::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
+    border-radius: 2px;
   }
 }
 
 .comment-item {
   display: flex;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   animation: slideIn 0.3s ease-out;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 @keyframes slideIn {
@@ -379,12 +407,12 @@
 }
 
 .comment-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, #7e8efb, #5f6cff);
   flex-shrink: 0;
-  margin-right: 15px;
+  margin-right: 12px;
 }
 
 .comment-content {
@@ -394,59 +422,58 @@
 .comment-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .comment-author {
   font-weight: 600;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .comment-date {
-  font-size: 12px;
-  color: #aaa;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .comment-text {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .comment-form {
   display: flex;
   align-items: center;
-  padding: 20px 30px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 15px 25px;
   background: rgba(0, 0, 0, 0.2);
 }
 
 .comment-input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
   border: none;
-  border-radius: 30px;
-  padding: 12px 20px;
+  border-radius: 20px;
+  padding: 10px 15px;
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
   transition: background 0.2s;
   
   &:focus {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.12);
   }
   
   &::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.4);
   }
 }
 
 .send-comment {
   background: linear-gradient(135deg, #7e8efb, #5f6cff);
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   margin-left: 10px;
   display: flex;
@@ -473,9 +500,11 @@
 }
 
 .home-container {
-  transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
-  
-  &.shifted {
-    transform: translateX(-60px);
-  }
+  /* Il n'y a plus besoin de transition */
+}
+
+/* Animation fadeIn */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
