@@ -1,0 +1,209 @@
+<div class="flex h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <div class="w-64 bg-white shadow-md relative">
+    <div class="p-4">
+      <div class="flex items-center gap-2 mb-8">
+        <div class="bg-indigo-500 p-2 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        <span class="text-xl font-bold">Explorer</span>
+      </div>
+
+      <!-- Menu Items -->
+      <div class="space-y-2">
+        <div (click)="navigateToDashboard()" class="flex items-center px-4 py-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+          <div class="mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <span>Dashboard</span>
+        </div>
+
+        <div class="flex items-center px-4 py-3 rounded-lg cursor-pointer bg-indigo-500 text-white">
+          <div class="mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <span>Events</span>
+        </div>
+
+        <div (click)="navigateToSettings()" class="flex items-center px-4 py-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+          <div class="mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
+          <span>Settings</span>
+        </div>
+
+        <div (click)="signOut()" class="flex items-center px-4 py-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+          <div class="mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </div>
+          <span>Sign Out</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Promo Card -->
+    <div class="absolute bottom-5 left-5 right-5 p-4 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+      <div class="bg-white w-8 h-8 rounded-full flex items-center justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
+      <div class="font-bold text-lg mb-1">Explorer Pro</div>
+      <div class="text-xs mb-4">Go To all Events with One Click</div>
+      <button class="bg-white text-indigo-600 px-4 py-1 rounded-full text-sm font-medium">Go To Events</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <div class="bg-white p-4 shadow-sm flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Events</h1>
+
+      <div class="flex-1 max-w-lg mx-8 relative">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" placeholder="Search here..." class="w-full border border-gray-200 rounded-full pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center bg-white rounded-full px-3 py-1.5 border border-gray-200">
+          <div class="mr-2">🇺🇸</div>
+          <span>Eng (US)</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+
+        <div class="relative">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <div class="absolute top-0 right-0 w-2 h-2 bg-orange-500 rounded-full"></div>
+        </div>
+
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-gray-200 rounded-full overflow-hidden mr-2">
+            <img src="https://via.placeholder.com/40" alt="User Avatar" class="w-full h-full object-cover">
+          </div>
+          <div>
+            <div class="font-semibold text-sm">Adlai</div>
+            <div class="text-xs text-gray-500">Admin</div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 p-6 overflow-auto">
+      <!-- Create Button -->
+      <div (click)="createNewEvent()" class="flex items-center justify-center mx-auto bg-white rounded-full shadow px-6 py-3 mb-6 cursor-pointer hover:shadow-md transition-shadow w-max">
+        <div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white mr-2">+</div>
+        <span class="font-medium">Create New Event</span>
+      </div>
+
+      <!-- Events Table -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">All Events</h2>
+          <div class="bg-emerald-50 text-emerald-600 px-4 py-1 rounded-full text-sm font-medium">Active Events</div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+          <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Search" class="pl-9 pr-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          </div>
+
+          <div class="flex items-center text-sm">
+            <span class="text-gray-500">Short by:</span>
+            <div class="flex items-center ml-2 font-medium">
+              Newest
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Event Name</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Description</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Location</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Creation Date</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let event of events" class="border-b border-gray-200">
+                <td class="py-4 px-4 font-medium">{{ event.name }}</td>
+                <td class="py-4 px-4">{{ event.description }}</td>
+                <td class="py-4 px-4">{{ event.location }}</td>
+                <td class="py-4 px-4">{{ event.creationDate }}</td>
+                <td class="py-4 px-4">
+                  <div class="flex space-x-2">
+                    <button (click)="modifyEvent(event.id)" class="px-4 py-1 text-sm border border-emerald-500 text-emerald-600 bg-emerald-50 rounded hover:bg-emerald-100 transition-colors">Modify</button>
+                    <button (click)="deleteEvent(event.id)" class="px-4 py-1 text-sm border border-red-500 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors">Delete</button>
+                    <button (click)="showEventDetails(event.id)" class="px-4 py-1 text-sm border border-gray-500 text-gray-600 bg-gray-50 rounded hover:bg-gray-100 transition-colors">Details</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-6">
+          <div class="text-sm text-gray-500">
+            Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span class="font-medium">10</span> entries
+          </div>
+
+          <div class="flex items-center space-x-1">
+            <div class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </div>
+            <div class="w-8 h-8 flex items-center justify-center rounded bg-indigo-500 text-white cursor-pointer">1</div>
+            <div class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 cursor-pointer">2</div>
+            <div class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

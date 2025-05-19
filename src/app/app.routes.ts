@@ -5,6 +5,7 @@ import { AuthGuard } from '@core/auth/guards/auth.guard';
 import { DashboardComponent } from './admin/Dashboard/Dashboard.component';
 import { NewEventComponent } from './admin/NewEvent/NewEvent.component';
 import { SignUpComponent } from './auth/SignUp/SignUp.component';
+import { EventsComponent } from './admin/Events/Events.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -14,8 +15,9 @@ export const routes: Routes = [
   {
     path: 'admin',
     children: [
-        {path:'dashboard', component: DashboardComponent},
-        {path: 'new-event', component: NewEventComponent},
+      {path:'dashboard', component: DashboardComponent},
+      {path: 'events', component: EventsComponent},
+      {path: 'new-event', component: NewEventComponent},
     ]
   },
   // Rediriger toutes les autres routes vers la page de login
