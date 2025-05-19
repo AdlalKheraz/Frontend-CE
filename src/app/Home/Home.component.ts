@@ -1,28 +1,80 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, NgZone, inject, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
-import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 // import { AuthStoreService } from '@core/auth/auth.store';
+import { FormsModule } from '@angular/forms';
 import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
+
+// Type pour les commentaires
+interface Comment {
+    author: string;
+    date: string;
+    text: string;
+}
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule,TimeLineScrolleComponent],
+    imports: [CommonModule,TimeLineScrolleComponent, FormsModule],
     templateUrl: './Home.component.html',
     styleUrl: './Home.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements AfterViewInit, OnDestroy {
+export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     @ViewChild('followButton') followButtonRef!: ElementRef<HTMLButtonElement>;
     @ViewChild('container') containerRef!: ElementRef<HTMLDivElement>;
 
     isLoggedIn = false;
     private _subscription: Subscription = new Subscription();
     
+    // Pour Dynamic Island - Civilisations améliorées
+    civilizations = [
+        'Égyptienne', 
+        'Grecque', 
+        'Romaine', 
+        'Chinoise', 
+        'Américaine',
+        'Perse',
+        'Indienne',
+        'Renaissance',
+        'Médiévale',
+        'Préhistorique',
+        'Toutes'
+    ];
+    selectedCivilization = this.civilizations[0];
+    userName = 'Visiteur'; // Valeur par défaut
+    islandExpanded = false;
+    
+    // Pour le panneau de commentaires
+    commentsOpen = false;
+    newComment = '';
+    comments: Comment[] = [
+        { 
+            author: 'Marie Dupont', 
+            date: '23 Oct, 14:30', 
+            text: 'La Joconde est vraiment fascinante. J\'adore comment le sourire change selon l\'angle de vue!' 
+        },
+        { 
+            author: 'Pierre Martin', 
+            date: '21 Oct, 09:15', 
+            text: 'Savez-vous que ce tableau a été volé du Louvre en 1911? Il a été retrouvé deux ans plus tard en Italie.' 
+        },
+        { 
+            author: 'Sophie Laurent', 
+            date: '20 Oct, 18:45', 
+            text: 'J\'ai visité le Louvre la semaine dernière. La foule autour de ce tableau est incroyable!' 
+        },
+        { 
+            author: 'Jean Moreau', 
+            date: '19 Oct, 11:22', 
+            text: 'Léonard de Vinci était certainement en avance sur son temps. Ses techniques de peinture étaient révolutionnaires.' 
+        }
+    ];
+    
     private router:Router = inject(Router);
-	private authService: AuthService = inject(AuthService);
+    private authService: AuthService = inject(AuthService);
     // private authStoreService = inject(AuthStoreService);
     private ngZone: NgZone=inject(NgZone)
 
@@ -46,6 +98,27 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     // Mousemove event listener
     private mouseMoveListener: any;
 
+    ngOnInit(): void {
+        // Vérifier si l'utilisateur est connecté
+        this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+            this.isLoggedIn = isLoggedIn;
+            
+            // Si l'utilisateur est connecté, essayer d'obtenir son nom
+            if (isLoggedIn && this.authService.accessToken) {
+                try {
+                    // Essayer de décoder le token pour obtenir le nom de l'utilisateur
+                    const userInfo = this.authService.getInfoUser(this.authService.accessToken);
+                    this.userName = userInfo.name || 'Utilisateur';
+                } catch (error) {
+                    console.error('Erreur lors de la récupération des informations utilisateur', error);
+                    this.userName = 'Utilisateur';
+                }
+            } else {
+                this.userName = 'Visiteur';
+            }
+        });
+    }
+    
     ngAfterViewInit(): void {
         this.button = this.followButtonRef.nativeElement;
         this.container = this.containerRef.nativeElement;
@@ -132,5 +205,34 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
                 this.router.navigate(['/login']);
             }, 500);
         });
+    }
+    
+    // Méthode pour basculer l'état de l'îlot dynamique
+    toggleIsland(): void {
+        this.islandExpanded = !this.islandExpanded;
+    }
+    
+    // Méthode pour ouvrir/fermer le panneau de commentaires
+    toggleComments(): void {
+        this.commentsOpen = !this.commentsOpen;
+        // On n'a plus besoin de gérer le shifting ici car c'est fait par le binding dans le template
+    }
+    
+    // Méthode pour ajouter un nouveau commentaire
+    addComment(): void {
+        if (this.newComment.trim()) {
+            const now = new Date();
+            const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+            const dateStr = now.toLocaleDateString('fr-FR', options) + ', ' + now.getHours() + ':' + 
+                            (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+            
+            this.comments.unshift({
+                author: this.userName,
+                date: dateStr,
+                text: this.newComment.trim()
+            });
+            
+            this.newComment = '';
+        }
     }
 }
