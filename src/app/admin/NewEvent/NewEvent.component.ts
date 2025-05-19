@@ -65,15 +65,12 @@ export class NewEventComponent implements OnInit {
         if (i < this.currentStep) {
           // Étapes terminées
           step.classList.add('step-primary');
-          badge.classList.add('badge-primary');
         } else if (i === this.currentStep) {
           // Étape actuelle
           step.classList.add('step-primary');
-          badge.classList.add('badge-primary');
         } else {
           // Étapes futures
           step.classList.remove('step-primary');
-          badge.classList.remove('badge-primary');
         }
       }
     }
