@@ -12,6 +12,7 @@
         "@angular/platform-browser-dynamic": "^19.2.0",
         "@angular/router": "^19.2.0",
         "@tailwindcss/postcss": "^4.1.7",
+        "@tanstack/angular-store": "^0.7.0",
         "daisyui": "^5.0.35",
         "gsap": "^3.13.0",
         "postcss": "^8.5.3",
@@ -559,6 +560,10 @@
     "@tailwindcss/oxide-win32-x64-msvc": ["@tailwindcss/oxide-win32-x64-msvc@4.1.7", "", { "os": "win32", "cpu": "x64" }, "sha512-rYHGmvoHiLJ8hWucSfSOEmdCBIGZIq7SpkPRSqLsH2Ab2YUNgKeAPT1Fi2cx3+hnYOrAb0jp9cRyode3bBW4mQ=="],
 
     "@tailwindcss/postcss": ["@tailwindcss/postcss@4.1.7", "", { "dependencies": { "@alloc/quick-lru": "^5.2.0", "@tailwindcss/node": "4.1.7", "@tailwindcss/oxide": "4.1.7", "postcss": "^8.4.41", "tailwindcss": "4.1.7" } }, "sha512-88g3qmNZn7jDgrrcp3ZXEQfp9CVox7xjP1HN2TFKI03CltPVd/c61ydn5qJJL8FYunn0OqBaW5HNUga0kmPVvw=="],
+
+    "@tanstack/angular-store": ["@tanstack/angular-store@0.7.0", "", { "dependencies": { "@tanstack/store": "0.7.0", "tslib": "^2.8.1" }, "peerDependencies": { "@angular/common": ">=19.0.0", "@angular/core": ">=19.0.0" } }, "sha512-Ybl3fCZpfubPDQPbhhvpLGHFx2FRwQHv5bi5tluOtlkTZw3gVxuF+rMxVHfvm3CTI418W7VwiRfPz8//8Gxvkw=="],
+
+    "@tanstack/store": ["@tanstack/store@0.7.0", "", {}, "sha512-CNIhdoUsmD2NolYuaIs8VfWM467RK6oIBAW4nPEKZhg1smZ+/CwtCdpURgp7nxSqOaV9oKkzdWD80+bC66F/Jg=="],
 
     "@tufjs/canonical-json": ["@tufjs/canonical-json@2.0.0", "", {}, "sha512-yVtV8zsdo8qFHe+/3kw81dSLyF7D576A5cCFCi4X7B39tWT7SekaEFUnvnWJHz+9qO7qJTah1JbrDjWKqFtdWA=="],
 
