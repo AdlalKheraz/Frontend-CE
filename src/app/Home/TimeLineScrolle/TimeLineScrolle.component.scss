@@ -12,5 +12,10 @@
   gap: 40px;
   & ul{
     margin-left: -1% ;
+    & >li {
+      & > hr{
+        height: 30px;
+      }
+    }
   }
 }

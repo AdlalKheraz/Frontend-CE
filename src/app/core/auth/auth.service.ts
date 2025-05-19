@@ -23,9 +23,6 @@ export class AuthService {
         // Initialiser l'état de connexion au démarrage
         this._isLoggedInSubject.next(!!this.accessToken && !AuthUtils.isTokenExpired(this.accessToken));
         this._authenticated = this._isLoggedInSubject.value;
-        this._isLoggedInSubject.subscribe(d=>{
-            console.log('AuthService isLoggedInSubject:', d);
-        })
     }
 
     // -----------------------------------------------------------------------------------------------------
