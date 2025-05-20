@@ -1,29 +1,348 @@
-<div class="flex h-screen bg-gray-100">
-  <!-- Structure similaire aux autres composants admin -->
-  <div class="w-64 bg-white shadow-md relative">
-    <!-- En-tête sidebar -->
-    <div class="p-4">
-      <div class="flex items-center gap-2 mb-8">
-        <div class="bg-indigo-500 p-2 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <div class="w-64 bg-white shadow-lg">
+    <div class="p-4 flex items-center space-x-2">
+      <div class="w-10 h-10 rounded-lg bg-indigo-500 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+        </svg>
+      </div>
+      <span class="text-xl font-bold">Explorer</span>
+    </div>
+
+    <div class="mt-8">
+      <div class="px-4 py-3">
+        <a href="#" class="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+          </svg>
+          <span>Dashboard</span>
+        </a>
+      </div>
+
+      <div class="px-4 py-3">
+        <a href="#" class="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>Events</span>
+        </a>
+      </div>
+
+      <div class="px-4 py-3 bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500">
+        <a href="#" class="flex items-center space-x-2 text-indigo-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
-        </div>
-        <span class="text-xl font-bold">Explorer</span>
+          <span>Comments</span>
+        </a>
       </div>
-      
-      <!-- Menu de navigation -->
-      <!-- Contenu principal -->
+
+      <div class="px-4 py-3">
+        <a href="#" class="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <span>Users</span>
+        </a>
+      </div>
+
+      <div class="px-4 py-3">
+        <a href="#" class="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>Settings</span>
+        </a>
+      </div>
+
+      <div class="px-4 py-3 mt-auto">
+        <a href="#" class="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Sign Out</span>
+        </a>
+      </div>
     </div>
   </div>
-  
-  <!-- Contenu principal -->
-  <div class="flex-1 p-6 overflow-auto">
-    <h1 class="text-2xl font-bold mb-6">Gestion des commentaires</h1>
-    
-    <!-- Tableau de commentaires -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-      <!-- Implémentation du tableau de commentaires -->
+
+  <!-- Main Content -->
+  <div class="flex-1 overflow-auto">
+    <!-- Top Navigation -->
+    <div class="flex justify-between items-center p-6">
+      <h1 class="text-2xl font-bold">Comments</h1>
+
+      <div class="flex items-center space-x-4">
+        <div class="dropdown dropdown-end">
+          <label tabindex="0" class="btn btn-ghost gap-2 normal-case">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span>Eng (US)</span>
+            <svg width="12px" height="12px" class="fill-current opacity-60" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
+              <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+            </svg>
+          </label>
+          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+            <li><a>English (US)</a></li>
+            <li><a>Français</a></li>
+            <li><a>Español</a></li>
+          </ul>
+        </div>
+
+        <div class="dropdown dropdown-end">
+          <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+            <div class="w-10 rounded-full">
+              <img src="/api/placeholder/40/40" alt="User" />
+            </div>
+          </label>
+          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+            <li><a>Adlal</a></li>
+            <li><a>Admin</a></li>
+            <li><a>Settings</a></li>
+            <li><a>Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 pb-6">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <!-- Pending Comments -->
+        <div class="bg-amber-50 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-3xl font-bold mt-2">5,423</h3>
+          <p class="text-gray-700">Pending</p>
+          <p class="text-xs text-green-600 mt-1">+18% this month</p>
+        </div>
+
+        <!-- Approved Comments -->
+        <div class="bg-green-100 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-3xl font-bold mt-2">1,893</h3>
+          <p class="text-gray-700">Approved Today</p>
+          <p class="text-xs text-red-600 mt-1">-1% this month</p>
+        </div>
+
+        <!-- Rejected Comments -->
+        <div class="bg-red-100 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <div class="w-10 h-10 rounded-full bg-red-200 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-3xl font-bold mt-2">189</h3>
+          <p class="text-gray-700">Rejected Today</p>
+          <div class="mt-1 flex -space-x-2">
+            <div class="w-6 h-6 rounded-full border-2 border-white bg-gray-200"></div>
+            <div class="w-6 h-6 rounded-full border-2 border-white bg-gray-300"></div>
+            <div class="w-6 h-6 rounded-full border-2 border-white bg-gray-400"></div>
+            <div class="w-6 h-6 rounded-full border-2 border-white bg-gray-500"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Table -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-lg font-bold">All Comments</h2>
+            <p class="text-sm text-green-500">Active Members</p>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input type="text" class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search">
+            </div>
+            
+            <div class="dropdown dropdown-end">
+              <label tabindex="0" class="btn btn-ghost btn-sm normal-case">
+                <span>Sort by: </span>
+                <span class="font-semibold">Newest</span>
+                <svg width="12px" height="12px" class="ml-1 fill-current opacity-60" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
+                  <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+                </svg>
+              </label>
+              <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a>Newest</a></li>
+                <li><a>Oldest</a></li>
+                <li><a>Popular</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="table w-full">
+            <thead>
+              <tr>
+                <th class="text-left">User Name</th>
+                <th class="text-left">Event</th>
+                <th class="text-left">Comment</th>
+                <th class="text-left">Date</th>
+                <th class="text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200">
+                <td class="py-4 font-medium">Jane Cooper</td>
+                <td>Mona Lisa</td>
+                <td>Mona lisa te99ers...</td>
+                <td>17 May 2025</td>
+                <td>
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium">Approve</button>
+                    <button class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium">Reject</button>
+                    <button class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium">Details</button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="py-4 font-medium">Floyd Miles</td>
+                <td>Hitler Vs Yacin</td>
+                <td>Hitler itak w07t...</td>
+                <td>17 May 2025</td>
+                <td>
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium">Approve</button>
+                    <button class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium">Reject</button>
+                    <button class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium">Details</button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="py-4 font-medium">Ronald Richards</td>
+                <td>Kherrata 1945</td>
+                <td>Dirgazzen ro7en...</td>
+                <td>17 May 2025</td>
+                <td>
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium">Approve</button>
+                    <button class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium">Reject</button>
+                    <button class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium">Details</button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="py-4 font-medium">Marvin McKinney</td>
+                <td>Mona lisa</td>
+                <td>anda le point...</td>
+                <td>17 May 2025</td>
+                <td>
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium">Approve</button>
+                    <button class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium">Reject</button>
+                    <button class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium">Details</button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="py-4 font-medium">Jerome Bell</td>
+                <td>payment nature</td>
+                <td>cest geniale ce tru...</td>
+                <td>17 May 2025</td>
+                <td>
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium">Approve</button>
+                    <button class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium">Reject</button>
+                    <button class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium">Details</button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="py-4 font-medium">Kathryn Murphy</td>
+                <td>payment nature</td>
+                <td>jaime bien...</td>
+                <td>17 May 2025</td>
+                <td>
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium">Approve</button>
+                    <button class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium">Reject</button>
+                    <button class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium">Details</button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="py-4 font-medium">Jacob Jones</td>
+                <td>payment nature</td>
+                <td>Je recommande...</td>
+                <td>17 May 2025</td>
+                <td>
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium">Approve</button>
+                    <button class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium">Reject</button>
+                    <button class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium">Details</button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-b border-gray-200">
+                <td class="py-4 font-medium">Kristin Watson</td>
+                <td>payment nature</td>
+                <td>a oui tres satisf...</td>
+                <td>17 May 2025</td>
+                <td>
+                  <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium">Approve</button>
+                    <button class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium">Reject</button>
+                    <button class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium">Details</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="flex justify-between items-center mt-4 text-sm">
+          <div class="text-gray-500">
+            Showing data 1 to 8 of 256k entries
+          </div>
+          <div class="join">
+            <button class="join-item btn btn-sm btn-disabled">«</button>
+            <button class="join-item btn btn-sm btn-active">1</button>
+            <button class="join-item btn btn-sm">2</button>
+            <button class="join-item btn btn-sm">3</button>
+            <button class="join-item btn btn-sm">4</button>
+            <button class="join-item btn btn-sm btn-disabled">...</button>
+            <button class="join-item btn btn-sm">40</button>
+            <button class="join-item btn btn-sm">»</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Floating Explorer Logo -->
+  <div class="fixed bottom-5 right-5 bg-indigo-500 w-16 h-16 rounded-xl flex items-center justify-center text-white shadow-lg">
+    <div class="transform rotate-45">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+      </svg>
+    </div>
+  </div>
+  <div class="fixed bottom-7 right-24 font-bold text-gray-800">Explorer</div>
 </div>

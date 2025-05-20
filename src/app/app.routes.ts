@@ -6,6 +6,7 @@ import { DashboardComponent } from './admin/Dashboard/Dashboard.component';
 import { NewEventComponent } from './admin/NewEvent/NewEvent.component';
 import { SignUpComponent } from './auth/SignUp/SignUp.component';
 import { EventsComponent } from './admin/Events/Events.component';
+import { CommentsComponent } from './admin/Comments/Comments.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -17,6 +18,7 @@ export const routes: Routes = [
     children: [
       {path:'dashboard', component: DashboardComponent},
       {path: 'events', component: EventsComponent},
+      {path: 'comments', component: CommentsComponent},
       {path: 'new-event', component: NewEventComponent},
     ]
   },

@@ -1,3 +1,45 @@
 :host {
   display: block;
 }
+
+/* Variables pour les couleurs communes */
+$primary-color: #6c5ce7;
+$success-color: #00b894;
+$danger-color: #d63031;
+$text-color: #333333;
+
+/* Styles pour l'animation des boutons */
+.btn {
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Style pour les avatars groupés */
+.avatar-group {
+  display: flex;
+  
+  .mini-avatar {
+    @apply w-6 h-6 rounded-full border-2 border-white;
+    margin-left: -0.5rem;
+    
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+/* Style pour le logo flottant */
+.floating-logo {
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}
