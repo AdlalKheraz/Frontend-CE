@@ -116,7 +116,7 @@
   cursor: pointer;
   backdrop-filter: blur(8px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  // overflow: hidden;
   
   /* Effet de contour subtil */
   &::before {
@@ -1024,7 +1024,7 @@
 /* Menu utilisateur - Positionné sous le nom d'utilisateur */
 .user-menu {
   position: absolute;
-  top: 100%;
+  top: 35px;
   left: 0;
   z-index: 999;
 }
