@@ -1,101 +1,32 @@
-<div class="welcome-message">
-    <ul class="timeline timeline-vertical">
-        <li>
-            <div class="timeline-middle">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-5 w-5 text-primary"
-            >
-                <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                clip-rule="evenodd"
-                />
-            </svg>
+<div class="timeline-container" #timelineContainer (wheel)="onScroll($event)">
+    <!-- Sidebar avec les années -->
+    <div class="timeline-years">
+        <div *ngFor="let event of filteredEvents; let i = index" 
+             class="year-marker" 
+             [class.active]="event.active"
+             (click)="onYearClick(i)">
+            <div class="year-dot"></div>
+            <div class="year-label">{{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}</div>
+        </div>
+    </div>
+    
+    <!-- Contenu principal avec l'événement actif -->
+    <div class="timeline-content">
+        <div *ngFor="let event of filteredEvents; let i = index"
+             class="event-section"
+             [class.active]="event.active"
+             [style.--event-background]="'url(' + event.image + ')'">
+            
+            <div *ngIf="event.active" class="event-container">
+                <h2 class="event-title">{{ event.title }}</h2>
+                <div class="event-year">{{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}</div>
+                <p class="event-description">{{ event.description }}</p>
+                
+                <!-- L'image est cachée car utilisée comme fond -->
+                <div class="event-image" style="display: none;">
+                    <img [src]="event.image" alt="{{ event.title }}">
+                </div>
             </div>
-            <div class="timeline-end text-primary-content">1914</div>
-            <hr />
-        </li>
-        <li>
-            <hr />
-            <div class="timeline-middle">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-5 w-5 text-primary"
-            >
-                <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                clip-rule="evenodd"
-                />
-            </svg>
-            </div>
-            <div class="timeline-end text-primary-content">1918</div>
-            <hr />
-        </li>
-        <li>
-            <hr />
-            <div class="timeline-middle">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-5 w-5 text-primary"
-            >
-                <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                clip-rule="evenodd"
-                />
-            </svg>
-            </div>
-            <div class="timeline-end text-primary-content">1939</div>
-            <hr />
-        </li>
-        <li>
-            <hr />
-            <div class="timeline-middle">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-5 w-5 text-primary"
-            >
-                <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                clip-rule="evenodd"
-                />
-            </svg>
-            </div>
-            <div class="timeline-end text-primary-content">1945</div>
-            <hr />
-        </li>
-        <li>
-            <hr />
-            <div class="timeline-middle">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-5 w-5 text-primary"
-            >
-                <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                clip-rule="evenodd"
-                />
-            </svg>
-            </div>
-            <div class="timeline-end text-primary-content">1962</div>
-        </li>
-    </ul>
-    <div class="content">
-        <h2 class="text-4xl font-bold text-white mb-2">La Joconde</h2>
-        <p class="text-xs text-white w-1/3">La Joconde est le portrait d'une jeune femme, sur fond d'un  paysage montagneux aux horizons lointains et brumeux. Elle est disposée  de trois quarts et représentée jusqu'à la taille, bras et mains compris, regardant le spectateur, ce qui est relativement nouveau à l'époque et  rompt avec les portraits jusque-là répandus, qui coupent le buste à  hauteur des épaules ou de la poitrine et sont entièrement de profil</p>
+        </div>
     </div>
 </div>

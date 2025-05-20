@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
 import { Subscription } from 'rxjs';
 // import { AuthStoreService } from '@core/auth/auth.store';
+import { ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
 
@@ -12,6 +13,20 @@ interface Comment {
     author: string;
     date: string;
     text: string;
+}
+
+// Interface pour les paramètres de recherche
+interface SearchParams {
+    event?: string;
+    startYear?: number;
+    endYear?: number;
+    civilization?: string;
+    eventTypes?: {
+        cultural: boolean;
+        political: boolean;
+        military: boolean;
+        scientific: boolean;
+    };
 }
 
 @Component({
@@ -25,6 +40,7 @@ interface Comment {
 export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     @ViewChild('followButton') followButtonRef!: ElementRef<HTMLButtonElement>;
     @ViewChild('container') containerRef!: ElementRef<HTMLDivElement>;
+    @ViewChild(TimeLineScrolleComponent) timelineComponent!: any;
 
     isLoggedIn = false;
     private _subscription: Subscription = new Subscription();
@@ -83,6 +99,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     private authService: AuthService = inject(AuthService);
     // private authStoreService = inject(AuthStoreService);
     private ngZone: NgZone=inject(NgZone)
+    private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
     private button!: HTMLButtonElement;
     private container!: HTMLDivElement;
@@ -103,6 +120,25 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     
     // Mousemove event listener
     private mouseMoveListener: any;
+
+    // Variable pour suivre le délai d'animation
+    private islandAnimationTimeout: any = null;
+
+    // Variables pour la recherche avancée
+    searchOpen = false;
+    searchEvent = '';
+    searchStartYear: number | null = null;
+    searchEndYear: number | null = null;
+    searchCivilization = '';
+    searchEventTypes = {
+        cultural: false,
+        political: false,
+        military: false,
+        scientific: false
+    };
+    activeSearchParams: SearchParams | null = null;
+
+    userMenuOpen = false;
 
     ngOnInit(): void {
         // Initialiser les civilisations à afficher (3 max)
@@ -240,11 +276,26 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             }
         }
         this.displayedCivilizations = updatedCivs;
+        
+        // Transmettre la civilisation sélectionnée au composant Timeline
+        if (this.timelineComponent) {
+            this.timelineComponent.selectedCivilization = civ;
+        }
     }
     
     // Méthode pour ouvrir/fermer le panneau des civilisations
     toggleCivilizationsPanel(): void {
+        // Fermer les autres panneaux
+        this.userMenuOpen = false;
+        this.searchOpen = false;
+        
+        // Inverser l'état du panneau des civilisations
         this.civilizationsPanelOpen = !this.civilizationsPanelOpen;
+        
+        // Garder l'island ouverte si un panneau est ouvert
+        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        
+        this.cdr.markForCheck();
     }
     
     // Méthode pour basculer l'état de l'îlot dynamique
@@ -261,10 +312,15 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     toggleComments(): void {
         this.commentsOpen = !this.commentsOpen;
         
-        // Si on ouvre les commentaires, on s'assure que l'island est fermée
+        // Si on ouvre les commentaires, on ferme tout le reste
         if (this.commentsOpen) {
             this.islandExpanded = false;
+            this.civilizationsPanelOpen = false;
+            this.searchOpen = false;
+            this.userMenuOpen = false;
         }
+        
+        this.cdr.markForCheck();
     }
     
     // Méthode pour ajouter un nouveau commentaire
@@ -282,6 +338,200 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             });
             
             this.newComment = '';
+        }
+    }
+
+    // Méthode pour afficher l'îlot dynamique au survol
+    showIsland(): void {
+        // Annuler tout timeout de fermeture en cours
+        if (this.islandAnimationTimeout) {
+            clearTimeout(this.islandAnimationTimeout);
+            this.islandAnimationTimeout = null;
+        }
+        
+        // Animation fluide pour l'ouverture
+        if (!this.islandExpanded) {
+            // Utiliser requestAnimationFrame pour que la transition démarre au bon moment
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    this.islandExpanded = true;
+                    this.cdr.markForCheck();
+                });
+            });
+        }
+    }
+
+    // Créer une méthode générique pour fermer un popup avec animation
+    private closeWithAnimation(callback: () => void): void {
+        // Ajouter une classe d'animation de sortie
+        document.querySelectorAll('.panel-content, .user-menu-content').forEach(el => {
+            el.classList.add('panel-closing');
+        });
+        
+        // Attendre la fin de l'animation avant de réellement fermer le popup
+        setTimeout(() => {
+            callback();
+            // Retirer la classe d'animation
+            document.querySelectorAll('.panel-content, .user-menu-content').forEach(el => {
+                el.classList.remove('panel-closing');
+            });
+        }, 200);
+    }
+
+    // Méthode pour cacher l'îlot dynamique à la fin du survol
+    hideIsland(): void {
+        // Ne pas fermer si un des panneaux est ouvert
+        if (this.civilizationsPanelOpen || this.searchOpen || this.userMenuOpen) return;
+        
+        // Petit délai avant de fermer pour éviter la fermeture accidentelle
+        this.islandAnimationTimeout = setTimeout(() => {
+            this.islandExpanded = false;
+            this.cdr.markForCheck();
+            this.islandAnimationTimeout = null;
+        }, 150);
+    }
+
+    // Méthode pour maintenir l'îlot dynamique ouvert (utile quand on interagit avec le panneau des civilisations)
+    keepIslandOpen(): void {
+        this.islandExpanded = true;
+        
+        // Annuler tout délai de fermeture en cours
+        if (this.islandAnimationTimeout) {
+            clearTimeout(this.islandAnimationTimeout);
+            this.islandAnimationTimeout = null;
+        }
+        
+        this.cdr.markForCheck();
+    }
+
+    // Méthode pour ouvrir/fermer le panneau de recherche
+    toggleSearch(): void {
+        // Fermer les autres panneaux
+        this.userMenuOpen = false;
+        this.civilizationsPanelOpen = false;
+        
+        // Inverser l'état du panneau de recherche
+        this.searchOpen = !this.searchOpen;
+        
+        // Garder l'island ouverte si un panneau est ouvert
+        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        
+        this.cdr.markForCheck();
+    }
+    
+    // Méthode pour réinitialiser la recherche
+    resetSearch(): void {
+        this.searchEvent = '';
+        this.searchStartYear = null;
+        this.searchEndYear = null;
+        this.searchCivilization = '';
+        this.searchEventTypes = {
+            cultural: false,
+            political: false,
+            military: false,
+            scientific: false
+        };
+        
+        this.cdr.markForCheck();
+    }
+    
+    // Méthode pour soumettre la recherche
+    submitSearch(): void {
+        // Créer un objet avec les paramètres de recherche
+        this.activeSearchParams = {
+            event: this.searchEvent || undefined,
+            startYear: this.searchStartYear || undefined,
+            endYear: this.searchEndYear || undefined,
+            civilization: this.searchCivilization || undefined,
+            eventTypes: { ...this.searchEventTypes }
+        };
+        
+        // Fermer le panneau de recherche
+        this.searchOpen = false;
+        this.islandExpanded = false;
+        
+        // Informer l'utilisateur que la recherche a été appliquée
+        console.log('Recherche appliquée:', this.activeSearchParams);
+        
+        this.cdr.markForCheck();
+    }
+
+    // Méthode pour ouvrir/fermer le menu utilisateur
+    toggleUserMenu(): void {
+        // Fermer les autres panneaux
+        this.civilizationsPanelOpen = false;
+        this.searchOpen = false;
+        
+        // Inverser l'état du menu utilisateur
+        this.userMenuOpen = !this.userMenuOpen;
+        
+        // Garder l'island ouverte si un panneau est ouvert
+        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        
+        this.cdr.markForCheck();
+    }
+
+    // Méthode pour afficher le panneau des civilisations au survol
+    showCivilizationsPanel(): void {
+        // Fermer les autres popups
+        this.userMenuOpen = false;
+        this.searchOpen = false;
+        
+        // Ouvrir le panneau des civilisations
+        this.civilizationsPanelOpen = true;
+        this.islandExpanded = true;
+        this.cdr.markForCheck();
+    }
+
+    // Méthode pour cacher le panneau des civilisations
+    hideCivilizationsPanel(): void {
+        // Animation de sortie puis fermeture
+        this.closeWithAnimation(() => {
+            this.civilizationsPanelOpen = false;
+            this.cdr.markForCheck();
+        });
+    }
+
+    // Méthode pour afficher la recherche au survol
+    showSearch(): void {
+        // Fermer les autres popups
+        this.userMenuOpen = false;
+        this.civilizationsPanelOpen = false;
+        
+        // Ouvrir le panneau de recherche
+        this.searchOpen = true;
+        this.islandExpanded = true;
+        this.cdr.markForCheck();
+    }
+
+    // Méthode pour cacher la recherche
+    hideSearch(): void {
+        // Animation de sortie puis fermeture
+        this.closeWithAnimation(() => {
+            this.searchOpen = false;
+            this.cdr.markForCheck();
+        });
+    }
+
+    // Méthode pour fermer tous les panneaux
+    closeAllPanels(): void {
+        this.civilizationsPanelOpen = false;
+        this.searchOpen = false;
+        this.userMenuOpen = false;
+        
+        // Si aucun panneau n'est ouvert, on peut fermer l'island
+        if (!this.civilizationsPanelOpen && !this.userMenuOpen && !this.searchOpen) {
+            this.islandExpanded = false;
+        }
+        
+        this.cdr.markForCheck();
+    }
+
+    // Méthode pour fermer seulement les commentaires
+    closeComments(): void {
+        if (this.commentsOpen) {
+            this.commentsOpen = false;
+            this.cdr.markForCheck();
         }
     }
 }
