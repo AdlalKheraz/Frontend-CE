@@ -1,28 +1,70 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { AuthUtils } from 'app/core/auth/auth.utils';
-// import { UserService } from 'app/core/user/user.service';
 import { environment } from 'environments/environment';
 import { BehaviorSubject, catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
-import { AuthStoreService } from './auth.store';
 
-type userToken = { name: string; email: string; given_name: string; family_name: string; sid: string };
+export interface User {
+  id?: string;
+  name?: string;
+  email: string;
+  given_name?: string;
+  family_name?: string;
+  sid?: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  token_type: string;
+}
+
+export enum AuthLoadingState {
+  INIT = 'INIT',
+  LOADING = 'LOADING',
+  LOADED = 'LOADED',
+  ERROR = 'ERROR'
+}
+
+export interface AuthState {
+  loading: AuthLoadingState;
+  user: User | null;
+  error?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private _authenticated: boolean = false;
     private _httpClient = inject(HttpClient);
-    // private authStoreService = inject(AuthStoreService);
-    // private _userService = inject(UserService);
     
-    // Ajouter un BehaviorSubject pour l'état de connexion
+    // BehaviorSubject pour l'état de connexion
     private _isLoggedInSubject = new BehaviorSubject<boolean>(false);
     public isLoggedIn$ = this._isLoggedInSubject.asObservable();
+    
+    // BehaviorSubject pour l'état d'authentification complet
+    private _authStateSubject = new BehaviorSubject<AuthState>({
+        loading: AuthLoadingState.INIT,
+        user: null
+    });
+    public authState$ = this._authStateSubject.asObservable();
 
     constructor() {
         // Initialiser l'état de connexion au démarrage
-        this._isLoggedInSubject.next(!!this.accessToken && !AuthUtils.isTokenExpired(this.accessToken));
-        this._authenticated = this._isLoggedInSubject.value;
+        const hasToken = !!this.accessToken;
+        const isTokenValid = hasToken && !AuthUtils.isTokenExpired(this.accessToken);
+        
+        this._isLoggedInSubject.next(isTokenValid);
+        this._authenticated = isTokenValid;
+        
+        // Si un token valide existe, essayer de récupérer les informations utilisateur
+        if (isTokenValid) {
+            const userInfo = this.getInfoUser(this.accessToken);
+            this._authStateSubject.next({
+                loading: AuthLoadingState.LOADED,
+                user: userInfo
+            });
+        }
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -32,7 +74,6 @@ export class AuthService {
     /**
      * Setter & getter for access token
      */
-
     set accessToken(token: string) {
         localStorage.setItem('accessToken', token);
     }
@@ -40,6 +81,7 @@ export class AuthService {
     get accessToken(): string {
         return localStorage.getItem('accessToken') ?? '';
     }
+
     set refreshToken(token: string) {
         localStorage.setItem('refreshToken', token);
     }
@@ -54,28 +96,17 @@ export class AuthService {
     get isAuthenticated(): boolean {
         return this._authenticated;
     }
+    
+    /**
+     * Getter pour l'utilisateur actuel
+     */
+    get currentUser(): User | null {
+        return this._authStateSubject.value.user;
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Forgot password
-     *
-     * @param username
-     */
-    // forgotPassword(username: string): Observable<any> {
-    //     return this._httpClient.put(environment.ENDPOINT.forgotPassword(username), null);
-    // }
-
-    /**
-     * Reset password
-     *
-     * @param password
-     */
-    // resetPassword(): Observable<any> {
-    //     return this._httpClient.put(environment.ENDPOINT.resetPassword(), null);
-    // }
 
     /**
      * Sign in
@@ -83,185 +114,187 @@ export class AuthService {
      * @param credentials
      */
     signIn(credentials: { email: string; password: string }): Observable<any> {
-        // Throw error, if the user is already logged in
-        // if (this._authenticated) {
-        //     return throwError('User is already logged in.');
-        // }
-        // const urlencoded = new URLSearchParams();
-        // urlencoded.append('client_id', 'web_app');
-        // urlencoded.append('username', credentials.email);
-        // urlencoded.append('password', credentials.password);
-        // urlencoded.append('grant_type', 'password');
-        // return this._httpClient.post('api/auth/sign-in', credentials).pipe(
-        this._authenticated = true;
-                    // Mettre à jour le BehaviorSubject
-        // this.authStoreService.setLogged(true);
-        this._isLoggedInSubject.next(true);
-        // return this._httpClient
-        //     .post(environment.keyclock.login(), urlencoded, {
-        //         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        //     })
-        //     .pipe(
-        //         switchMap((response: any) => {
-        //             // Store the access token in the local storage
-        //             this.accessToken = response.access_token;
-        //             this.refreshToken = response.refresh_token;
-        //             // Set the authenticated flag to true
-        //             this._authenticated = true;
-        //             // Mettre à jour le BehaviorSubject
-        //             this._isLoggedInSubject.next(true);
+        // Mettre à jour l'état de chargement
+        this._authStateSubject.next({
+            loading: AuthLoadingState.LOADING,
+            user: null
+        });
 
-        //             // Return a new observable with the response
-        //             return of(response);
-        //         }),
-        //     );
-        return of({});
+        // Appel API au endpoint login
+        return this._httpClient.post<AuthResponse>(
+            environment.ENDPOINT.login(), 
+            credentials
+        ).pipe(
+            switchMap((response: AuthResponse) => {
+                // Stocker les tokens
+                this.accessToken = response.access_token;
+                this.refreshToken = response.refresh_token;
+                
+                // Décoder les informations utilisateur
+                const userInfo = this.getInfoUser(response.access_token);
+                
+                // Mettre à jour les états
+                this._authenticated = true;
+                this._isLoggedInSubject.next(true);
+                this._authStateSubject.next({
+                    loading: AuthLoadingState.LOADED,
+                    user: userInfo
+                });
+
+                return of(response);
+            }),
+            catchError(error => {
+                // Mettre à jour l'état en cas d'erreur
+                this._authStateSubject.next({
+                    loading: AuthLoadingState.ERROR,
+                    user: null,
+                    error: error.error?.message || 'Erreur lors de la connexion'
+                });
+                return throwError(() => error);
+            })
+        );
     }
+
     /**
      * Sign in using the access token
      */
-    signInUsingToken(): Observable<any> {
-        // Sign in using the token
+    signInUsingToken(): Observable<boolean> {
+        // Si pas de refresh token, impossible de rafraîchir la session
+        if (!this.refreshToken) {
+            return of(false);
+        }
+
+        // Paramètres pour le refresh token
         const urlencoded = new URLSearchParams();
-        urlencoded.append('client_id', 'web_app');
-        urlencoded.append('refresh_token', this.refreshToken);
         urlencoded.append('grant_type', 'refresh_token');
-        // return this._httpClient
-        //     .post(environment.keyclock.login(), urlencoded, {
-        //         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        //     })
-        //     .pipe(
-        //         catchError(() => {
-        //             // Mettre à jour l'état en cas d'échec
-        //             this._authenticated = false;
-        //             this._isLoggedInSubject.next(false);
-        //             // Return false
-        //             return of(false);
-        //         }),
-        //         switchMap((response: any) => {
-        //             if (!response) {
-        //                 return of(false);
-        //             }
-        //             // Replace the access token with the new one if it's available on
-        //             // the response object.
-        //             this.accessToken = response.access_token;
-        //             this.refreshToken = response.refresh_token;
-        //             const info = this.getInfoUser(response.access_token);
-        //             // Set the authenticated flag to true
-        //             this._authenticated = true;
-        //             // Mettre à jour le BehaviorSubject
-        //             this._isLoggedInSubject.next(true);
+        urlencoded.append('refresh_token', this.refreshToken);
+        urlencoded.append('client_id', 'chrono_explorer_client');
 
+        return this._httpClient.post<AuthResponse>(
+            environment.ENDPOINT.login(), 
+            urlencoded.toString(),
+            {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }
+        ).pipe(
+            switchMap((response: AuthResponse) => {
+                // Stocker les nouveaux tokens
+                this.accessToken = response.access_token;
+                this.refreshToken = response.refresh_token;
+                
+                // Décoder les informations utilisateur
+                const userInfo = this.getInfoUser(response.access_token);
+                
+                // Mettre à jour les états
+                this._authenticated = true;
+                this._isLoggedInSubject.next(true);
+                this._authStateSubject.next({
+                    loading: AuthLoadingState.LOADED,
+                    user: userInfo
+                });
 
-        //             // Return true
-        //             return of(true);
-        //         }),
-        //     );
-        return of(true);
+                return of(true);
+            }),
+            catchError(() => {
+                // En cas d'échec, effacer les tokens et déconnecter
+                this.signOut();
+                return of(false);
+            })
+        );
     }
 
     /**
      * Sign out
      */
-    signOut(): Observable<any> {
-        // Remove the access token from the local storage
+    signOut(): Observable<boolean> {
+        // Mettre à jour l'état de chargement
+        this._authStateSubject.next({
+            loading: AuthLoadingState.LOADING,
+            user: this._authStateSubject.value.user
+        });
+
+        // Supprimer les tokens
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
 
-        // Set the authenticated flag to false				
-        
-        setTimeout(() => {
+        // Mettre à jour les états
+        this._authenticated = false;
+        this._isLoggedInSubject.next(false);
+        this._authStateSubject.next({
+            loading: AuthLoadingState.LOADED,
+            user: null
+        });
 
-            this._authenticated = false;
-        // this.authStoreService.setLogged(false);
-        // Mettre à jour le BehaviorSubject
-            this._isLoggedInSubject.next(false);
-        }, 1000);
-
-        // Return the observable
         return of(true);
     }
 
     /**
      * Sign up
      *
-     * @param user
+     * @param userData
      */
-    signUp(user: { name: string; email: string; password: string; company: string }): Observable<any> {
-        // return this._httpClient.post('api/auth/sign-up', user);
-        const m_user = {
-            'attributes': {
-                'attribute_key': 'test_value',
-            },
-            'credentials': [
-                {
-                    'temporary': false,
-                    'type': 'password',
-                    'value': user.password,
-                },
-            ],
-            'username': 'test_admin',
-            'firstName': user.name,
-            'lastName': user.name,
-            'email': user.email,
-            'emailVerified': false,
-            'enabled': true,
-        };
-        console.log(m_user);
-        // return this._httpClient.post(environment.ENDPOINT.inscription(), m_user);
-        return this._httpClient.post('api/auth/sign-up', m_user);
-    }
-
-    /**
-     * Unlock session
-     *
-     * @param credentials
-     */
-    unlockSession(credentials: { email: string; password: string }): Observable<any> {
-        return this._httpClient.post('api/auth/unlock-session', credentials);
+    signUp(userData: { email: string; password: string; name?: string }): Observable<any> {
+        return this._httpClient.post(
+            environment.ENDPOINT.register(),
+            userData
+        ).pipe(
+            catchError(error => throwError(() => error))
+        );
     }
 
     /**
      * Check the authentication status
      */
     check(): Observable<boolean> {
-        // Check if the user is logged in
+        // Si déjà authentifié
         if (this._authenticated) {
-            return  of(true);
+            return of(true);
         }
-        // Check the access token availability
-        // if (!this.accessToken) {
-        //     this._isLoggedInSubject.next(false);
-        //     return of(false);
-        // }
 
-        // // Check the access token expire date
-        // if (AuthUtils.isTokenExpired(this.accessToken)) {
-        //     this._isLoggedInSubject.next(false);
-        //     return of(false);
-        // }
+        // Si pas de token
+        if (!this.accessToken) {
+            return of(false);
+        }
 
-        // If the access token exists, and it didn't expire, sign in using it
-        // return this.signInUsingToken();
-        return of(!!this.accessToken);
+        // Si token expiré
+        if (AuthUtils.isTokenExpired(this.accessToken)) {
+            // Essayer de rafraîchir avec le refresh token
+            return this.signInUsingToken();
+        }
+
+        // Token valide, récupérer les infos utilisateur
+        const userInfo = this.getInfoUser(this.accessToken);
+        this._authenticated = true;
+        this._isLoggedInSubject.next(true);
+        this._authStateSubject.next({
+            loading: AuthLoadingState.LOADED,
+            user: userInfo
+        });
+        
+        return of(true);
     }
     
     /**
      * Obtenir les informations de l'utilisateur à partir du token
      */
-    getInfoUser(token: string): userToken {
-        // Implémentez cette méthode si elle n'existe pas déjà
+    getInfoUser(token: string): User {
         const tokenParts = token.split('.');
         if (tokenParts.length !== 3) {
-            return {} as userToken;
+            return {} as User;
         }
         
         try {
             const tokenPayload = JSON.parse(atob(tokenParts[1]));
-            return tokenPayload as userToken;
+            return {
+                email: tokenPayload.email || '',
+                name: tokenPayload.name || '',
+                given_name: tokenPayload.given_name,
+                family_name: tokenPayload.family_name,
+                sid: tokenPayload.sid
+            };
         } catch (error) {
             console.error('Erreur lors du décodage du token', error);
-            return {} as userToken;
+            return {} as User;
         }
     }
 }
