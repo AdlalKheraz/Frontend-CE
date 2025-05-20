@@ -8,55 +8,69 @@
             <div class="island-text" *ngIf="islandExpanded">
                 <!-- Nom utilisateur avec avatar -->
                 <div class="panel-trigger-container">
-                    <div class="user-info">
-                        <span class="user-avatar"></span>
-                        <span>{{ userName }}</span>
-                    </div>
-                    
+                <div class="civ-trigger user-trigger" (click)="toggleUserMenu()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>{{ userName }}</span>
+                </div>
+
                     <!-- Menu utilisateur -->
-                    <div class="user-menu">
-                        <div class="user-menu-content">
-                            <div class="menu-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    <div class="user-menu-content island-dropdown" *ngIf="userMenuOpen">
+                        <div class="panel-content simplified">
+                            <a href="#" class="menu-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
-                                <span>Paramètres</span>
-                            </div>
-                            <div class="menu-item logout" (click)="logout()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <span>Profil</span>
+                            </a>
+                            <a href="#" class="menu-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                <span>Mes favoris</span>
+                            </a>
+                            <a href="#" class="menu-item logout-item" (click)="logout()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                     <polyline points="16 17 21 12 16 7"></polyline>
                                     <line x1="21" y1="12" x2="9" y2="12"></line>
                                 </svg>
                                 <span>Déconnexion</span>
-                            </div>
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Actions: Civilisations et Recherche -->
                 <div class="island-actions">
-                    <!-- Sélecteur de civilisations en boutons -->
-                    <div class="civilization-buttons">
-                        <button 
-                            *ngFor="let civ of displayedCivilizations" 
-                            class="civ-btn" 
-                            [class.active]="selectedCivilization === civ"
-                            (click)="selectCivilization(civ)">
-                            {{ civ }}
-                        </button>
-                        <button 
-                            class="civ-btn more-btn" 
-                            *ngIf="showMoreCivilizations"
-                            (mouseenter)="showCivilizationsPanel()"
-                            (mouseleave)="hideCivilizationsPanel()">
-                            ...
-                        </button>
+                    <!-- Élément unique pour les civilisations -->
+                    <div class="panel-trigger-container civ-container">
+                        <div class="civ-trigger" (click)="toggleCivilizationsPanel()">
+                            <span>{{ selectedCivilization }}</span>
+                        </div>
+                        
+                        <!-- Panel des civilisations -->
+                        <div class="civilizations-panel island-dropdown" *ngIf="civilizationsPanelOpen">
+                            <div class="panel-content simplified">
+                                <div class="civ-grid">
+                                    <button 
+                                        *ngFor="let civ of civilizations" 
+                                        class="civ-grid-btn"
+                                        [class.active]="selectedCivilization === civ"
+                                        (click)="selectCivilization(civ); hideCivilizationsPanel()">
+                                        {{ civ }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Bouton de recherche -->
-                    <button class="island-search-btn" (mouseenter)="showSearch()" (mouseleave)="hideSearch()">
+                    <button class="island-search-btn" (click)="toggleSearch()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -75,48 +89,13 @@
     </div>
 
     <!-- Overlay semi-transparent pour les pop-ups -->
-    <div class="popups-overlay" *ngIf="civilizationsPanelOpen || searchOpen" (click)="closeAllPanels()"></div>
+    <div class="popups-overlay" *ngIf="civilizationsPanelOpen || searchOpen || userMenuOpen" (click)="closeAllPanels()"></div>
 
-    <!-- Panel civilisations (s'affiche au survol sur "...") -->
-    <div class="civilizations-panel" *ngIf="civilizationsPanelOpen" (mouseenter)="showCivilizationsPanel()" (mouseleave)="hideCivilizationsPanel()">
-        <div class="panel-content" (click)="$event.stopPropagation()">
-            <div class="panel-header">
-                <h4>Civilisations</h4>
-                <button class="close-panel-btn" (click)="toggleCivilizationsPanel()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="civ-grid">
-                <button 
-                    *ngFor="let civ of civilizations" 
-                    class="civ-grid-btn"
-                    [class.active]="selectedCivilization === civ"
-                    (click)="selectCivilization(civ); toggleCivilizationsPanel()">
-                    {{ civ }}
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Panel de recherche avancée (s'affiche au survol du bouton recherche) -->
-    <div class="search-panel" *ngIf="searchOpen" (mouseenter)="showSearch()" (mouseleave)="hideSearch()">
-        <div class="panel-content search-content" (click)="$event.stopPropagation()">
-            <div class="panel-header">
-                <h4>Recherche Avancée</h4>
-                <button class="close-panel-btn" (click)="toggleSearch()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-            
+    <!-- Panel de recherche avancée (s'affiche au clic sur le bouton recherche) -->
+    <div class="search-panel" *ngIf="searchOpen">
+        <div class="panel-content simplified search-content" (click)="$event.stopPropagation()">
             <div class="search-form">
                 <div class="search-field">
-                    <label>Événement</label>
                     <input 
                         type="text" 
                         [(ngModel)]="searchEvent" 
@@ -125,7 +104,7 @@
                 </div>
                 
                 <div class="search-field">
-                    <label>Période</label>
+
                     <div class="period-inputs">
                         <input 
                             type="number" 
@@ -142,7 +121,6 @@
                 </div>
                 
                 <div class="search-field">
-                    <label>Civilisation</label>
                     <select [(ngModel)]="searchCivilization">
                         <option value="">Toutes les civilisations</option>
                         <option *ngFor="let civ of civilizations" [value]="civ">{{ civ }}</option>
@@ -150,7 +128,6 @@
                 </div>
                 
                 <div class="search-field">
-                    <label>Type d'événement</label>
                     <div class="event-types">
                         <label class="checkbox-label">
                             <input type="checkbox" [(ngModel)]="searchEventTypes.cultural">

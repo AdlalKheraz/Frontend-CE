@@ -285,7 +285,17 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     
     // Méthode pour ouvrir/fermer le panneau des civilisations
     toggleCivilizationsPanel(): void {
+        // Fermer les autres panneaux
+        this.userMenuOpen = false;
+        this.searchOpen = false;
+        
+        // Inverser l'état du panneau des civilisations
         this.civilizationsPanelOpen = !this.civilizationsPanelOpen;
+        
+        // Garder l'island ouverte si un panneau est ouvert
+        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        
+        this.cdr.markForCheck();
     }
     
     // Méthode pour basculer l'état de l'îlot dynamique
@@ -302,10 +312,15 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     toggleComments(): void {
         this.commentsOpen = !this.commentsOpen;
         
-        // Si on ouvre les commentaires, on s'assure que l'island est fermée
+        // Si on ouvre les commentaires, on ferme tout le reste
         if (this.commentsOpen) {
             this.islandExpanded = false;
+            this.civilizationsPanelOpen = false;
+            this.searchOpen = false;
+            this.userMenuOpen = false;
         }
+        
+        this.cdr.markForCheck();
     }
     
     // Méthode pour ajouter un nouveau commentaire
@@ -346,18 +361,34 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
     }
 
+    // Créer une méthode générique pour fermer un popup avec animation
+    private closeWithAnimation(callback: () => void): void {
+        // Ajouter une classe d'animation de sortie
+        document.querySelectorAll('.panel-content, .user-menu-content').forEach(el => {
+            el.classList.add('panel-closing');
+        });
+        
+        // Attendre la fin de l'animation avant de réellement fermer le popup
+        setTimeout(() => {
+            callback();
+            // Retirer la classe d'animation
+            document.querySelectorAll('.panel-content, .user-menu-content').forEach(el => {
+                el.classList.remove('panel-closing');
+            });
+        }, 200);
+    }
+
     // Méthode pour cacher l'îlot dynamique à la fin du survol
     hideIsland(): void {
-        // Ne pas fermer si le panneau des civilisations est ouvert
-        if (this.civilizationsPanelOpen) return;
+        // Ne pas fermer si un des panneaux est ouvert
+        if (this.civilizationsPanelOpen || this.searchOpen || this.userMenuOpen) return;
         
         // Petit délai avant de fermer pour éviter la fermeture accidentelle
-        // lors d'un mouvement rapide de souris
         this.islandAnimationTimeout = setTimeout(() => {
             this.islandExpanded = false;
             this.cdr.markForCheck();
             this.islandAnimationTimeout = null;
-        }, 100);
+        }, 150);
     }
 
     // Méthode pour maintenir l'îlot dynamique ouvert (utile quand on interagit avec le panneau des civilisations)
@@ -375,12 +406,15 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Méthode pour ouvrir/fermer le panneau de recherche
     toggleSearch(): void {
+        // Fermer les autres panneaux
+        this.userMenuOpen = false;
+        this.civilizationsPanelOpen = false;
+        
+        // Inverser l'état du panneau de recherche
         this.searchOpen = !this.searchOpen;
         
-        // Si on ferme la recherche, on ferme aussi la dynamic island
-        if (!this.searchOpen) {
-            this.islandExpanded = false;
-        }
+        // Garder l'island ouverte si un panneau est ouvert
+        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
         
         this.cdr.markForCheck();
     }
@@ -422,51 +456,61 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cdr.markForCheck();
     }
 
-    // Méthode pour afficher le menu utilisateur
-    showUserMenu(): void {
-        this.userMenuOpen = true;
-        this.islandExpanded = true;
-        this.cdr.markForCheck();
-    }
-
-    // Méthode pour cacher le menu utilisateur
-    hideUserMenu(): void {
-        this.userMenuOpen = false;
+    // Méthode pour ouvrir/fermer le menu utilisateur
+    toggleUserMenu(): void {
+        // Fermer les autres panneaux
+        this.civilizationsPanelOpen = false;
+        this.searchOpen = false;
+        
+        // Inverser l'état du menu utilisateur
+        this.userMenuOpen = !this.userMenuOpen;
+        
+        // Garder l'island ouverte si un panneau est ouvert
+        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        
         this.cdr.markForCheck();
     }
 
     // Méthode pour afficher le panneau des civilisations au survol
     showCivilizationsPanel(): void {
+        // Fermer les autres popups
+        this.userMenuOpen = false;
+        this.searchOpen = false;
+        
+        // Ouvrir le panneau des civilisations
         this.civilizationsPanelOpen = true;
         this.islandExpanded = true;
-        clearTimeout(this.islandAnimationTimeout);
         this.cdr.markForCheck();
     }
 
     // Méthode pour cacher le panneau des civilisations
     hideCivilizationsPanel(): void {
-        // Petit délai pour éviter la fermeture accidentelle lors des mouvements de souris
-        setTimeout(() => {
+        // Animation de sortie puis fermeture
+        this.closeWithAnimation(() => {
             this.civilizationsPanelOpen = false;
             this.cdr.markForCheck();
-        }, 200);
+        });
     }
 
     // Méthode pour afficher la recherche au survol
     showSearch(): void {
+        // Fermer les autres popups
+        this.userMenuOpen = false;
+        this.civilizationsPanelOpen = false;
+        
+        // Ouvrir le panneau de recherche
         this.searchOpen = true;
         this.islandExpanded = true;
-        clearTimeout(this.islandAnimationTimeout);
         this.cdr.markForCheck();
     }
 
     // Méthode pour cacher la recherche
     hideSearch(): void {
-        // Petit délai pour éviter la fermeture accidentelle lors des mouvements de souris
-        setTimeout(() => {
+        // Animation de sortie puis fermeture
+        this.closeWithAnimation(() => {
             this.searchOpen = false;
             this.cdr.markForCheck();
-        }, 200);
+        });
     }
 
     // Méthode pour fermer tous les panneaux
@@ -474,7 +518,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.civilizationsPanelOpen = false;
         this.searchOpen = false;
         this.userMenuOpen = false;
-        this.islandExpanded = false;
+        
+        // Si aucun panneau n'est ouvert, on peut fermer l'island
+        if (!this.civilizationsPanelOpen && !this.userMenuOpen && !this.searchOpen) {
+            this.islandExpanded = false;
+        }
+        
         this.cdr.markForCheck();
     }
 
