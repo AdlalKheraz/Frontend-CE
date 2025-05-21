@@ -181,15 +181,32 @@
         </div>
         
         <div class="comments-list">
-            <div class="comment-item" *ngFor="let comment of comments">
+            <!-- Indicateur de chargement -->
+            <div class="loading-spinner" *ngIf="commentsLoading === 'LOADING'">
+                <div class="spinner"></div>
+                <p>Chargement des commentaires...</p>
+            </div>
+            
+            <!-- Message d'erreur -->
+            <div class="error-message" *ngIf="commentsLoading === 'ERROR'">
+                <p>Impossible de charger les commentaires. Veuillez réessayer plus tard.</p>
+            </div>
+            
+            <!-- Liste des commentaires -->
+            <div class="comment-item" *ngFor="let comment of apiComments">
                 <div class="comment-avatar"></div>
                 <div class="comment-content">
                     <div class="comment-header">
-                        <span class="comment-author">{{ comment.author }}</span>
-                        <span class="comment-date">{{ comment.date }}</span>
+                        <span class="comment-author">{{ comment.authorEmail }}</span>
+                        <span class="comment-date">{{ comment.createdAt | date:'d MMM, HH:mm' }}</span>
                     </div>
-                    <p class="comment-text">{{ comment.text }}</p>
+                    <p class="comment-text">{{ comment.content }}</p>
                 </div>
+            </div>
+            
+            <!-- Message si aucun commentaire -->
+            <div class="no-comments" *ngIf="commentsLoading === 'LOADED' && apiComments.length === 0">
+                <p>Aucun commentaire pour le moment. Soyez le premier à commenter!</p>
             </div>
         </div>
         
@@ -203,7 +220,7 @@
                 [disabled]="!isLoggedIn"
             >
             <button class="send-comment" [disabled]="!newComment.trim() || !isLoggedIn" (click)="addComment()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                 </svg>

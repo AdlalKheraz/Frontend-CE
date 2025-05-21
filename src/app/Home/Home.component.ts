@@ -2,18 +2,13 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
-import { Subscription } from 'rxjs';
-// import { AuthStoreService } from '@core/auth/auth.store';
+import { Observable, Subscription } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
+import { CommentService, Comment } from '@core/services/comment.service'; // Importez le service et l'interface
+import { LoadingState } from '@core/models/api.model'; // Importez également le type de chargement
 
-// Type pour les commentaires
-interface Comment {
-    author: string;
-    date: string;
-    text: string;
-}
 
 // Interface pour les paramètres de recherche
 interface SearchParams {
@@ -32,7 +27,7 @@ interface SearchParams {
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule,TimeLineScrolleComponent, FormsModule,RouterLink],
+    imports: [CommonModule, TimeLineScrolleComponent, FormsModule, RouterLink],
     templateUrl: './Home.component.html',
     styleUrl: './Home.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,26 +67,35 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     // Pour le panneau de commentaires
     commentsOpen = false;
     newComment = '';
+    public apiComments: Comment[] = [];
+    public commentsLoading = LoadingState.INIT;
+    public currentEventId: string = '1'; // Valeur par défaut ou à récupérer dynamiquement
+    private commentSubscription?: Subscription;
+
     comments: Comment[] = [
         { 
-            author: 'Marie Dupont', 
-            date: '23 Oct, 14:30', 
-            text: 'La Joconde est vraiment fascinante. J\'adore comment le sourire change selon l\'angle de vue!' 
+            authorEmail: 'Marie Dupont', 
+            eventId: '1',
+            createdAt: '23 Oct, 14:30', 
+            content: 'La Joconde est vraiment fascinante. J\'adore comment le sourire change selon l\'angle de vue!' 
         },
         { 
-            author: 'Pierre Martin', 
-            date: '21 Oct, 09:15', 
-            text: 'Savez-vous que ce tableau a été volé du Louvre en 1911? Il a été retrouvé deux ans plus tard en Italie.' 
+            authorEmail: 'Pierre Martin', 
+            eventId: '2',
+            createdAt: '21 Oct, 09:15', 
+            content: 'Savez-vous que ce tableau a été volé du Louvre en 1911? Il a été retrouvé deux ans plus tard en Italie.' 
         },
         { 
-            author: 'Sophie Laurent', 
-            date: '20 Oct, 18:45', 
-            text: 'J\'ai visité le Louvre la semaine dernière. La foule autour de ce tableau est incroyable!' 
+            eventId:'3',
+            authorEmail: 'Sophie Laurent', 
+            createdAt: '20 Oct, 18:45', 
+            content: 'J\'ai visité le Louvre la semaine dernière. La foule autour de ce tableau est incroyable!' 
         },
         { 
-            author: 'Jean Moreau', 
-            date: '19 Oct, 11:22', 
-            text: 'Léonard de Vinci était certainement en avance sur son temps. Ses techniques de peinture étaient révolutionnaires.' 
+            eventId: '4',
+            authorEmail: 'Jean Moreau', 
+            createdAt: '19 Oct, 11:22', 
+            content: 'Léonard de Vinci était certainement en avance sur son temps. Ses techniques de peinture étaient révolutionnaires.' 
         }
     ];
     
@@ -99,6 +103,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     private authService: AuthService = inject(AuthService);
     // private authStoreService = inject(AuthStoreService);
     private ngZone: NgZone=inject(NgZone)
+    private commentService: CommentService=inject(CommentService)
+
     private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
     private button!: HTMLButtonElement;
@@ -140,6 +146,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     userMenuOpen = false;
 
+
     ngOnInit(): void {
         // Initialiser les civilisations à afficher (3 max)
         this.updateDisplayedCivilizations();
@@ -162,6 +169,16 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 this.userName = 'Visiteur';
             }
         });
+        
+        // Abonnez-vous au flux de commentaires
+        this.commentSubscription = this.commentService.comments$.subscribe(state => {
+            this.apiComments = state.data!;
+            this.commentsLoading = state.loading;
+            this.cdr.markForCheck();
+        });
+        
+        // Chargez les commentaires pour l'événement actuel
+        this.loadComments();
     }
     
     ngAfterViewInit(): void {
@@ -192,6 +209,11 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         
         if (this.animationFrameId !== null) {
             cancelAnimationFrame(this.animationFrameId);
+        }
+        
+        // Désabonnez-vous pour éviter les fuites mémoire
+        if (this.commentSubscription) {
+            this.commentSubscription.unsubscribe();
         }
     }
     
@@ -353,7 +375,17 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cdr.markForCheck();
     }
     
-    // Méthode pour ajouter un nouveau commentaire
+    // Méthode pour charger les commentaires de l'événement actuel
+    loadComments(): void {
+        this.commentService.loadCommentsByEvent(this.currentEventId).subscribe({
+            error: (error) => {
+                console.error('Erreur lors du chargement des commentaires:', error);
+                this.cdr.markForCheck();
+            }
+        });
+    }
+    
+    // Méthode modifiée pour ajouter un commentaire via le service
     addComment(): void {
         // Vérifier si l'utilisateur est connecté
         if (!this.isLoggedIn) {
@@ -361,21 +393,28 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
         
         if (this.newComment.trim()) {
-            const now = new Date();
-            const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
-            const dateStr = now.toLocaleDateString('fr-FR', options) + ', ' + now.getHours() + ':' + 
-                            (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+            // Création du commentaire au format attendu par l'API
+            const newComment: Comment = {
+                authorEmail: this.authService.currentUser?.email || 'anonymous@example.com',
+                content: this.newComment.trim(),
+                eventId: this.currentEventId
+            };
             
-            this.comments.unshift({
-                author: this.userName,
-                date: dateStr,
-                text: this.newComment.trim()
+            // Envoi du commentaire à l'API
+            this.commentService.createComment(newComment).subscribe({
+                next: (response) => {
+                    // Le state est déjà mis à jour par le service
+                    this.newComment = '';
+                    this.cdr.markForCheck();
+                },
+                error: (error) => {
+                    console.error('Erreur lors de l\'ajout du commentaire:', error);
+                    this.cdr.markForCheck();
+                }
             });
-            
-            this.newComment = '';
         }
     }
-
+    
     // Méthode pour afficher l'îlot dynamique au survol
     showIsland(): void {
         // Annuler tout timeout de fermeture en cours
