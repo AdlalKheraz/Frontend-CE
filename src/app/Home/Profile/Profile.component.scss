@@ -135,7 +135,7 @@ $muted-color: #6c757d;
     }
     
     &:hover {
-      background-color: darken(#f0f2f5, 5%);
+      // background-color: darken(#f0f2f5, 5%);
     }
   }
 }
@@ -177,7 +177,7 @@ $muted-color: #6c757d;
     }
     
     &:hover:not(.active) {
-      color: darken($muted-color, 15%);
+      // color: darken($muted-color, 15%);
     }
   }
 }
@@ -264,7 +264,7 @@ $muted-color: #6c757d;
         color: white;
         
         &:hover {
-          background-color: darken($primary-color, 10%);
+          // background-color: darken($primary-color, 10%);
         }
       }
     }
@@ -292,7 +292,7 @@ $muted-color: #6c757d;
       font-weight: 500;
       
       &:hover {
-        background-color: darken($primary-color, 10%);
+        // background-color: darken($primary-color, 10%);
       }
     }
   }
@@ -352,7 +352,7 @@ $muted-color: #6c757d;
           color: $text-color;
           
           &:hover {
-            background-color: darken(#f0f2f5, 5%);
+            // background-color: darken(#f0f2f5, 5%);
           }
         }
         
@@ -434,7 +434,7 @@ $muted-color: #6c757d;
       }
       
       &:hover:not(.selected) {
-        background-color: darken(#f0f2f5, 5%);
+        // background-color: darken(#f0f2f5, 5%);
       }
     }
   }

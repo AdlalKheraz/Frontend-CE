@@ -1,11 +1,12 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { User } from '@core/models/api.model';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule,DatePipe,FormsModule],
+  imports: [CommonModule,DatePipe,FormsModule,RouterLink],
   templateUrl: './Profile.component.html',
   styleUrl: './Profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

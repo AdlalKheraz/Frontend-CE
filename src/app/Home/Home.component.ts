@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
 import { Subscription } from 'rxjs';
 // import { AuthStoreService } from '@core/auth/auth.store';
@@ -32,7 +32,7 @@ interface SearchParams {
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule,TimeLineScrolleComponent, FormsModule],
+    imports: [CommonModule,TimeLineScrolleComponent, FormsModule,RouterLink],
     templateUrl: './Home.component.html',
     styleUrl: './Home.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
