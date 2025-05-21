@@ -402,6 +402,7 @@
   cursor: not-allowed;
   pointer-events: none;
   background: rgba(50, 50, 70, 0.3);
+  display: none;
   
   &:hover {
     background: rgba(50, 50, 70, 0.3);
