@@ -273,6 +273,9 @@ $muted-color: #6c757d;
 
 // Favorites
 .favorites-list {
+  position: relative;
+  z-index: 1500;
+  
   .empty-state {
     text-align: center;
     padding: 40px 0;
@@ -303,9 +306,17 @@ $muted-color: #6c757d;
     align-items: center;
     padding: 16px 0;
     border-bottom: 1px solid $border-color;
+    position: relative;
+    z-index: 1501;
+    background-color: $card-bg;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     
     &:last-child {
       border-bottom: none;
+      margin-bottom: 0;
     }
     
     .favorite-info {

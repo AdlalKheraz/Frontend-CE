@@ -282,6 +282,31 @@
   }
 }
 
+/* Effet de flou pour l'image d'arrière-plan uniquement */
+.event-section.active.blur-background::before {
+  filter: blur(8px);
+  transition: filter 0.3s ease-out;
+}
+
+/* Améliorer la visibilité du texte quand l'arrière-plan est flouté */
+.event-section.active.blur-background .event-container {
+  z-index: 1501;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+  backdrop-filter: none; /* Pas de flou sur le conteneur de texte */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.event-section.active.blur-background .event-title,
+.event-section.active.blur-background .event-year,
+.event-section.active.blur-background .event-description {
+  z-index: 1502;
+  position: relative;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8); /* Ombre plus prononcée pour meilleure lisibilité */
+  color: white; /* Assurer que le texte est blanc pour une meilleure lisibilité */
+}
+
 /* Animations et transitions */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }

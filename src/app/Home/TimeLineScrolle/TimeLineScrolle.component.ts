@@ -39,6 +39,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       this.filterEventsWithSearch(value);
     }
   }
+  
+  @Input() detailsVisible: boolean = false;
 
   @ViewChild('timelineContainer') timelineContainer!: ElementRef;
   
