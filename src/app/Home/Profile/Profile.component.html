@@ -1,0 +1,177 @@
+<div class="profile-container">
+  <!-- En-tête du profil avec retour -->
+  <div class="profile-header">
+    <a routerLink="/" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span>Retour</span>
+    </a>
+    <h1>Profil</h1>
+  </div>
+
+  <!-- Chargement -->
+  <div class="loader-container" *ngIf="isLoading">
+    <div class="loader"></div>
+  </div>
+
+  <!-- Contenu du profil -->
+  <div class="profile-content" *ngIf="!isLoading && user">
+    <!-- En-tête avec avatar et nom -->
+    <div class="user-header">
+      <div class="avatar-container">
+        <img [src]="user.avatar || 'assets/images/default-avatar.png'" alt="Avatar" class="user-avatar">
+      </div>
+      <div class="user-meta">
+        <h2>{{ user.fullName || user.username }}</h2>
+        <p class="username">{{'@'}}{{ user.username }}</p>
+        <p class="join-date">Membre depuis {{ user.dateJoined | date:'longDate' }}</p>
+      </div>
+      <button class="edit-profile-btn" *ngIf="!isEditing" (click)="startEditing()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        </svg>
+        <span>Modifier</span>
+      </button>
+    </div>
+
+    <!-- Navigation des onglets -->
+    <div class="tabs-navigation">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'info'" 
+        (click)="changeTab('info')">
+        Informations
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'favorites'" 
+        (click)="changeTab('favorites')">
+        Mes favoris
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'preferences'" 
+        (click)="changeTab('preferences')">
+        Préférences
+      </button>
+    </div>
+
+    <!-- Onglet Informations -->
+    <div class="tab-content" *ngIf="activeTab === 'info'">
+      <div class="profile-form" *ngIf="!isEditing">
+        <div class="profile-field">
+          <label>Nom d'utilisateur</label>
+          <p>{{ user.username }}</p>
+        </div>
+        <div class="profile-field">
+          <label>Email</label>
+          <p>{{ user.email }}</p>
+        </div>
+        <div class="profile-field">
+          <label>Nom complet</label>
+          <p>{{ user.fullName || 'Non renseigné' }}</p>
+        </div>
+        <div class="profile-field">
+          <label>Bio</label>
+          <p class="bio">{{ user.bio || 'Aucune bio renseignée.' }}</p>
+        </div>
+      </div>
+
+      <!-- Mode édition -->
+      <div class="profile-form editing" *ngIf="isEditing">
+        <div class="profile-field">
+          <label for="username">Nom d'utilisateur</label>
+          <input type="text" id="username" [(ngModel)]="editableUser.username" placeholder="Nom d'utilisateur">
+        </div>
+        <div class="profile-field">
+          <label for="email">Email</label>
+          <input type="email" id="email" [(ngModel)]="editableUser.email" placeholder="Email">
+        </div>
+        <div class="profile-field">
+          <label for="fullName">Nom complet</label>
+          <input type="text" id="fullName" [(ngModel)]="editableUser.fullName" placeholder="Nom complet">
+        </div>
+        <div class="profile-field">
+          <label for="bio">Bio</label>
+          <textarea id="bio" [(ngModel)]="editableUser.bio" placeholder="Parlez-nous de vous..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="cancel-btn" (click)="cancelEditing()">Annuler</button>
+          <button class="save-btn" (click)="saveProfile()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Favoris -->
+    <div class="tab-content" *ngIf="activeTab === 'favorites'">
+      <div class="favorites-list">
+        <div *ngIf="favorites.length === 0" class="empty-state">
+          <p>Vous n'avez pas encore de favoris.</p>
+          <a routerLink="/" class="explore-btn">Explorer la chronologie</a>
+        </div>
+        <div *ngFor="let favorite of favorites" class="favorite-item">
+          <div class="favorite-info">
+            <h3>{{ favorite.name }}</h3>
+            <div class="event-meta">
+              <span class="event-date">{{ favorite.date }}</span>
+              <span class="event-civ">{{ favorite.civilization }}</span>
+              <span class="event-type">{{ favorite.type }}</span>
+            </div>
+          </div>
+          <div class="favorite-actions">
+            <button class="view-btn" routerLink="/">Voir</button>
+            <button class="remove-btn" (click)="removeFavorite(favorite.id)">Retirer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet Préférences -->
+    <div class="tab-content" *ngIf="activeTab === 'preferences'">
+      <div class="preferences-form">
+        <div class="preference-section">
+          <h3>Apparence</h3>
+          <div class="theme-selector">
+            <label class="theme-option">
+              <input type="radio" name="theme" [(ngModel)]="user.preferences!.theme" value="light">
+              <span class="theme-label">Clair</span>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" [(ngModel)]="user.preferences!.theme" value="dark">
+              <span class="theme-label">Sombre</span>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" [(ngModel)]="user.preferences!.theme" value="auto">
+              <span class="theme-label">Automatique</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="preference-section">
+          <h3>Notifications</h3>
+          <label class="notification-option">
+            <input type="checkbox" [(ngModel)]="user.preferences!.emailNotifications">
+            <span>Recevoir des notifications par email</span>
+          </label>
+        </div>
+
+        <div class="preference-section">
+          <h3>Civilisations favorites</h3>
+          <p class="hint">Ces civilisations apparaîtront en priorité dans votre flux</p>
+          <div class="civilizations-grid">
+            <div 
+              *ngFor="let civ of civilizations" 
+              class="civ-chip"
+              [class.selected]="isCivilizationPreferred(civ)"
+              (click)="toggleCivilizationPreference(civ)">
+              {{ civ }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

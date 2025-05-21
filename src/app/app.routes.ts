@@ -7,14 +7,17 @@ import { NewEventComponent } from './admin/NewEvent/NewEvent.component';
 import { SignUpComponent } from './auth/SignUp/SignUp.component';
 import { EventsComponent } from './admin/Events/Events.component';
 import { CommentsComponent } from './admin/Comments/Comments.component';
+import { ProfileComponent } from './Home/Profile/Profile.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent},
   { path: 'login', component: LoginComponent },
   { path: 'register', component: SignUpComponent },
+  { path: 'profile', component: ProfileComponent ,canActivate:[AuthGuard]},
   {
     path: 'admin',
+    canActivate:[AuthGuard],
     children: [
       {path:'dashboard', component: DashboardComponent},
       {path: 'events', component: EventsComponent},

@@ -24,3 +24,19 @@ export interface StateData<T> {
   data?: T;
   error?: string;
 }
+
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  fullName?: string;
+  bio?: string;
+  dateJoined: Date;
+  favorites?: string[];
+  preferences?: {
+    theme?: string;
+    emailNotifications?: boolean;
+    preferredCivilizations?: string[];
+  };
+}
