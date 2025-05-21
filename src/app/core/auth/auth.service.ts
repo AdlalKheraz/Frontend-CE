@@ -2,8 +2,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { environment } from 'environments/environment';
-import { BehaviorSubject, catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+import { BehaviorSubject, catchError, Observable, of, switchMap, throwError } from 'rxjs';
 
+type userToken = { name: string; email: string; given_name: string; family_name: string; sid: string };
 export interface User {
   id?: string;
   name?: string;
@@ -14,10 +16,10 @@ export interface User {
 }
 
 export interface AuthResponse {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  token_type: string;
+    token: string;
+    email: string;
+    role: string;
+    expiresIn: number;
 }
 
 export enum AuthLoadingState {
@@ -82,13 +84,6 @@ export class AuthService {
         return localStorage.getItem('accessToken') ?? '';
     }
 
-    set refreshToken(token: string) {
-        localStorage.setItem('refreshToken', token);
-    }
-
-    get refreshToken(): string {
-        return localStorage.getItem('refreshToken') ?? '';
-    }
     
     /**
      * Getter pour l'état d'authentification
@@ -127,11 +122,10 @@ export class AuthService {
         ).pipe(
             switchMap((response: AuthResponse) => {
                 // Stocker les tokens
-                this.accessToken = response.access_token;
-                this.refreshToken = response.refresh_token;
+                this.accessToken = response.token;
                 
                 // Décoder les informations utilisateur
-                const userInfo = this.getInfoUser(response.access_token);
+                const userInfo = this.getInfoUser(response.token);
                 
                 // Mettre à jour les états
                 this._authenticated = true;
@@ -160,14 +154,14 @@ export class AuthService {
      */
     signInUsingToken(): Observable<boolean> {
         // Si pas de refresh token, impossible de rafraîchir la session
-        if (!this.refreshToken) {
-            return of(false);
-        }
+        // if (!this.refreshToken) {
+        //     return of(false);
+        // }
 
         // Paramètres pour le refresh token
         const urlencoded = new URLSearchParams();
         urlencoded.append('grant_type', 'refresh_token');
-        urlencoded.append('refresh_token', this.refreshToken);
+        // urlencoded.append('refresh_token', this.refreshToken);
         urlencoded.append('client_id', 'chrono_explorer_client');
 
         return this._httpClient.post<AuthResponse>(
@@ -178,12 +172,12 @@ export class AuthService {
             }
         ).pipe(
             switchMap((response: AuthResponse) => {
+                console.log('🚀 ~ AuthService ~ switchMap ~ response:', response)
                 // Stocker les nouveaux tokens
-                this.accessToken = response.access_token;
-                this.refreshToken = response.refresh_token;
+                this.accessToken = response.token;
                 
                 // Décoder les informations utilisateur
-                const userInfo = this.getInfoUser(response.access_token);
+                const userInfo = this.getInfoUser(response.token);
                 
                 // Mettre à jour les états
                 this._authenticated = true;
@@ -277,24 +271,7 @@ export class AuthService {
     /**
      * Obtenir les informations de l'utilisateur à partir du token
      */
-    getInfoUser(token: string): User {
-        const tokenParts = token.split('.');
-        if (tokenParts.length !== 3) {
-            return {} as User;
-        }
-        
-        try {
-            const tokenPayload = JSON.parse(atob(tokenParts[1]));
-            return {
-                email: tokenPayload.email || '',
-                name: tokenPayload.name || '',
-                given_name: tokenPayload.given_name,
-                family_name: tokenPayload.family_name,
-                sid: tokenPayload.sid
-            };
-        } catch (error) {
-            console.error('Erreur lors du décodage du token', error);
-            return {} as User;
-        }
+    getInfoUser(token: string): userToken {
+        return jwtDecode(token);
     }
 }
