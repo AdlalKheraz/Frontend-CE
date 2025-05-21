@@ -149,53 +149,6 @@ export class AuthService {
         );
     }
 
-    /**
-     * Sign in using the access token
-     */
-    signInUsingToken(): Observable<boolean> {
-        // Si pas de refresh token, impossible de rafraîchir la session
-        // if (!this.refreshToken) {
-        //     return of(false);
-        // }
-
-        // Paramètres pour le refresh token
-        const urlencoded = new URLSearchParams();
-        urlencoded.append('grant_type', 'refresh_token');
-        // urlencoded.append('refresh_token', this.refreshToken);
-        urlencoded.append('client_id', 'chrono_explorer_client');
-
-        return this._httpClient.post<AuthResponse>(
-            environment.ENDPOINT.login(), 
-            urlencoded.toString(),
-            {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            }
-        ).pipe(
-            switchMap((response: AuthResponse) => {
-                console.log('🚀 ~ AuthService ~ switchMap ~ response:', response)
-                // Stocker les nouveaux tokens
-                this.accessToken = response.token;
-                
-                // Décoder les informations utilisateur
-                const userInfo = this.getInfoUser(response.token);
-                
-                // Mettre à jour les états
-                this._authenticated = true;
-                this._isLoggedInSubject.next(true);
-                this._authStateSubject.next({
-                    loading: AuthLoadingState.LOADED,
-                    user: userInfo
-                });
-
-                return of(true);
-            }),
-            catchError(() => {
-                // En cas d'échec, effacer les tokens et déconnecter
-                this.signOut();
-                return of(false);
-            })
-        );
-    }
 
     /**
      * Sign out
@@ -228,9 +181,10 @@ export class AuthService {
      * @param userData
      */
     signUp(userData: { email: string; password: string; name?: string }): Observable<any> {
+        const { name,...user } = userData;
         return this._httpClient.post(
             environment.ENDPOINT.register(),
-            userData
+            user,
         ).pipe(
             catchError(error => throwError(() => error))
         );
@@ -248,12 +202,6 @@ export class AuthService {
         // Si pas de token
         if (!this.accessToken) {
             return of(false);
-        }
-
-        // Si token expiré
-        if (AuthUtils.isTokenExpired(this.accessToken)) {
-            // Essayer de rafraîchir avec le refresh token
-            return this.signInUsingToken();
         }
 
         // Token valide, récupérer les infos utilisateur
