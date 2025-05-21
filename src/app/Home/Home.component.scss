@@ -395,6 +395,31 @@
   }
 }
 
+/* Style pour les boutons désactivés */
+.island-search-btn.disabled,
+.island-search-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: rgba(50, 50, 70, 0.3);
+  
+  &:hover {
+    background: rgba(50, 50, 70, 0.3);
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.comment-input:disabled {
+  background: rgba(50, 50, 70, 0.3);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
 /* Panel des civilisations - Style intégré à la dynamic island */
 /* REMOVED - Using only island-dropdown version */
 /* 

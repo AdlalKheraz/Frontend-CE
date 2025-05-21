@@ -239,8 +239,16 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     buttonClicked(): void {
         // Retour dans la zone Angular pour les opérations liées à l'application
         this.ngZone.run(() => {
-            // alert('Bouton cliqué !');
-            this.logout()
+            // Vérifier si l'utilisateur est connecté
+            if (!this.isLoggedIn) {
+                setTimeout(() => {
+                    this.router.navigate(['/login']);
+                }, 500);
+            } else {
+                // Exécuter une autre action pour les utilisateurs connectés
+                // Par exemple : déconnexion, ouverture d'un menu spécial, etc.
+                // this.logout(); // Pour l'instant, on garde la déconnexion
+            }
         });
     }
     
@@ -323,8 +331,35 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cdr.markForCheck();
     }
     
+    // Méthode pour ouvrir/fermer le panneau de recherche
+    toggleSearch(): void {
+        // Vérifier si l'utilisateur est connecté
+        if (!this.isLoggedIn) {
+            // Informer l'utilisateur qu'il doit se connecter
+            // ou simplement ne rien faire
+            return;
+        }
+        
+        // Fermer les autres panneaux
+        this.userMenuOpen = false;
+        this.civilizationsPanelOpen = false;
+        
+        // Inverser l'état du panneau de recherche
+        this.searchOpen = !this.searchOpen;
+        
+        // Garder l'island ouverte si un panneau est ouvert
+        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        
+        this.cdr.markForCheck();
+    }
+    
     // Méthode pour ajouter un nouveau commentaire
     addComment(): void {
+        // Vérifier si l'utilisateur est connecté
+        if (!this.isLoggedIn) {
+            return;
+        }
+        
         if (this.newComment.trim()) {
             const now = new Date();
             const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
@@ -400,21 +435,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             clearTimeout(this.islandAnimationTimeout);
             this.islandAnimationTimeout = null;
         }
-        
-        this.cdr.markForCheck();
-    }
-
-    // Méthode pour ouvrir/fermer le panneau de recherche
-    toggleSearch(): void {
-        // Fermer les autres panneaux
-        this.userMenuOpen = false;
-        this.civilizationsPanelOpen = false;
-        
-        // Inverser l'état du panneau de recherche
-        this.searchOpen = !this.searchOpen;
-        
-        // Garder l'island ouverte si un panneau est ouvert
-        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
         
         this.cdr.markForCheck();
     }
