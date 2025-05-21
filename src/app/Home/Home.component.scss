@@ -663,6 +663,9 @@
   align-items: center;
   padding: 15px 25px;
   background: rgba(0, 0, 0, 0.2);
+  &.no-auth{
+    display: none;
+  }
 }
 
 .comment-input {
@@ -716,7 +719,7 @@
 }
 
 .home-container {
-  /* Il n'y a plus besoin de transition */
+  border: none;
 }
 
 /* Animation fadeIn */

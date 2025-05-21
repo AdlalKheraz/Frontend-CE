@@ -184,7 +184,7 @@
             </div>
         </div>
         
-        <div class="comment-form">
+        <div class="comment-form" [class.no-auth]="!isLoggedIn">
             <input 
                 type="text" 
                 class="comment-input" 
