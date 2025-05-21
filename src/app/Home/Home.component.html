@@ -19,7 +19,7 @@
                     <!-- Menu utilisateur -->
                     <div class="user-menu-content island-dropdown" *ngIf="userMenuOpen">
                         <div class="panel-content simplified">
-                            <a routerLink="#" class="menu-item">
+                            <a href="mailto:contact@explorer.com" class="menu-item">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 10.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4.5"/>
                                     <polyline points="21 7 12 13 3 7"/>
@@ -61,13 +61,13 @@
                         <div class="civ-trigger" (click)="toggleCivilizationsPanel()">
                             <span>{{ selectedCivilization }}</span>
                         </div>
-                        
+
                         <!-- Panel des civilisations -->
                         <div class="civilizations-panel island-dropdown" *ngIf="civilizationsPanelOpen">
                             <div class="panel-content simplified">
                                 <div class="civ-grid">
-                                    <button 
-                                        *ngFor="let civ of civilizations" 
+                                    <button
+                                        *ngFor="let civ of civilizations"
                                         class="civ-grid-btn"
                                         [class.active]="selectedCivilization === civ"
                                         (click)="selectCivilization(civ); hideCivilizationsPanel()">
@@ -77,7 +77,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Bouton de recherche -->
                     <button class="island-search-btn" [disabled]="!isLoggedIn" (click)="toggleSearch()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -85,7 +85,7 @@
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </button>
-                    
+
                     <!-- Bouton commentaire dans la Dynamic Island -->
                     <button class="island-comment-btn" (click)="toggleComments(); $event.stopPropagation()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -105,37 +105,37 @@
         <div class="panel-content simplified search-content" (click)="$event.stopPropagation()">
             <div class="search-form">
                 <div class="search-field">
-                    <input 
-                        type="text" 
-                        [(ngModel)]="searchEvent" 
+                    <input
+                        type="text"
+                        [(ngModel)]="searchEvent"
                         placeholder="Nom de l'événement..."
                     >
                 </div>
-                
+
                 <div class="search-field">
 
                     <div class="period-inputs">
-                        <input 
-                            type="number" 
-                            [(ngModel)]="searchStartYear" 
+                        <input
+                            type="number"
+                            [(ngModel)]="searchStartYear"
                             placeholder="Année début"
                         >
                         <span>à</span>
-                        <input 
-                            type="number" 
-                            [(ngModel)]="searchEndYear" 
+                        <input
+                            type="number"
+                            [(ngModel)]="searchEndYear"
                             placeholder="Année fin"
                         >
                     </div>
                 </div>
-                
+
                 <div class="search-field">
                     <select [(ngModel)]="searchCivilization">
                         <option value="">Toutes les civilisations</option>
                         <option *ngFor="let civ of civilizations" [value]="civ">{{ civ }}</option>
                     </select>
                 </div>
-                
+
                 <div class="search-field">
                     <div class="event-types">
                         <label class="checkbox-label">
@@ -156,7 +156,7 @@
                         </label>
                     </div>
                 </div>
-                
+
                 <div class="search-actions">
                     <button class="search-reset" (click)="resetSearch()">Réinitialiser</button>
                     <button class="search-submit" (click)="submitSearch()">Rechercher</button>
@@ -166,32 +166,32 @@
     </div>
 
     <!-- Image à droite qui s'agrandit après connexion -->
-    <div class="image-container logged-in" #container>  
+    <div class="image-container logged-in" #container>
         <app-time-line-scrolle class="size-full" [selectedCivilization]="selectedCivilization" [searchParams]="activeSearchParams"/>
     </div>
     <button class="follow-button btn" #followButton (click)="buttonClicked()">Clique</button>
-    
+
     <!-- Overlay pour fermer les commentaires en cliquant ailleurs -->
     <div class="overlay" *ngIf="commentsOpen" (click)="toggleComments()"></div>
-    
+
     <!-- Panneau de commentaires simplifié -->
     <div class="comments-panel" [class.open]="commentsOpen">
         <div class="comments-header">
             <h3>Commentaires</h3>
         </div>
-        
+
         <div class="comments-list">
             <!-- Indicateur de chargement -->
             <div class="loading-spinner" *ngIf="commentsLoading === 'LOADING'">
                 <div class="spinner"></div>
                 <p>Chargement des commentaires...</p>
             </div>
-            
+
             <!-- Message d'erreur -->
             <div class="error-message" *ngIf="commentsLoading === 'ERROR'">
                 <p>Impossible de charger les commentaires. Veuillez réessayer plus tard.</p>
             </div>
-            
+
             <!-- Liste des commentaires -->
             <div class="comment-item" *ngFor="let comment of apiComments">
                 <div class="comment-avatar"></div>
@@ -203,18 +203,18 @@
                     <p class="comment-text">{{ comment.content }}</p>
                 </div>
             </div>
-            
+
             <!-- Message si aucun commentaire -->
             <div class="no-comments" *ngIf="commentsLoading === 'LOADED' && apiComments.length === 0">
                 <p>Aucun commentaire pour le moment. Soyez le premier à commenter!</p>
             </div>
         </div>
-        
+
         <div class="comment-form" [class.no-auth]="!isLoggedIn">
-            <input 
-                type="text" 
-                class="comment-input" 
-                placeholder="{{ isLoggedIn ? 'Écrire un commentaire...' : 'Connectez-vous pour commenter' }}" 
+            <input
+                type="text"
+                class="comment-input"
+                placeholder="{{ isLoggedIn ? 'Écrire un commentaire...' : 'Connectez-vous pour commenter' }}"
                 [(ngModel)]="newComment"
                 (keyup.enter)="addComment()"
                 [disabled]="!isLoggedIn"
