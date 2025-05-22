@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
 import { CommentService, Comment } from '@core/services/comment.service'; // Importez le service et l'interface
 import { LoadingState } from '@core/models/api.model'; // Importez également le type de chargement
+import { CivilizationService, Civilization } from '@core/services/civilization.service'; // Ajout de cette ligne
 
 
 // Interface pour les paramètres de recherche
@@ -44,22 +45,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     // Variable pour suivre l'état d'affichage des détails
     detailsVisible = false;
 
-    // Pour Dynamic Island - Civilisations améliorées
-    civilizations = [
-        'Toutes',
-        'Égyptienne',
-        'Grecque',
-        'Romaine',
-        'Chinoise',
-        'Américaine',
-        'Perse',
-        'Indienne',
-        'Renaissance',
-        'Médiévale',
-        'Préhistorique',
-    ];
-    selectedCivilization = this.civilizations[0];
-
+    civilizations: string[] = ['Toutes']; // Initialisation avec l'option "Toutes"
+    selectedCivilization = 'Toutes';
+    
+    // Pour l'affichage de la liste de civilisations (objets complets)
+    private civilizationData: Civilization[] = [];
+    
     // Pour l'affichage des civilisations en boutons
     displayedCivilizations: string[] = [];
     showMoreCivilizations = false;
@@ -108,6 +99,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     // private authStoreService = inject(AuthStoreService);
     private ngZone: NgZone=inject(NgZone)
     private commentService: CommentService=inject(CommentService)
+    private civilizationService: CivilizationService=inject(CivilizationService)
 
     private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -154,7 +146,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     ngOnInit(): void {
         // Initialiser les civilisations à afficher (3 max)
         this.updateDisplayedCivilizations();
-
+        this.loadCivilizations();
         // Vérifier si l'utilisateur est connecté
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
             this.isLoggedIn = isLoggedIn;
@@ -216,7 +208,54 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.commentSubscription.unsubscribe();
         }
     }
-
+// Méthode pour charger les civilisations depuis le service
+    loadCivilizations(): void {
+        this.civilizationService.loadAllCivilizations().subscribe({
+            next: (civilizations) => {
+                // Stocker les données complètes
+                this.civilizationData = civilizations;
+                
+                // Extraire juste les noms pour la liste des options
+                const civNames = civilizations.map(civ => civ.name);
+                this.civilizations = ['Toutes', ...civNames];
+                
+                // Mettre à jour les civilisations affichées
+                this.updateDisplayedCivilizations();
+                this.cdr.markForCheck();
+            },
+            error: (error) => {
+                console.error('Erreur lors du chargement des civilisations:', error);
+                // Garder au moins l'option "Toutes"
+                this.civilizations = ['Toutes'];
+                this.updateDisplayedCivilizations();
+                this.cdr.markForCheck();
+            }
+        });
+    }
+    
+    // Méthode pour rechercher des civilisations selon des critères
+    searchCivilizations(criteria: { name?: string, startPeriod?: number, endPeriod?: number, region?: string }): void {
+        this.civilizationService.searchCivilizations(criteria).subscribe({
+            next: (civilizations) => {
+                // Mettre à jour la liste des civilisations avec les résultats
+                this.civilizationData = civilizations;
+                const civNames = civilizations.map(civ => civ.name);
+                this.civilizations = ['Toutes', ...civNames];
+                this.updateDisplayedCivilizations();
+                this.cdr.markForCheck();
+            },
+            error: (error) => {
+                console.error('Erreur lors de la recherche des civilisations:', error);
+                this.cdr.markForCheck();
+            }
+        });
+    }
+    
+    // Méthode pour obtenir les détails d'une civilisation par son nom
+    getCivilizationByName(name: string): Civilization | undefined {
+        return this.civilizationData.find(civ => civ.name === name);
+    }
+    
     // Animation fluide du bouton
     private animate(): void {
         // Calcul de la nouvelle position avec effet de lissage
@@ -321,12 +360,28 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         }
         this.displayedCivilizations = updatedCivs;
 
+        // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses détails
+        if (civ !== 'Toutes') {
+            const selectedCiv = this.getCivilizationByName(civ);
+            if (selectedCiv && selectedCiv.id) {
+                // Charger les détails complets depuis l'API
+                this.civilizationService.loadCivilizationById(selectedCiv.id).subscribe({
+                    next: (civilization) => {
+                        console.log('Détails de la civilisation chargés:', civilization);
+                        // Ici vous pouvez faire quelque chose avec les détails chargés
+                    },
+                    error: (error) => {
+                        console.error('Erreur lors du chargement des détails de la civilisation:', error);
+                    }
+                });
+            }
+        }
         // Transmettre la civilisation sélectionnée au composant Timeline
         if (this.timelineComponent) {
             this.timelineComponent.selectedCivilization = civ;
         }
-    }
 
+    }
     // Méthode pour ouvrir/fermer le panneau des civilisations
     toggleCivilizationsPanel(): void {
         // Fermer les autres panneaux
