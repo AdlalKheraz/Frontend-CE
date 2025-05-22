@@ -1,0 +1,126 @@
+<div class="favorites-container">
+  <!-- En-tête -->
+  <div class="favorites-header">
+    <div class="header-navigation">
+      <a routerLink="/profile" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Retour au profil</span>
+      </a>
+      <h1>Mes favoris</h1>
+    </div>
+    
+    <div class="header-actions" *ngIf="!isLoading">
+      <button *ngIf="!selectMode" class="select-mode-btn" (click)="toggleSelectMode()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        </svg>
+        <span>Sélectionner</span>
+      </button>
+      
+      <div class="selection-actions" *ngIf="selectMode">
+        <button class="select-all-btn" (click)="selectAll()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>{{ selectedFavorites.length === favorites.length ? 'Désélectionner' : 'Tout sélectionner' }}</span>
+        </button>
+        
+        <button class="delete-btn" [disabled]="selectedFavorites.length === 0" (click)="deleteSelected()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>Supprimer ({{ selectedFavorites.length }})</span>
+        </button>
+        
+        <button class="cancel-btn" (click)="toggleSelectMode()">Annuler</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loader -->
+  <div class="loader-container" *ngIf="isLoading">
+    <div class="loader"></div>
+  </div>
+  
+  <!-- Contenu principal -->
+  <div class="favorites-content" *ngIf="!isLoading">
+    <!-- Dashboard -->
+    <div class="favorites-dashboard">
+      <div class="stats-card">
+        <h3>Statistiques</h3>
+        <div class="stats-item">
+          <span class="stat-label">Nombre total de favoris</span>
+          <span class="stat-value">{{ favorites.length }}</span>
+        </div>
+        
+        <h4>Par civilisation</h4>
+        <div class="stats-list">
+          <div class="stats-item" *ngFor="let entry of getCivilizationCount() | keyvalue">
+            <span class="stat-label">{{ entry.key }}</span>
+            <span class="stat-value">{{ entry.value }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="quick-filters">
+        <h3>Filtres rapides</h3>
+        <div class="filter-buttons">
+          <button class="filter-btn">Tous</button>
+          <button class="filter-btn">Égyptienne</button>
+          <button class="filter-btn">Romaine</button>
+          <button class="filter-btn">Grecque</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Liste des favoris -->
+    <div class="favorites-list">
+      <div *ngIf="favorites.length === 0" class="empty-state">
+        <h3>Aucun favori</h3>
+        <p>Vous n'avez pas encore ajouté d'événements à vos favoris.</p>
+        <a routerLink="/" class="explore-btn">Explorer la chronologie</a>
+      </div>
+      
+      <div *ngFor="let favorite of favorites" 
+           class="favorite-card" 
+           [class.selected]="isSelected(favorite.id)"
+           (click)="toggleSelect(favorite.id)">
+        <div class="favorite-header">
+          <div class="favorite-meta">
+            <span class="favorite-date">{{ favorite.date }}</span>
+            <span class="favorite-civ">{{ favorite.civilization }}</span>
+            <span class="favorite-type">{{ favorite.type }}</span>
+          </div>
+          
+          <div class="selection-indicator" *ngIf="selectMode">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" *ngIf="!isSelected(favorite.id)">
+              <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" *ngIf="isSelected(favorite.id)">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+        </div>
+        
+        <h3 class="favorite-title">{{ favorite.name }}</h3>
+        <p class="favorite-description">{{ favorite.description }}</p>
+        
+        <div class="favorite-actions" *ngIf="!selectMode">
+          <button class="view-btn" routerLink="/">Voir l'événement</button>
+          <button class="remove-btn" (click)="$event.stopPropagation(); removeFavorite(favorite.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

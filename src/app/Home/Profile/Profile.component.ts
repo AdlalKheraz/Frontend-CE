@@ -1,28 +1,35 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { User } from '@core/models/api.model';
+import { AuthService } from '@core/auth/auth.service';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule,DatePipe,FormsModule,RouterLink],
+  standalone: true,
+  imports: [CommonModule, DatePipe, FormsModule, RouterLink],
   templateUrl: './Profile.component.html',
   styleUrl: './Profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
   user: User | null = null;
   isEditing = false;
   editableUser: Partial<User> = {};
   favorites: any[] = [];
   isLoading = true;
-  activeTab: 'info' | 'favorites' | 'preferences' = 'info';
+  activeTab: 'info' | 'favorites' | 'preferences' | 'security' = 'info';
+  showDeleteConfirmation = false;
+  deleteConfirmText = '';
   
   // Ces civilisations devraient idéalement venir d'un service
   civilizations = ['Égyptienne', 'Grecque', 'Romaine', 'Maya', 'Chinoise', 'Perse', 'Mésopotamienne'];
   
-  constructor() { }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     // Simuler le chargement des données utilisateur
@@ -44,14 +51,19 @@ export class ProfileComponent {
       };
       
       // Simuler récupération des favoris
-      this.favorites = [
-        { id: 'evt1', name: 'Construction des Pyramides', date: '-2560', civilization: 'Égyptienne', type: 'culturel' },
-        { id: 'evt2', name: 'Fondation de Rome', date: '-753', civilization: 'Romaine', type: 'politique' },
-        { id: 'evt3', name: 'Bataille de Marathon', date: '-490', civilization: 'Grecque', type: 'militaire' }
-      ];
+      this.loadFavorites();
       
       this.isLoading = false;
     }, 800);
+  }
+
+  loadFavorites() {
+    // Simuler la récupération des favoris
+    this.favorites = [
+      { id: 'evt1', name: 'Construction des Pyramides', date: '-2560', civilization: 'Égyptienne', type: 'culturel' },
+      { id: 'evt2', name: 'Fondation de Rome', date: '-753', civilization: 'Romaine', type: 'politique' },
+      { id: 'evt3', name: 'Bataille de Marathon', date: '-490', civilization: 'Grecque', type: 'militaire' }
+    ];
   }
 
   startEditing() {
@@ -70,12 +82,18 @@ export class ProfileComponent {
     if (this.user && this.editableUser) {
       this.user = { ...this.user, ...this.editableUser };
       // Ici, vous ajouteriez l'appel à votre service pour sauvegarder les modifications
-      this.isEditing = false;
-      this.editableUser = {};
+      this.isLoading = true;
+      
+      setTimeout(() => {
+        this.isLoading = false;
+        this.isEditing = false;
+        this.editableUser = {};
+        // Afficher un message de succès
+      }, 800);
     }
   }
   
-  changeTab(tab: 'info' | 'favorites' | 'preferences') {
+  changeTab(tab: 'info' | 'favorites' | 'preferences' | 'security') {
     this.activeTab = tab;
   }
   
@@ -103,9 +121,56 @@ export class ProfileComponent {
     
     this.user.preferences.preferredCivilizations = prefCivs;
     // Ici, vous feriez un appel API pour mettre à jour les préférences
+    
+    this.savePreferences();
+  }
+  
+  savePreferences() {
+    // Simuler la sauvegarde des préférences
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      // Afficher un message de succès
+    }, 800);
   }
   
   isCivilizationPreferred(civ: string): boolean {
     return this.user?.preferences?.preferredCivilizations?.includes(civ) || false;
+  }
+  
+  logout() {
+    // Déconnexion de l'utilisateur
+    this.isLoading = true;
+    
+    setTimeout(() => {
+      this.authService.signOut();
+      this.router.navigate(['/login']);
+    }, 500);
+  }
+  
+  showDeleteAccount() {
+    this.showDeleteConfirmation = true;
+  }
+  
+  cancelDeleteAccount() {
+    this.showDeleteConfirmation = false;
+    this.deleteConfirmText = '';
+  }
+  
+  confirmDeleteAccount() {
+    if (this.deleteConfirmText === this.user?.username) {
+      // Supprimer le compte
+      this.isLoading = true;
+      
+      setTimeout(() => {
+        this.authService.signOut();
+        this.router.navigate(['/login']);
+        // Afficher un message de confirmation
+      }, 1000);
+    }
+  }
+  
+  goToFavoritesPage() {
+    this.router.navigate(['/favorites']);
   }
 }
