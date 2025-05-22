@@ -14,7 +14,11 @@ export const routes: Routes = [
   { path: 'home', component: HomeComponent},
   { path: 'login', component: LoginComponent },
   { path: 'register', component: SignUpComponent },
-  { path: 'profile', component: ProfileComponent ,canActivate:[AuthGuard]},
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [AuthGuard] // Assurez-vous que l'utilisateur est connecté
+  },
   {
     path: 'admin',
     canActivate:[AuthGuard],

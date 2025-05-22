@@ -25,6 +25,12 @@ export interface StateData<T> {
   error?: string;
 }
 
+export interface UserPreferences {
+  theme: 'light' | 'dark' | 'auto';
+  emailNotifications: boolean;
+  preferredCivilizations?: string[];
+}
+
 export interface User {
   id: string;
   username: string;
@@ -34,9 +40,5 @@ export interface User {
   bio?: string;
   dateJoined: Date;
   favorites?: string[];
-  preferences?: {
-    theme?: string;
-    emailNotifications?: boolean;
-    preferredCivilizations?: string[];
-  };
+  preferences: UserPreferences;
 }

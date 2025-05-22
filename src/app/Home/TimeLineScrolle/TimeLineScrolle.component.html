@@ -1,32 +1,47 @@
 <div class="timeline-container" #timelineContainer (wheel)="onScroll($event)">
-    <!-- Sidebar avec les années -->
-    <div class="timeline-years">
-        <div *ngFor="let event of filteredEvents; let i = index" 
-             class="year-marker" 
-             [class.active]="event.active"
-             (click)="onYearClick(i)">
-            <div class="year-dot"></div>
-            <div class="year-label">{{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}</div>
-        </div>
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Chargement des événements historiques...</p>
     </div>
     
-    <!-- Contenu principal avec l'événement actif -->
-    <div class="timeline-content">
-        <div *ngFor="let event of filteredEvents; let i = index"
-             class="event-section"
-             [class.active]="event.active"
-             [style.--event-background]="'url(' + event.image + ')'">
-            
-            <div *ngIf="event.active" class="event-container">
-                <h2 class="event-title">{{ event.title }}</h2>
-                <div class="event-year">{{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}</div>
-                <p class="event-description">{{ event.description }}</p>
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="error-container">
+        <p>{{ error }}</p>
+        <button (click)="loadEvents()">Réessayer</button>
+    </div>
+
+    <!-- Affichage normal (seulement si pas de chargement ni d'erreur) -->
+    <ng-container *ngIf="!loading && !error">
+        <!-- Sidebar avec les années -->
+        <div class="timeline-years">
+            <div *ngFor="let event of filteredEvents; let i = index" 
+                 class="year-marker" 
+                 [class.active]="event.active"
+                 (click)="onYearClick(i)">
+                <div class="year-dot"></div>
+                <div class="year-label">{{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}</div>
+            </div>
+        </div>
+        
+        <!-- Contenu principal avec l'événement actif -->
+        <div class="timeline-content">
+            <div *ngFor="let event of filteredEvents; let i = index"
+                 class="event-section"
+                 [class.active]="event.active"
+                 [style.--event-background]="'url(' + event.image + ')'">
                 
-                <!-- L'image est cachée car utilisée comme fond -->
-                <div class="event-image" style="display: none;">
-                    <img [src]="event.image" alt="{{ event.title }}">
+                <div *ngIf="event.active" class="event-container">
+                    <h2 class="event-title">{{ event.title }}</h2>
+                    <div class="event-year">{{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}</div>
+                    <p class="event-description">{{ event.description }}</p>
+                    
+                    <!-- L'image est cachée car utilisée comme fond -->
+                    <div class="event-image" style="display: none;">
+                        <img [src]="event.image" alt="{{ event.title }}">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </ng-container>
 </div>

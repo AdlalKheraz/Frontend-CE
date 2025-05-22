@@ -951,7 +951,6 @@
   }
 }
 
-/* Animation pour les panneaux qui apparaissent en descendant de la dynamic island */
 @keyframes expandDown {
   from { 
     opacity: 0; 
@@ -1264,7 +1263,7 @@
 /* Ajustement du panneau des civilisations */
 /* REMOVED - Using only island-dropdown version */
 /*
-.civilizations-panel.modern-panel {
+.civilizations-panel {
   position: absolute;
   top: 50px;
   right: 0;
@@ -1507,4 +1506,171 @@
   }
 }
 
+/* Styles pour l'overlay avec effet de flou */
+.details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 900;
+  animation: fadeIn 0.3s ease-out;
+}
 
+/* Styles pour le panneau de détails */
+.details-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  max-height: 80vh;
+  background-color: rgba(20, 20, 30, 0.9);
+  border-radius: 15px;
+  z-index: 1000;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.details-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: white;
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  
+  .close-details-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.details-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.detail-item {
+  margin-bottom: 25px;
+  
+  h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Effet de flou pour le conteneur d'image */
+.image-container.blurred {
+  filter: blur(8px);
+  transition: filter 0.3s ease-out;
+  pointer-events: none; /* Permet aux clics de passer à travers pendant le flou */
+}
+
+/* Styles pour la mise en évidence du texte de l'événement */
+.event-highlight {
+  max-width: 800px;
+  width: 80%;
+  padding: 40px;
+  background-color: rgba(20, 20, 30, 0.8);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.highlight-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.highlight-year {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.highlight-description {
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+/* Overlay pour la mise en évidence du texte de l'événement */
+.details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
