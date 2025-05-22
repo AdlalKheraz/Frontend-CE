@@ -5,16 +5,17 @@ import { environment } from 'environments/environment';
 import { jwtDecode } from 'jwt-decode';
 import { BehaviorSubject, catchError, Observable, of, switchMap, throwError } from 'rxjs';
 
-type userToken = { name: string; email: string; given_name: string; family_name: string; sid: string };
+type userToken = { name: string; email: string; given_name: string; family_name: string; sid: string, userId: string };
 export interface User {
   id?: string;
   name?: string;
   email: string;
-  firstName?: string; // Ajout de firstName
-  lastName?: string; // Ajout de lastName
+  firstName?: string;
+  lastName?: string;
   given_name?: string;
   family_name?: string;
   sid?: string;
+  role?: string; // Ajout du rôle
 }
 
 export interface AuthResponse {
@@ -39,6 +40,17 @@ export interface AuthState {
   error?: string;
 }
 
+// Définir les interfaces pour la gestion des utilisateurs
+export interface UpdateUserData {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+}
+
+export interface UpdateRoleData {
+    role: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private _authenticated: boolean = false;
@@ -54,7 +66,14 @@ export class AuthService {
         user: null
     });
     public authState$ = this._authStateSubject.asObservable();
-
+    
+    private getHeaders(): HttpHeaders {
+        const token = localStorage.getItem('accessToken');
+        return new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+        });
+    }
     constructor() {
         // Initialiser l'état de connexion au démarrage
         const hasToken = !!this.accessToken;
@@ -130,7 +149,13 @@ export class AuthService {
                 
                 // Décoder les informations utilisateur
                 const userInfo = this.getInfoUser(response.token);
-                const info= {...userInfo,firstName:response.firstName,lastName:response.lastName}
+                const info= {
+                    ...userInfo, 
+                    firstName: response.firstName, 
+                    lastName: response.lastName,
+                    role: response.role
+                };
+                
                 // Mettre à jour les états
                 this._authenticated = true;
                 this._isLoggedInSubject.next(true);
@@ -224,5 +249,106 @@ export class AuthService {
      */
     getInfoUser(token: string): userToken {
         return jwtDecode(token);
+    }
+
+    // -----------------------------------------------------------------------------------------------------
+    // @ User Management methods
+    // -----------------------------------------------------------------------------------------------------
+    
+    /**
+     * Récupérer tous les utilisateurs (admin uniquement)
+     */
+    getAllUsers(): Observable<User[]> {
+        return this._httpClient.get<User[]>(
+            environment.ENDPOINT.users()
+        ).pipe(
+            catchError(error => throwError(() => error))
+        );
+    }
+    
+    /**
+     * Récupérer un utilisateur par son ID
+     */
+    getUserById(userId: string): Observable<User> {
+        return this._httpClient.get<User>(
+            environment.ENDPOINT.userById(userId),
+            { headers: this.getHeaders() }
+        ).pipe(
+            catchError(error => throwError(() => error))
+        );
+    }
+    
+    /**
+     * Récupérer l'utilisateur courant à partir de l'id du token et mettre à jour _authStateSubject
+     */
+    fetchCurrentUserFromToken(): Observable<User | null> {
+        const token = this.accessToken;
+        if (!token) {
+            this._authStateSubject.next({
+                loading: AuthLoadingState.ERROR,
+                user: null,
+                error: 'Aucun token trouvé'
+            });
+            return of(null);
+        }
+        
+        let userId: string;
+        try {
+            const decoded = this.getInfoUser(token);
+            userId = decoded.userId;
+        } catch (e) {
+            this._authStateSubject.next({
+                loading: AuthLoadingState.ERROR,
+                user: null,
+                error: 'Token invalide'
+            });
+            return of(null);
+        }
+        
+        // this._authStateSubject.next({
+        //     loading: AuthLoadingState.LOADING,
+        //     user: null
+        // });
+
+        return this.getUserById(userId).pipe(
+            switchMap((user: User) => {
+                this._authStateSubject.next({
+                    loading: AuthLoadingState.LOADED,
+                    user
+                });
+                return of(user);
+            }),
+            catchError(error => {
+                this._authStateSubject.next({
+                    loading: AuthLoadingState.ERROR,
+                    user: null,
+                    error: error.error?.message || 'Erreur lors de la récupération de l\'utilisateur'
+                });
+                return of(null);
+            })
+        );
+    }
+    /**
+     * Mettre à jour les informations d'un utilisateur
+     */
+    updateUser(userId: string, userData: UpdateUserData): Observable<User> {
+        return this._httpClient.put<User>(
+            environment.ENDPOINT.userById(userId),
+            userData
+        ).pipe(
+            catchError(error => throwError(() => error))
+        );
+    }
+    
+    /**
+     * Mettre à jour le rôle d'un utilisateur (admin uniquement)
+     */
+    updateUserRole(userId: string, roleData: UpdateRoleData): Observable<User> {
+        return this._httpClient.put<User>(
+            environment.ENDPOINT.updateUserRole(userId),
+            roleData
+        ).pipe(
+            catchError(error => throwError(() => error))
+        );
     }
 }

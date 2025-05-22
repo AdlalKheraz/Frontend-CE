@@ -148,17 +148,16 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.updateDisplayedCivilizations();
         this.loadCivilizations();
         // Vérifier si l'utilisateur est connecté
-        this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-            this.isLoggedIn = isLoggedIn;
-
-            // Si l'utilisateur est connecté, récupérer son nom à partir de l'objet user
-            if (isLoggedIn && this.authService.currentUser) {
-                // Utiliser directement les informations du currentUser
-                this.userName = `${this.authService.currentUser.firstName} ${this.authService.currentUser.lastName}` || this.authService.currentUser.email || 'Utilisateur';
+        this.authService.fetchCurrentUserFromToken().subscribe(user=>{
+            if (user) {
+                this.userName = `${user.firstName} ${user.lastName}` || user.email || 'Utilisateur';
             } else {
                 this.userName = 'Visiteur';
             }
-            
+            this.cdr.markForCheck();
+        })
+        this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+            this.isLoggedIn = isLoggedIn;
             this.cdr.markForCheck(); // Forcer la détection de changement pour mettre à jour l'affichage
         });
 

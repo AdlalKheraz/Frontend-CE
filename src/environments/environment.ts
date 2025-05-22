@@ -6,6 +6,11 @@ export const environment = {
         register: () => `${environment.baseUrl}/api/auth/register`,
         login: () => `${environment.baseUrl}/api/auth/login`,
         
+        // User Management
+        users: () => `${environment.baseUrl}/api/users`,
+        userById: (id: string) => `${environment.baseUrl}/api/users/${id}`,
+        updateUserRole: (id: string) => `${environment.baseUrl}/api/users/${id}/role`,
+        
         // Civilization Management
         civilizations: () => `${environment.baseUrl}/api/civilizations`,
         civilizationById: (id: string) => `${environment.baseUrl}/api/civilizations/${id}`,
