@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
@@ -396,11 +396,66 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     // Méthode pour charger les commentaires de l'événement actuel
     loadComments(): void {
         this.commentService.loadCommentsByEvent(this.currentEventId).subscribe({
+            next: (comments) => {
+                // Les données sont déjà mises à jour via le BehaviorSubject
+                console.log(`${comments.length} commentaires chargés`);
+                this.cdr.markForCheck();
+            },
             error: (error) => {
                 console.error('Erreur lors du chargement des commentaires:', error);
                 this.cdr.markForCheck();
             }
         });
+    }
+
+    // Méthode pour charger les commentaires lors d'un changement d'événement
+    loadCommentsForEvent(eventId: string): void {
+      // Si l'ID d'événement a changé, réinitialiser les commentaires
+      if (this.currentEventId !== eventId) {
+        this.commentService.resetComments();
+        this.currentEventId = eventId;
+      }
+      
+      this.loadComments();
+    }
+
+    // Méthode pour charger plus de commentaires (pagination)
+    loadMoreComments(): void {
+      // Calculer la page suivante (en supposant que nous stockons la page courante)
+      const nextPage = Math.ceil(this.apiComments.length / 10) + 1;
+      
+      this.commentService.loadMoreComments(this.currentEventId, nextPage).subscribe({
+        next: (comments) => {
+          console.log(`${comments.length} commentaires supplémentaires chargés`);
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement de commentaires supplémentaires:', error);
+          this.cdr.markForCheck();
+        }
+      });
+    }
+
+    // Méthode pour supprimer un commentaire (si l'utilisateur est l'auteur)
+    deleteComment(commentId: string): void {
+      this.commentService.deleteComment(commentId).subscribe({
+        next: () => {
+          console.log('Commentaire supprimé avec succès');
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression du commentaire:', error);
+          this.cdr.markForCheck();
+        }
+      });
+    }
+
+    // Méthode pour mettre à jour l'événement actuel et charger les commentaires correspondants
+    setCurrentEvent(eventId: string): void {
+      if (this.currentEventId !== eventId) {
+        this.currentEventId = eventId;
+        this.loadComments();
+      }
     }
 
     // Méthode modifiée pour ajouter un commentaire via le service
