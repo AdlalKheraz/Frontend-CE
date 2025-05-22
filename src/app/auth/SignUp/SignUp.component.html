@@ -12,8 +12,15 @@
                     <form (ngSubmit)="onSignUp($event)">
                         <div class="form-control">
                             <fieldset class="fieldset">
+                                <legend class="fieldset-legend">Prénom</legend>
+                                <input type="text" name="firstName" [(ngModel)]="firstName" placeholder="Votre prénom" class="input input-bordered" required/>
+                            </fieldset>
+                        </div>
+                        
+                        <div class="form-control mt-4">
+                            <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Nom</legend>
-                                <input type="text" name="name" [(ngModel)]="name" placeholder="Votre nom" class="input input-bordered" required/>
+                                <input type="text" name="lastName" [(ngModel)]="lastName" placeholder="Votre nom" class="input input-bordered" required/>
                             </fieldset>
                         </div>
                         
@@ -38,8 +45,16 @@
                             </fieldset>
                         </div>
                         
+                        <div class="alert alert-error mt-4" *ngIf="errorMessage">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span>{{errorMessage}}</span>
+                        </div>
+                        
                         <div class="form-control mt-6">
-                            <button type="submit" class="btn btn-primary">S'inscrire</button>
+                            <button type="submit" class="btn btn-primary" [disabled]="isLoading | async">
+                                <span *ngIf="isLoading | async" class="loading loading-spinner"></span>
+                                S'inscrire
+                            </button>
                         </div>
                     </form>
                 </div>

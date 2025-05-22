@@ -159,19 +159,15 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
             this.isLoggedIn = isLoggedIn;
 
-            // Si l'utilisateur est connecté, essayer d'obtenir son nom
-            if (isLoggedIn && this.authService.accessToken) {
-                try {
-                    // Essayer de décoder le token pour obtenir le nom de l'utilisateur
-                    const userInfo = this.authService.getInfoUser(this.authService.accessToken);
-                    this.userName = userInfo.name || 'Utilisateur';
-                } catch (error) {
-                    console.error('Erreur lors de la récupération des informations utilisateur', error);
-                    this.userName = 'Utilisateur';
-                }
+            // Si l'utilisateur est connecté, récupérer son nom à partir de l'objet user
+            if (isLoggedIn && this.authService.currentUser) {
+                // Utiliser directement les informations du currentUser
+                this.userName = `${this.authService.currentUser.firstName} ${this.authService.currentUser.lastName}` || this.authService.currentUser.email || 'Utilisateur';
             } else {
                 this.userName = 'Visiteur';
             }
+            
+            this.cdr.markForCheck(); // Forcer la détection de changement pour mettre à jour l'affichage
         });
 
         // Abonnez-vous au flux de commentaires
@@ -398,7 +394,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.commentService.loadCommentsByEvent(this.currentEventId).subscribe({
             next: (comments) => {
                 // Les données sont déjà mises à jour via le BehaviorSubject
-                console.log(`${comments.length} commentaires chargés`);
                 this.cdr.markForCheck();
             },
             error: (error) => {

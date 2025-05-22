@@ -10,6 +10,8 @@ export interface User {
   id?: string;
   name?: string;
   email: string;
+  firstName?: string; // Ajout de firstName
+  lastName?: string; // Ajout de lastName
   given_name?: string;
   family_name?: string;
   sid?: string;
@@ -20,6 +22,8 @@ export interface AuthResponse {
     email: string;
     role: string;
     expiresIn: number;
+    firstName: string,
+    lastName: string,
 }
 
 export enum AuthLoadingState {
@@ -126,13 +130,13 @@ export class AuthService {
                 
                 // Décoder les informations utilisateur
                 const userInfo = this.getInfoUser(response.token);
-                
+                const info= {...userInfo,firstName:response.firstName,lastName:response.lastName}
                 // Mettre à jour les états
                 this._authenticated = true;
                 this._isLoggedInSubject.next(true);
                 this._authStateSubject.next({
                     loading: AuthLoadingState.LOADED,
-                    user: userInfo
+                    user: info
                 });
 
                 return of(response);
@@ -180,11 +184,10 @@ export class AuthService {
      *
      * @param userData
      */
-    signUp(userData: { email: string; password: string; name?: string }): Observable<any> {
-        const { name,...user } = userData;
+    signUp(userData: { email: string; password: string; firstName: string; lastName: string }): Observable<any> {
         return this._httpClient.post(
             environment.ENDPOINT.register(),
-            user,
+            userData,
         ).pipe(
             catchError(error => throwError(() => error))
         );
