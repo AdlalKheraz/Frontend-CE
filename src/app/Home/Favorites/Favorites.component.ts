@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FavoritesService } from '@core/services/favorites.service';
+// import { FavoritesService } from '@core/services/favorites.service';
 
 @Component({
   selector: 'app-favorites',
@@ -17,7 +17,7 @@ export class FavoritesComponent implements OnInit {
   selectedFavorites: string[] = [];
   selectMode = false;
   
-  constructor(private favoritesService: FavoritesService) {}
+//   constructor(private favoritesService: FavoritesService) {}
   
   ngOnInit() {
     // Simuler le chargement des favoris
