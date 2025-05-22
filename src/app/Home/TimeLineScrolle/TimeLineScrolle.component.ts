@@ -178,9 +178,16 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     
     const subscription = this.eventService.events$.subscribe({
       next: (state) => {
-        if (state.loading === LoadingState.LOADED && state.data) {
-          // Transformer les données du service en format TimelineEvent
-          this.allEvents = this.mapHistoricalEventsToTimelineEvents(state.data);
+        if (state.loading === LoadingState.LOADED) {
+          // Vérifier si des données existent
+          if (state.data && state.data.length > 0) {
+            // Transformer les données du service en format TimelineEvent
+            this.allEvents = this.mapHistoricalEventsToTimelineEvents(state.data);
+          } else {
+            // Aucun événement retourné
+            this.allEvents = [];
+          }
+          
           this.filterEvents();
           this.currentYear = this.filteredEvents[0]?.year || 0;
           this.loading = false;
@@ -283,6 +290,13 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   }
   
   filterEvents() {
+    if (this.allEvents.length === 0) {
+      this.filteredEvents = [];
+      this.error = 'Aucun événement à afficher';
+      this.cdr.detectChanges();
+      return;
+    }
+    
     if (this._selectedCivilization === 'Toutes') {
       this.filteredEvents = [...this.allEvents];
     } else {
@@ -290,6 +304,16 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
         event => event.civilization === this._selectedCivilization
       );
     }
+    
+    // Si après filtrage, il ne reste aucun événement
+    if (this.filteredEvents.length === 0) {
+      this.error = `Aucun événement trouvé pour la civilisation "${this._selectedCivilization}"`;
+      this.cdr.detectChanges();
+      return;
+    }
+    
+    // Réinitialiser l'erreur s'il y a des événements
+    this.error = null;
     
     // Réinitialiser l'événement actif
     this.activeEventIndex = 0;
@@ -312,17 +336,43 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   private filterEventsWithSearch(searchParams: any): void {
     console.log('Filtrage des événements avec les paramètres:', searchParams);
     
-    // Cette méthode peut être implémentée pour filtrer les événements en fonction
-    // des critères de recherche (nom, années, type, civilisation)
-    
-    // Exemple d'implémentation (à adapter selon votre structure de données):
-    // 1. Filtrer par nom d'événement
-    // 2. Filtrer par période (année de début/fin)
-    // 3. Filtrer par civilisation
-    // 4. Filtrer par type d'événement
-    
-    // Puis appliquer ces filtres à votre timeline
-    
-    this.filterEvents(); // Appeler la méthode existante si besoin
+    // Vérifier si les résultats de recherche existent dans les paramètres
+    if (searchParams && searchParams.content) {
+      // Les données sont au format paginé
+      const searchResults = searchParams.content || [];
+      
+      // Transformer les résultats de recherche en format TimelineEvent
+      this.allEvents = searchResults.map((event: any, index: number) => {
+        // Extraire l'année de la date (format attendu: YYYY-MM-DD)
+        const year = new Date(event.date).getFullYear();
+        
+        return {
+          id: event.id || index + 1,
+          year: year,
+          title: event.title || 'Sans titre',
+          description: event.description || 'Aucune description disponible',
+          civilization: event.civilizationId || 'Inconnue',
+          image: event.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png',
+          active: index === 0 // Premier événement actif par défaut
+        };
+      });
+      
+      if (this.allEvents.length === 0) {
+        console.log('Aucun résultat trouvé pour les critères de recherche');
+      }
+      
+      // Mettre à jour les événements filtrés
+      this.filterEvents();
+    } else {
+      console.log('Format de résultats de recherche non valide ou vide');
+    }
+  }
+
+  // Exposer l'événement actif pour le composant parent
+  getActiveEvent(): TimelineEvent | null {
+    if (this.filteredEvents.length === 0 || this.activeEventIndex >= this.filteredEvents.length) {
+      return null;
+    }
+    return this.filteredEvents[this.activeEventIndex];
   }
 }

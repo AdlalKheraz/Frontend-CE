@@ -116,25 +116,23 @@
             <div class="search-form">
                 <div class="search-field">
                     <input
-                        type="text"
-                        [(ngModel)]="searchEvent"
                         placeholder="Nom de l'événement..."
+                        [(ngModel)]="searchEvent"
                     >
                 </div>
 
                 <div class="search-field">
-
                     <div class="period-inputs">
-                        <input
-                            type="number"
+                        <input 
+                            type="number" 
+                            placeholder="Année de début" 
                             [(ngModel)]="searchStartYear"
-                            placeholder="Année début"
                         >
                         <span>à</span>
-                        <input
-                            type="number"
+                        <input 
+                            type="number" 
+                            placeholder="Année de fin" 
                             [(ngModel)]="searchEndYear"
-                            placeholder="Année fin"
                         >
                     </div>
                 </div>
@@ -177,7 +175,12 @@
 
     <!-- Image à droite qui s'agrandit après connexion -->
     <div class="image-container logged-in" #container>
-        <app-time-line-scrolle class="size-full" [selectedCivilization]="selectedCivilization" [searchParams]="activeSearchParams" [detailsVisible]="detailsVisible && isLoggedIn"/>
+        <app-time-line-scrolle 
+            class="size-full" 
+            [selectedCivilization]="selectedCivilization" 
+            [searchParams]="activeSearchParams"
+            [detailsVisible]="detailsVisible && isLoggedIn">
+        </app-time-line-scrolle>
     </div>
     <button class="follow-button btn" #followButton (click)="buttonClicked()">{{text}}</button>
 

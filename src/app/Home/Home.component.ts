@@ -9,21 +9,9 @@ import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.comp
 import { CommentService, Comment } from '@core/services/comment.service'; // Importez le service et l'interface
 import { LoadingState } from '@core/models/api.model'; // Importez également le type de chargement
 import { CivilizationService, Civilization } from '@core/services/civilization.service'; // Ajout de cette ligne
+import { FilterService } from '@core/services/filter.service';
+import { SearchParams } from '@app/shared/interfaces/search-params.interface';
 
-
-// Interface pour les paramètres de recherche
-interface SearchParams {
-    event?: string;
-    startYear?: number;
-    endYear?: number;
-    civilization?: string;
-    eventTypes?: {
-        cultural: boolean;
-        political: boolean;
-        military: boolean;
-        scientific: boolean;
-    };
-}
 
 @Component({
     selector: 'app-home',
@@ -100,6 +88,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     private ngZone: NgZone=inject(NgZone)
     private commentService: CommentService=inject(CommentService)
     private civilizationService: CivilizationService=inject(CivilizationService)
+    // Injecter le service
+    private filterService = inject(FilterService);
 
     private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -142,6 +132,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     userMenuOpen = false;
 
+    // Variable pour stocker les résultats de recherche
+    searchResults: any[] = [];
+    isSearching = false;
 
     ngOnInit(): void {
         // Initialiser les civilisations à afficher (3 max)
@@ -170,6 +163,15 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
         // Chargez les commentaires pour l'événement actuel
         this.loadComments();
+
+        // S'abonner aux changements d'état du filtre
+        this._subscription.add(
+            this.filterService.filterState$.subscribe(state => {
+                this.searchResults = state.lastResults;
+                this.isSearching = state.loading;
+                this.cdr.markForCheck();
+            })
+        );
     }
 
     ngAfterViewInit(): void {
@@ -206,6 +208,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.commentSubscription) {
             this.commentSubscription.unsubscribe();
         }
+
+        // Désabonnez-vous des changements d'état du filtre
+        this._subscription.unsubscribe();
     }
 // Méthode pour charger les civilisations depuis le service
     loadCivilizations(): void {
@@ -600,6 +605,40 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cdr.markForCheck();
     }
 
+    // Méthode pour soumettre la recherche
+    submitSearch(): void {
+        const searchParams = {
+            event: this.searchEvent,
+            startYear: this.searchStartYear!,
+            endYear: this.searchEndYear!,
+            civilization: this.searchCivilization || 'Toutes',
+            eventTypes: this.searchEventTypes,
+            page: 0,
+            size: 50 // Récupérer un bon nombre d'événements
+        };
+
+        // Rechercher les événements via le service
+        this.filterService.searchEvents(searchParams).subscribe({
+            next: (response) => {
+                // Fermer le panneau de recherche
+                this.searchOpen = false;
+                
+                // Mise à jour des paramètres de recherche actifs
+                this.activeSearchParams = response;
+                
+                // Afficher un message si aucun résultat
+                if (response.content && response.content.length === 0) {
+                    console.log('Aucun résultat trouvé');
+                    // Vous pourriez afficher un message à l'utilisateur ici
+                }
+            },
+            error: (err) => {
+                console.error('Erreur lors de la recherche:', err);
+                // Afficher un message d'erreur à l'utilisateur
+            }
+        });
+    }
+    
     // Méthode pour réinitialiser la recherche
     resetSearch(): void {
         this.searchEvent = '';
@@ -612,31 +651,63 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             military: false,
             scientific: false
         };
-
+        
+        // Réinitialiser le service de filtrage
+        this.filterService.resetFilters();
+        this.activeSearchParams = null;
+        
         this.cdr.markForCheck();
     }
-
-    // Méthode pour soumettre la recherche
-    submitSearch(): void {
-        // Créer un objet avec les paramètres de recherche
-        this.activeSearchParams = {
-            event: this.searchEvent || undefined,
-            startYear: this.searchStartYear || undefined,
-            endYear: this.searchEndYear || undefined,
-            civilization: this.searchCivilization || undefined,
-            eventTypes: { ...this.searchEventTypes }
-        };
-
-        // Fermer le panneau de recherche
-        this.searchOpen = false;
-        this.islandExpanded = false;
-
-        // Informer l'utilisateur que la recherche a été appliquée
-        console.log('Recherche appliquée:', this.activeSearchParams);
-
-        this.cdr.markForCheck();
+    
+    // Méthode pour filtrer par civilisation
+    filterByCivilization(civ: string): void {
+        this.selectedCivilization = civ;
+        
+        // Utiliser le service pour filtrer par civilisation
+        if (civ !== 'Toutes') {
+            const selectedCiv = this.getCivilizationByName(civ);
+            if (selectedCiv && selectedCiv.id) {
+                this.filterService.filterByCivilization(selectedCiv.id).subscribe({
+                    next: () => {
+                        // Mise à jour des paramètres actifs pour la timeline
+                        this.activeSearchParams = {
+                            ...this.activeSearchParams || {},
+                            civilization: civ
+                        };
+                        
+                        // Fermer le panneau des civilisations
+                        this.civilizationsPanelOpen = false;
+                        this.islandExpanded = false;
+                        
+                        this.cdr.markForCheck();
+                    },
+                    error: (error) => {
+                        console.error('Erreur lors du filtrage par civilisation:', error);
+                    }
+                });
+            }
+        } else {
+            // Réinitialiser le filtrage par civilisation
+            this.filterService.filterByCivilization('').subscribe({
+                next: () => {
+                    if (this.activeSearchParams) {
+                        const { civilization, ...otherParams } = this.activeSearchParams;
+                        this.activeSearchParams = otherParams;
+                    }
+                    
+                    // Fermer le panneau des civilisations
+                    this.civilizationsPanelOpen = false;
+                    this.islandExpanded = false;
+                    
+                    this.cdr.markForCheck();
+                }
+            });
+        }
+        
+        // Mettre à jour l'affichage des civilisations
+        this.updateDisplayedCivilizations();
     }
-
+    
     // Méthode pour ouvrir/fermer le menu utilisateur
     toggleUserMenu(): void {
         // Fermer les autres panneaux

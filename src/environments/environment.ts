@@ -21,7 +21,8 @@ export const environment = {
         eventById: (id: string) => `${environment.baseUrl}/api/events/${id}`,
         eventsByCivilization: (civilizationId: string) => 
         `${environment.baseUrl}/api/events/civilization/${civilizationId}`,
-        
+        searchEvents: () => `${environment.baseUrl}/api/events/search`, // Nouvel endpoint
+
         // Comments Management
         comments: () => `${environment.baseUrl}/api/comments`,
         commentsByEvent: (eventId: string) => 
