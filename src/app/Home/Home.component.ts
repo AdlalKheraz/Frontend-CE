@@ -294,9 +294,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     logout(): void {
         this.authService.signOut().subscribe(() => {
-            setTimeout(() => {
-                this.router.navigate(['/login']);
-            }, 500);
+            // setTimeout(() => {
+            //     this.router.navigate(['/login']);
+            // }, 500);
         });
     }
 
