@@ -46,6 +46,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Pour Dynamic Island - Civilisations améliorées
     civilizations = [
+        'Toutes',
         'Égyptienne',
         'Grecque',
         'Romaine',
@@ -56,7 +57,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         'Renaissance',
         'Médiévale',
         'Préhistorique',
-        'Toutes'
     ];
     selectedCivilization = this.civilizations[0];
 
