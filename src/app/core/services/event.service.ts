@@ -40,22 +40,23 @@ export class EventService {
     });
   }
 
-  loadAllEvents(): Observable<ApiResponse<HistoricalEvent[]>> {
+  loadAllEvents(): Observable<HistoricalEvent[]> {
     this.eventsState.next({
       loading: LoadingState.LOADING,
       data: this.eventsState.value.data
     });
     
-    return this.http.get<ApiResponse<HistoricalEvent[]>>(
+    return this.http.get<HistoricalEvent[]>(
       environment.ENDPOINT.events(),
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
+        if (response) {
           this.eventsState.next({
             loading: LoadingState.LOADED,
-            data: response.data
+            data: response
           });
+          
         }
       }),
       catchError(error => {
@@ -69,21 +70,21 @@ export class EventService {
     );
   }
 
-  loadEventById(id: string): Observable<ApiResponse<HistoricalEvent>> {
+  loadEventById(id: string): Observable<HistoricalEvent> {
     this.selectedEventState.next({
       loading: LoadingState.LOADING,
       data: this.selectedEventState.value.data
     });
     
-    return this.http.get<ApiResponse<HistoricalEvent>>(
+    return this.http.get<HistoricalEvent>(
       environment.ENDPOINT.eventById(id),
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
+        if (response) {
           this.selectedEventState.next({
             loading: LoadingState.LOADED,
-            data: response.data
+            data: response
           });
         }
       }),
