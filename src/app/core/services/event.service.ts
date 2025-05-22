@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { ApiResponse, LoadingState, StateData } from '../models/api.model';
@@ -31,6 +31,15 @@ export class EventService {
   
   constructor(private http: HttpClient) {}
 
+  // Méthode privée pour créer les headers avec le token
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('accessToken');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
   loadAllEvents(): Observable<ApiResponse<HistoricalEvent[]>> {
     this.eventsState.next({
       loading: LoadingState.LOADING,
@@ -38,7 +47,8 @@ export class EventService {
     });
     
     return this.http.get<ApiResponse<HistoricalEvent[]>>(
-      environment.ENDPOINT.events()
+      environment.ENDPOINT.events(),
+      { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -66,7 +76,8 @@ export class EventService {
     });
     
     return this.http.get<ApiResponse<HistoricalEvent>>(
-      environment.ENDPOINT.eventById(id)
+      environment.ENDPOINT.eventById(id),
+      { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -94,7 +105,8 @@ export class EventService {
     });
     
     return this.http.get<ApiResponse<HistoricalEvent[]>>(
-      environment.ENDPOINT.eventsByCivilization(civilizationId)
+      environment.ENDPOINT.eventsByCivilization(civilizationId),
+      { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
         if (response.success && response.data) {
@@ -118,7 +130,8 @@ export class EventService {
   createEvent(event: HistoricalEvent): Observable<ApiResponse<HistoricalEvent>> {
     return this.http.post<ApiResponse<HistoricalEvent>>(
       environment.ENDPOINT.events(),
-      event
+      event,
+      { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
         if (response.success && response.data) {

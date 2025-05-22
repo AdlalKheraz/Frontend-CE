@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, Input, NgZone, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Subscription, fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
+import { EventService, HistoricalEvent } from '../../core/services/event.service';
+import { LoadingState } from '../../core/models/api.model';
 
 // Modèle d'événement historique
 export interface TimelineEvent {
@@ -132,15 +134,20 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   // Événements filtrés à afficher
   filteredEvents: TimelineEvent[] = [];
   
+  // État de chargement
+  loading = true;
+  error: string | null = null;
+  
   constructor(
     private renderer: Renderer2, 
     private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private eventService: EventService
   ) {}
   
   ngOnInit() {
-    this.filterEvents();
-    this.currentYear = this.filteredEvents[0]?.year || 0;
+    // Charger les événements depuis le service
+    this.loadEvents();
     
     // Ajouter un écouteur d'événement pour le scroll sur tout le document
     this.ngZone.runOutsideAngular(() => {
@@ -164,6 +171,57 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Chargement des événements depuis le service
+  loadEvents() {
+    this.loading = true;
+    this.error = null;
+    
+    const subscription = this.eventService.events$.subscribe({
+      next: (state) => {
+        if (state.loading === LoadingState.LOADED && state.data) {
+          // Transformer les données du service en format TimelineEvent
+          this.allEvents = this.mapHistoricalEventsToTimelineEvents(state.data);
+          this.filterEvents();
+          this.currentYear = this.filteredEvents[0]?.year || 0;
+          this.loading = false;
+          this.cdr.detectChanges();
+        } else if (state.loading === LoadingState.ERROR) {
+          this.error = state.error || 'Erreur lors du chargement des événements';
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        this.error = 'Erreur lors du chargement des événements';
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
+    
+    this.subscriptions.add(subscription);
+    
+    // Déclencher le chargement des événements
+    this.eventService.loadAllEvents().subscribe();
+  }
+  
+  // Mapper les événements historiques au format TimelineEvent
+  private mapHistoricalEventsToTimelineEvents(events: HistoricalEvent[]): TimelineEvent[] {
+    return events.map((event, index) => {
+      // Extraire l'année de la date (format attendu: YYYY-MM-DD)
+      const year = new Date(event.date).getFullYear();
+      
+      return {
+        id: index + 1, // Générer un ID si nécessaire
+        year: year,
+        title: event.title,
+        description: event.description,
+        civilization: event.civilizationId, // Utiliser l'ID comme nom pour l'instant
+        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png', // Image par défaut
+        active: index === 0 // Premier événement actif par défaut
+      };
+    });
+  }
+  
   // Gestionnaire de scroll global pour tout le document
   private handleGlobalScroll(event: WheelEvent) {
     // Si déjà en cours de défilement, ne rien faire
