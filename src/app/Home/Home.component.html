@@ -103,10 +103,34 @@
     <!-- Overlay pour les détails supplémentaires avec effet de flou -->
     <div class="details-overlay" *ngIf="detailsVisible && isLoggedIn" (click)="hideDetails()">
         <!-- Affichage du texte de l'événement actif par-dessus l'effet de flou -->
-        <div class="event-highlight" *ngIf="timelineComponent?.getActiveEvent()">
+        <div class="event-highlight" *ngIf="timelineComponent?.getActiveEvent()" (click)="$event.stopPropagation()" (wheel)="onDetailScroll($event)">
+            <!-- Contenu de l'événement avec défilement -->
+            <div class="highlight-content-wrapper">
+                <div class="highlight-content">
+                    <div class="highlight-civilization">{{ timelineComponent.getActiveEvent().civilization }}</div>
             <h2 class="highlight-title">{{ timelineComponent.getActiveEvent().title }}</h2>
             <div class="highlight-year">{{ timelineComponent.getActiveEvent().year < 0 ? timelineComponent.getActiveEvent().year * -1 + ' av. J.-C.' : timelineComponent.getActiveEvent().year }}</div>
+                    <div class="highlight-image">
+                        <img [src]="timelineComponent.getActiveEvent().image" [alt]="timelineComponent.getActiveEvent().title">
+                    </div>
             <p class="highlight-description">{{ timelineComponent.getActiveEvent().description }}</p>
+                    
+                    <!-- Espace pour les médias futurs -->
+                    <div class="highlight-media">
+                        <!-- Contenu média futur (vidéos, images, etc.) sera ajouté ici -->
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="highlight-actions">
+                        <button class="action-btn comments-btn" (click)="openCommentsForCurrentEvent()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                            Voir les commentaires
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
    
@@ -179,7 +203,8 @@
             class="size-full" 
             [selectedCivilization]="selectedCivilization" 
             [searchParams]="activeSearchParams"
-            [detailsVisible]="detailsVisible && isLoggedIn">
+            [detailsVisible]="detailsVisible && isLoggedIn"
+            (eventSelected)="onEventSelected($event)">
         </app-time-line-scrolle>
     </div>
     <button class="follow-button btn" #followButton (click)="buttonClicked()">{{text}}</button>
@@ -191,6 +216,10 @@
     <div class="comments-panel" [class.open]="commentsOpen">
         <div class="comments-header">
             <h3>Commentaires</h3>
+            <div class="event-reference" *ngIf="getActiveEvent()">
+                <span class="event-ref-title">Événement: {{ getActiveEvent().title }}</span>
+                <span class="event-ref-year">{{ getActiveEvent().year < 0 ? getActiveEvent().year * -1 + ' av. J.-C.' : getActiveEvent().year }}</span>
+            </div>
         </div>
 
         <div class="comments-list">
@@ -203,6 +232,11 @@
             <!-- Message d'erreur -->
             <div class="error-message" *ngIf="commentsLoading === 'ERROR'">
                 <p>Impossible de charger les commentaires. Veuillez réessayer plus tard.</p>
+            </div>
+
+            <!-- Information sur l'événement actif -->
+            <div class="current-event-info" *ngIf="commentsLoading === 'LOADED' && apiComments.length === 0">
+                <p>Vous consultez les commentaires pour l'événement <strong>{{ getActiveEvent()?.title }}</strong>.</p>
             </div>
 
             <!-- Liste des commentaires -->
@@ -227,7 +261,7 @@
             <input
                 type="text"
                 class="comment-input"
-                placeholder="{{ isLoggedIn ? 'Écrire un commentaire...' : 'Connectez-vous pour commenter' }}"
+                placeholder="{{ isLoggedIn ? 'Écrire un commentaire pour ' + (getActiveEvent()?.title || 'cet événement') + '...' : 'Connectez-vous pour commenter' }}"
                 [(ngModel)]="newComment"
                 (keyup.enter)="addComment()"
                 [disabled]="!isLoggedIn"

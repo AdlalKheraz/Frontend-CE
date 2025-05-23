@@ -1,16 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '@core/auth/auth.service';
-import { Subscription } from 'rxjs';
-import { ChangeDetectorRef } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
-import { CommentService, Comment } from '@core/services/comment.service'; // Importez le service et l'interface
-import { LoadingState } from '@core/models/api.model'; // Importez également le type de chargement
-import { CivilizationService, Civilization } from '@core/services/civilization.service'; // Ajout de cette ligne
-import { FilterService } from '@core/services/filter.service';
+import { Router, RouterLink } from '@angular/router';
 import { SearchParams } from '@app/shared/interfaces/search-params.interface';
+import { AuthService } from '@core/auth/auth.service';
+import { LoadingState } from '@core/models/api.model'; // Importez également le type de chargement
+import { Civilization, CivilizationService } from '@core/services/civilization.service'; // Ajout de cette ligne
+import { Comment, CommentService } from '@core/services/comment.service'; // Importez le service et l'interface
+import { FilterService } from '@core/services/filter.service';
+import { Subscription } from 'rxjs';
+import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
 
 
 @Component({
@@ -161,8 +160,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.cdr.markForCheck();
         });
 
-        // Chargez les commentaires pour l'événement actuel
-        this.loadComments();
+        // Chargez les commentaires pour l'événement initial
+        this.loadCommentsForEvent(this.currentEventId);
 
         // S'abonner aux changements d'état du filtre
         this._subscription.add(
@@ -194,6 +193,21 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.ngZone.runOutsideAngular(() => {
             this.animate();
         });
+        
+        // Surveillance des changements d'événements après l'initialisation de la vue
+        setTimeout(() => {
+            if (this.timelineComponent) {
+                console.log('Configuration de la surveillance des événements dans la timeline');
+                this._subscription.add(
+                    this.timelineComponent.eventSelected.subscribe((eventId: number) => {
+                        console.log(`Événement capturé par surveillance: ${eventId}`);
+                        this.onEventSelected(eventId);
+                    })
+                );
+            } else {
+                console.warn('Le composant timeline n\'est pas encore disponible');
+            }
+        }, 100);
     }
 
     ngOnDestroy(): void {
@@ -333,6 +347,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     logout(): void {
         this.authService.signOut().subscribe(() => {
+            // Mettre à jour le nom d'utilisateur à "Visiteur" après la déconnexion
+            this.userName = 'Visiteur';
+            this.cdr.markForCheck();
             // setTimeout(() => {
             //     this.router.navigate(['/login']);
             // }, 500);
@@ -415,12 +432,21 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     toggleComments(): void {
         this.commentsOpen = !this.commentsOpen;
 
-        // Si on ouvre les commentaires, on ferme tout le reste
+        // Si on ouvre les commentaires, on ferme tout le reste et on recharge les commentaires
         if (this.commentsOpen) {
             this.islandExpanded = false;
             this.civilizationsPanelOpen = false;
             this.searchOpen = false;
             this.userMenuOpen = false;
+            
+            // Recharger les commentaires pour l'événement actuel
+            const activeEvent = this.getActiveEvent();
+            if (activeEvent) {
+                const eventId = activeEvent.id.toString();
+                console.log(`Ouverture des commentaires pour l'événement ${eventId}`);
+                this.currentEventId = eventId; // Mettre à jour l'ID actuel
+                this.loadCommentsForEvent(eventId);
+            }
         }
 
         this.cdr.markForCheck();
@@ -464,13 +490,15 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Méthode pour charger les commentaires lors d'un changement d'événement
     loadCommentsForEvent(eventId: string): void {
-      // Si l'ID d'événement a changé, réinitialiser les commentaires
-      if (this.currentEventId !== eventId) {
-        this.commentService.resetComments();
-        this.currentEventId = eventId;
-      }
-      
-      this.loadComments();
+        console.log(`Chargement des commentaires pour l'événement ${eventId} (actuel: ${this.currentEventId})`);
+        
+        // Si l'ID d'événement a changé, réinitialiser les commentaires
+        if (this.currentEventId !== eventId) {
+            this.commentService.resetComments();
+            this.currentEventId = eventId;
+            this.loadComments();
+            this.cdr.markForCheck();
+        }
     }
 
     // Méthode pour charger plus de commentaires (pagination)
@@ -514,32 +542,29 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Méthode modifiée pour ajouter un commentaire via le service
     addComment(): void {
-        // Vérifier si l'utilisateur est connecté
-        if (!this.isLoggedIn) {
-            return;
-        }
-
-        if (this.newComment.trim()) {
-            // Création du commentaire au format attendu par l'API
-            const newComment: Comment = {
-                authorEmail: this.authService.currentUser?.email || 'anonymous@example.com',
-                content: this.newComment.trim(),
-                eventId: this.currentEventId
-            };
-
-            // Envoi du commentaire à l'API
-            this.commentService.createComment(newComment).subscribe({
-                next: (response) => {
-                    // Le state est déjà mis à jour par le service
-                    this.newComment = '';
-                    this.cdr.markForCheck();
-                },
-                error: (error) => {
-                    console.error('Erreur lors de l\'ajout du commentaire:', error);
-                    this.cdr.markForCheck();
-                }
-            });
-        }
+        if (!this.newComment.trim() || !this.isLoggedIn) return;
+        
+        const activeEvent = this.getActiveEvent();
+        if (!activeEvent) return;
+        
+        const eventId = activeEvent.id.toString();
+        console.log(`Ajout d'un commentaire pour l'événement actif: ${eventId}`);
+        
+        const comment: Comment = {
+            content: this.newComment.trim(),
+            eventId: eventId,
+            authorEmail: this.userName // Utilisation temporaire du nom d'utilisateur comme email
+        };
+        
+        this.commentService.createComment(comment).subscribe({
+            next: () => {
+                this.newComment = ''; // Réinitialiser le champ après envoi
+                this.cdr.markForCheck();
+            },
+            error: (error) => {
+                console.error('Erreur lors de l\'ajout du commentaire:', error);
+            }
+        });
     }
 
     // Méthode pour afficher l'îlot dynamique au survol
@@ -786,8 +811,80 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     // Méthode pour récupérer l'événement actif depuis le composant timeline
     getActiveEvent(): any {
         if (this.timelineComponent) {
-            return this.timelineComponent.getActiveEvent();
+            const activeEvent = this.timelineComponent.getActiveEvent();
+            if (activeEvent) {
+                console.log(`Événement actif récupéré: ${activeEvent.id} - ${activeEvent.title}`);
+                return activeEvent;
+            }
         }
         return null;
+    }
+
+    // Méthode appelée lorsqu'un événement est sélectionné dans la timeline
+    onEventSelected(eventId: number): void {
+        // Convertir l'ID en string si nécessaire pour l'API
+        const eventIdString = eventId.toString();
+        console.log(`Événement sélectionné: ${eventIdString}, commentaires ouverts: ${this.commentsOpen}`);
+        
+        // Si un nouvel événement est sélectionné, charger ses commentaires
+        if (this.currentEventId !== eventIdString) {
+            // Mettre à jour l'ID de l'événement actuel et charger les commentaires
+            this.loadCommentsForEvent(eventIdString);
+            
+            // Si le panneau de commentaires est déjà ouvert, forcer un rafraîchissement
+            if (this.commentsOpen) {
+                console.log("Panneau de commentaires déjà ouvert, rafraîchissement forcé");
+                setTimeout(() => {
+                    this.cdr.markForCheck();
+                }, 0);
+            }
+        }
+    }
+    
+    // Méthode pour naviguer entre les événements (précédent/suivant)
+    navigateEvent(direction: number): void {
+        if (!this.timelineComponent) return;
+        
+        const newIndex = this.timelineComponent.activeEventIndex + direction;
+        
+        // Vérifier que le nouvel index est valide
+        if (newIndex >= 0 && newIndex < this.timelineComponent.filteredEvents.length) {
+            console.log(`Navigation vers l'événement ${newIndex}`);
+            this.timelineComponent.setActiveEvent(newIndex);
+        }
+    }
+
+    // Méthode pour ouvrir les commentaires de l'événement actuel
+    openCommentsForCurrentEvent(): void {
+        const activeEvent = this.getActiveEvent();
+        if (activeEvent) {
+            const eventId = activeEvent.id.toString();
+            this.currentEventId = eventId;
+            this.loadCommentsForEvent(eventId);
+            this.commentsOpen = true;
+            this.hideDetails(); // Fermer les détails de l'événement
+            this.cdr.markForCheck();
+        }
+    }
+
+    // Méthode pour empêcher la propagation des événements de défilement
+    onDetailScroll(event: WheelEvent): void {
+        // Empêche la propagation de l'événement wheel à la timeline
+        event.stopPropagation();
+        
+        // Empêche également le comportement par défaut si nécessaire
+        const target = event.currentTarget as HTMLElement;
+        const content = target.querySelector('.highlight-content-wrapper') as HTMLElement;
+        
+        if (content) {
+            // Si on est au sommet et qu'on défile vers le haut, ou
+            // si on est en bas et qu'on défile vers le bas, empêcher le défilement par défaut
+            const atTop = content.scrollTop === 0;
+            const atBottom = content.scrollHeight - content.scrollTop === content.clientHeight;
+            
+            if ((atTop && event.deltaY < 0) || (atBottom && event.deltaY > 0)) {
+                event.preventDefault();
+            }
+        }
     }
 }

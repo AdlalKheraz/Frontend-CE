@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
 import { AuthService } from 'app/core/auth/auth.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
+  standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './SignUp.component.html',
   styleUrls: ['./SignUp.component.scss'],
@@ -20,10 +21,12 @@ export class SignUpComponent implements OnInit {
   password: string = '';
   confirmPassword: string = '';
   errorMessage: string = '';
+  isTransitioning = false;
 
   isSignedUp = new BehaviorSubject<boolean>(false);
   isLoading = new BehaviorSubject<boolean>(false);
   
+  private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
@@ -67,7 +70,7 @@ export class SignUpComponent implements OnInit {
             email: this.email,
             password: this.password
           }).subscribe(() => {
-            this.router.navigate(['/login']);
+            this.startTransitionToHome();
           });
         }, 1500);
       },
@@ -76,5 +79,22 @@ export class SignUpComponent implements OnInit {
         this.errorMessage = error.error?.message || 'Erreur lors de l\'inscription';
       }
     });
+  }
+  
+  // Méthode pour naviguer vers la page d'accueil avec une animation
+  navigateToHome() {
+    // Si on clique sur l'aperçu, on démarre l'animation et on navigue sans connexion
+    this.startTransitionToHome();
+  }
+  
+  // Méthode pour démarrer l'animation de transition
+  private startTransitionToHome() {
+    this.isTransitioning = true;
+    this.cdr.markForCheck();
+    
+    // Laisser le temps à l'animation de se dérouler avant de naviguer
+    setTimeout(() => {
+      this.router.navigate(['/home']);
+    }, 1200);
   }
 }

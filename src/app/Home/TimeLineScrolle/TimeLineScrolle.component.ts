@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, Input, NgZone, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { Subscription, fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
-import { EventService, HistoricalEvent } from '../../core/services/event.service';
 import { LoadingState } from '../../core/models/api.model';
+import { EventService, HistoricalEvent } from '../../core/services/event.service';
 
 // Modèle d'événement historique
 export interface TimelineEvent {
@@ -43,6 +43,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   }
   
   @Input() detailsVisible: boolean = false;
+
+  @Output() eventSelected = new EventEmitter<number>();
 
   @ViewChild('timelineContainer') timelineContainer!: ElementRef;
   
@@ -284,6 +286,11 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     if (this.filteredEvents[this.activeEventIndex]) {
       this.filteredEvents[this.activeEventIndex].active = true;
       this.currentYear = this.filteredEvents[this.activeEventIndex].year;
+      
+      // Émettre l'ID de l'événement
+      const eventId = this.filteredEvents[this.activeEventIndex].id;
+      console.log(`Émission de l'ID d'événement: ${eventId}`);
+      this.eventSelected.emit(eventId);
     }
     
     this.cdr.detectChanges();

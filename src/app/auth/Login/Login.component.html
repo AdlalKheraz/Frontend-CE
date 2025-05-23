@@ -1,45 +1,45 @@
-<div class="login-container" [ngClass]="{'logged-in': isLoggedIn|async}">
+<div class="login-container" [ngClass]="{'transition-active': isTransitioning}">
     <!-- Partie formulaire de connexion -->
-    <div class="login-form bg-base-100 p-8">
-        <div class="max-w-md mx-auto">
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-primary">Chrono Explorer</h1>
-                <p class="text-base-content/70 mt-2">Connectez-vous pour accéder à votre espace</p>
+    <div class="login-form">
+        <div class="login-form-content">
+            <h2 class="form-title">Email</h2>
+            <input type="email" name="email" [(ngModel)]="email" placeholder="Example@email.com" class="form-input" required/>
+            
+            <h2 class="form-title">Password</h2>
+            <input type="password" name="password" [(ngModel)]="password" placeholder="at least 8 characters" class="form-input" required/>
+            
+            <div class="form-actions">
+                <button type="button" class="sign-in-btn" (click)="onLogin($event)">Sign in</button>
             </div>
             
-            <div class="card bg-base-200 shadow-xl">
-                <div class="card-body">
-                    <form (ngSubmit)="onLogin($event)">
-                        <div class="form-control">
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Email</legend>
-                                <input type="email" name="email" [(ngModel)]="email" placeholder="Example@email.com" class="input input-bordered" required/>
-                            </fieldset>
-                        </div>
-                        
-                        <div class="form-control mt-4">
-                            <fieldset class="fieldset">
-                                <legend class="fieldset-legend">Mot de passe</legend>
-                                <input type="password" name="password" [(ngModel)]="password" placeholder="Minimum 8 caractères" class="input input-bordered" required/>
-                            </fieldset>
-                            <label class="label">
-                                <a href="#" class="label-text-alt link link-hover">Mot de passe oublié?</a>
-                            </label>
-                        </div>
-                        <div class="form-control mt-6">
-                            <button type="submit" class="btn btn-primary">Se connecter</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="text-center mt-4">
-                <p>Vous n'avez pas de compte? <a routerLink="/register" class="link link-primary">S'inscrire</a></p>
+            <div class="register-link">
+                <span>Don't you have an account? </span>
+                <a routerLink="/register" class="sign-up-link">Sign up</a>
             </div>
         </div>
     </div>
     
-    <!-- Image à droite qui s'agrandit après connexion -->
-    <div class="image-container" >
+    <!-- Image à droite cliquable qui montre un aperçu de la timeline home -->
+    <div class="image-container" (click)="navigateToHome()" [ngClass]="{'expanding': isTransitioning}">
+        <div class="event-content">
+            <h1 class="event-title">La Joconde</h1>
+            <h2 class="event-date">1503 et 1506</h2>
+            <p class="event-description">
+                La Joconde est le portrait d'une jeune femme, sur un fond de paysage montagneux aux horizons lointains et brumeux. Elle est disposée de trois quarts et représente jusqu'à mi-corps une jeune femme assise dans une loggia, les bras croisés, tournée de trois quarts vers le spectateur.
+            </p>
+        </div>
+        <div class="preview-overlay">
+            <div class="preview-message">
+                <span class="icon-expand">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                </span>
+                <span>Click to explore the timeline</span>
+            </div>
+        </div>
     </div>
 </div>

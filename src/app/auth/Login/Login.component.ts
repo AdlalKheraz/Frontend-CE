@@ -1,10 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
-import { AuthStoreService } from '@core/auth/auth.store';
-import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-login',
@@ -14,15 +12,16 @@ import { Subscription } from 'rxjs';
 	styleUrls: ['./Login.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent  {
+export class LoginComponent {
 	email = '';
 	password = '';
-	private router:Router = inject(Router);
+	isTransitioning = false;
+  
+	private router: Router = inject(Router);
 	private authService: AuthService = inject(AuthService);
+	private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 	// authStoreService:AuthStoreService = inject(AuthStoreService);
-	isLoggedIn =this.authService.isLoggedIn$
-
-
+	isLoggedIn = this.authService.isLoggedIn$;
 
 	onLogin(e: Event) {
 		e.preventDefault();
@@ -30,13 +29,28 @@ export class LoginComponent  {
 		this.authService.signIn({ email: this.email, password: this.password }).subscribe({
 			next: () => {
 				// Donner le temps de voir l'animation avant la redirection
-				setTimeout(() => {
-					this.router.navigate(['/home']);
-				}, 1100);
+				this.startTransitionToHome();
 			},
 			error: () => {
 				alert('Identifiants incorrects ou problème de connexion');
 			},
 		});
+	}
+  
+	// Méthode pour naviguer vers la page d'accueil avec une animation
+	navigateToHome() {
+		// Si on clique sur l'aperçu, on démarre l'animation et on navigue sans connexion
+		this.startTransitionToHome();
+	}
+  
+	// Méthode pour démarrer l'animation de transition
+	private startTransitionToHome() {
+		this.isTransitioning = true;
+		this.cdr.markForCheck();
+    
+		// Laisser le temps à l'animation de se dérouler avant de naviguer
+		setTimeout(() => {
+			this.router.navigate(['/home']);
+		}, 1200);
 	}
 }
