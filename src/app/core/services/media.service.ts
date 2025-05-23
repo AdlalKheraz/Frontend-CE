@@ -9,6 +9,8 @@ export interface Media {
   url: string;
   type: 'IMAGE' | 'VIDEO';
   eventId: string;
+  title?: string;
+  description?: string;
 }
 
 @Injectable({
@@ -56,6 +58,25 @@ export class MediaService {
     return this.http.post<ApiResponse<Media>>(
       environment.ENDPOINT.media(),
       media
+    ).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          // Ajouter le nouveau média à la liste
+          const currentData = this.mediaState.value.data || [];
+          this.mediaState.next({
+            loading: LoadingState.LOADED,
+            data: [...currentData, response.data]
+          });
+        }
+      }),
+      catchError(error => throwError(() => error))
+    );
+  }
+  
+  uploadMedia(formData: FormData): Observable<ApiResponse<Media>> {
+    return this.http.post<ApiResponse<Media>>(
+      `${environment.baseUrl}/api/media/upload`,
+      formData
     ).pipe(
       tap(response => {
         if (response.success && response.data) {

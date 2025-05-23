@@ -100,19 +100,19 @@ export class CivilizationService {
     );
   }
 
-  createCivilization(civilization: Civilization): Observable<Civilization> {
-    return this.http.post<Civilization>(
+  createCivilization(civilization: Civilization): Observable<ApiResponse<Civilization>> {
+    return this.http.post<ApiResponse<Civilization>>(
       environment.ENDPOINT.civilizations(),
       civilization,
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
-        if (response) {
+        if (response.success && response.data) {
           // Mettre à jour la liste des civilisations
           const currentData = this.civilizationsState.value.data || [];
           this.civilizationsState.next({
             loading: LoadingState.LOADED,
-            data: [...currentData, response]
+            data: [...currentData, response.data]
           });
         }
       }),
