@@ -26,7 +26,7 @@ export const environment = {
 
         // Comments Management
         comments: () => `${environment.baseUrl}/api/comments`,
-        commentsById: (id:string) => `${environment.baseUrl}/api/comments${id}`,
+        commentsById: (id:string) => `${environment.baseUrl}/api/comments/${id}`,
         commentsByEvent: (eventId: string) => 
         `${environment.baseUrl}/api/comments/event/${eventId}`,
         

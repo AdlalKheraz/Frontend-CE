@@ -43,3 +43,45 @@ $text-color: #333333;
     transform: scale(1.1);
   }
 }
+
+/* Styles pour les boutons d'action */
+.action-buttons {
+  .btn {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &.btn-delete {
+      background-color: #dc2626;
+      
+      &:hover {
+        background-color: #b91c1c;
+        box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+      }
+    }
+    
+    &.btn-details {
+      &:hover {
+        background-color: #6366f1;
+        color: white;
+      }
+    }
+  }
+}
+
+/* Animation pour les lignes supprimées */
+.table tbody tr {
+  transition: opacity 0.3s ease;
+  
+  &.deleting {
+    opacity: 0.5;
+    background-color: #fef2f2;
+  }
+}
