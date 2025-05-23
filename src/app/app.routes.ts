@@ -8,6 +8,7 @@ import { SignUpComponent } from './auth/SignUp/SignUp.component';
 import { EventsComponent } from './admin/Events/Events.component';
 import { CommentsComponent } from './admin/Comments/Comments.component';
 import { ProfileComponent } from './Home/Profile/Profile.component';
+import { UsersComponent } from './admin/Users/Users.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -25,6 +26,7 @@ export const routes: Routes = [
     children: [
       {path:'dashboard', component: DashboardComponent},
       {path: 'events', component: EventsComponent},
+      {path: 'users', component: UsersComponent},
       {path: 'comments', component: CommentsComponent},
       {path: 'new-event', component: NewEventComponent},
     ]
