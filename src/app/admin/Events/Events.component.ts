@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { EventService, HistoricalEvent } from '../../core/services/event.service';
 import { LoadingState } from '../../core/models/api.model';
 
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,RouterModule],
   templateUrl: './Events.component.html',
   styleUrl: './Events.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
