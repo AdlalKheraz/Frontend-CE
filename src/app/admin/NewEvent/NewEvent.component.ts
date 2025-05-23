@@ -42,7 +42,6 @@ export class NewEventComponent implements OnInit {
     this.eventForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      location: [''],
       date: ['', Validators.required]
     });
     
