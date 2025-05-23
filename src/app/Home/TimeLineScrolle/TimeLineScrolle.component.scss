@@ -26,7 +26,11 @@
   justify-content: center;
   padding: 20px 0;
   z-index: 50;
-  
+  & >li {
+    & > hr{
+      height: 25px;
+    }
+  } 
   &::before {
     content: '';
     position: absolute;
@@ -34,7 +38,7 @@
     bottom: 0;
     left: 50%;
     width: 2px;
-    background: rgba(255, 255, 255, 0.2);
+    // background: rgba(255, 255, 255, 0.2);
     transform: translateX(-1px);
   }
 }
@@ -415,5 +419,82 @@
   
   .event-title {
     font-size: 2rem;
+  }
+}
+
+/* Styles pour la timeline verticale */
+.timeline {
+  &.timeline-vertical {
+    
+    li {
+      
+      .timeline-middle {
+        svg {
+          opacity: 0.6;
+          transition: all 0.3s ease;
+        }
+        
+        &.active {
+          svg {
+            opacity: 1;
+            color: #fff;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+          }
+        }
+      }
+      
+      .timeline-end {
+        
+        &.timeline-box {
+          font-size: 14px;
+          opacity: 0.6;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(5px);
+          
+          &:hover {
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.15);
+          }
+          
+          &.active {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+          }
+        }
+      }
+      
+      &:hover {
+        .timeline-start {
+          opacity: 0.9;
+          transform: translateX(-5px);
+        }
+      }
+      
+      /* Style pour l'élément actif */
+      &:has(.active) {
+        .timeline-start {
+          opacity: 1;
+          font-weight: 700;
+          color: #fff;
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+      }
+    }
+  }
+}
+
+/* Alternative si :has() n'est pas supporté */
+.timeline.timeline-vertical li {
+  &.active-item {
+    .timeline-start {
+      opacity: 1;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
   }
 }

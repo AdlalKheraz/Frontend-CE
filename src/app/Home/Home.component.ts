@@ -821,7 +821,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.timelineComponent) {
             const activeEvent = this.timelineComponent.getActiveEvent();
             if (activeEvent) {
-                console.log(`Événement actif récupéré: ${activeEvent.id} - ${activeEvent.title}`);
                 return activeEvent;
             }
         }
