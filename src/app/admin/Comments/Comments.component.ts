@@ -121,52 +121,57 @@ export class CommentsComponent implements OnInit, OnDestroy {
   }
 
   // Méthodes liées aux actions des boutons
-  approveComment(commentId: string): void {
-    this.commentService.approveComment(commentId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          console.log(`Comment ${commentId} approved`);
-          // Les données sont automatiquement mises à jour via l'observable
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'approbation:', error);
-        }
-      });
-  }
-
-  rejectComment(commentId: string): void {
-    this.commentService.rejectComment(commentId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          console.log(`Comment ${commentId} rejected`);
-          // Les données sont automatiquement mises à jour via l'observable
-        },
-        error: (error) => {
-          console.error('Erreur lors du rejet:', error);
-        }
-      });
-  }
 
   deleteComment(commentId: string): void {
-    this.commentService.deleteComment(commentId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => {
-          console.log(`Comment ${commentId} deleted`);
-          // Les données sont automatiquement mises à jour via l'observable
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-        }
-      });
+    const comment = this.comments.find(c => c.id === commentId);
+    if (comment && confirm(`Êtes-vous sûr de vouloir supprimer définitivement le commentaire de ${comment.userName} ?\n\nCette action est irréversible.`)) {
+      this.commentService.deleteComment(commentId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            console.log(`Comment ${commentId} deleted`);
+            // Supprimer localement pour une réactivité immédiate
+            this.comments = this.comments.filter(c => c.id !== commentId);
+            this.filteredComments = this.filteredComments.filter(c => c.id !== commentId);
+            this.totalItems = this.filteredComments.length;
+            this.updateStats();
+            
+            // Ajuster la page courante si nécessaire
+            if (this.paginatedComments.length === 0 && this.currentPage > 1) {
+              this.currentPage--;
+            }
+            
+            this.cdr.markForCheck();
+            alert('Commentaire supprimé avec succès');
+          },
+          error: (error) => {
+            console.error('Erreur lors de la suppression:', error);
+            alert('Erreur lors de la suppression du commentaire');
+          }
+        });
+    }
   }
 
   showCommentDetails(commentId: string): void {
     const comment = this.comments.find(c => c.id === commentId);
     if (comment) {
-      alert(`Détails du commentaire #${commentId}\n\nAuteur: ${comment.userName}\nEmail: ${comment.authorEmail}\nÉvénement: ${comment.eventName}\nContenu: ${comment.content}\nDate: ${comment.date}\nStatut: ${comment.status}`);
+      // Créer une modal ou alert plus détaillée
+      const details = `
+📝 Détails du commentaire #${commentId}
+
+👤 Auteur: ${comment.userName}
+📧 Email: ${comment.authorEmail}
+🎯 Événement: ${comment.eventName}
+📅 Date: ${comment.date}
+⚡ Statut: ${comment.status.toUpperCase()}
+
+💬 Contenu:
+"${comment.content}"
+
+📊 Longueur: ${comment.content.length} caractères
+      `;
+      
+      alert(details);
     }
   }
 

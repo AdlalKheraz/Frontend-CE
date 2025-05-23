@@ -247,24 +247,11 @@
                   <td>
                     <div class="flex gap-2">
                       <button 
-                        (click)="approveComment(comment.id)"
-                        [disabled]="comment.status === 'approved'"
-                        class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-xs font-medium hover:bg-green-200 disabled:opacity-50"
+                        (click)="deleteComment(comment.id)"
+                        class="px-3 py-1 bg-red-500 text-white rounded-md text-xs font-medium hover:bg-red-600 transition-colors"
+                        title="Supprimer définitivement"
                       >
-                        Approve
-                      </button>
-                      <button 
-                        (click)="rejectComment(comment.id)"
-                        [disabled]="comment.status === 'rejected'"
-                        class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-xs font-medium hover:bg-red-200 disabled:opacity-50"
-                      >
-                        Reject
-                      </button>
-                      <button 
-                        (click)="showCommentDetails(comment.id)"
-                        class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium hover:bg-indigo-200"
-                      >
-                        Details
+                        Delete
                       </button>
                     </div>
                   </td>
