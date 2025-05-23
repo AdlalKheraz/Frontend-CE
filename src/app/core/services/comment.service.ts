@@ -88,7 +88,7 @@ export class CommentService {
   // Ajouter une méthode pour supprimer un commentaire (utile pour l'auteur du commentaire)
   deleteComment(commentId: string): Observable<void> {
     return this.http.delete<void>(
-      `${environment.ENDPOINT.comments()}/${commentId}`,
+      environment.ENDPOINT.commentsById(commentId),
       { headers: this.getHeaders() }
     ).pipe(
       tap(() => {
@@ -106,10 +106,8 @@ export class CommentService {
 
   // Ajouter une méthode pour charger plus de commentaires (pagination)
   loadMoreComments(eventId: string, page: number, limit: number = 10): Observable<Comment[]> {
-    const params = `?page=${page}&limit=${limit}`;
-    
     return this.http.get<Comment[]>(
-      `${environment.ENDPOINT.commentsByEvent(eventId)}${params}`,
+      `${environment.ENDPOINT.commentsByEvent(eventId)}?page=${page}&limit=${limit}`,
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
@@ -141,6 +139,82 @@ export class CommentService {
       { headers: this.getHeaders() }
     ).pipe(
       map(response => response.count),
+      catchError(error => throwError(() => error))
+    );
+  }
+
+  // Charger tous les commentaires (pour l'admin)
+  loadAllComments(): Observable<Comment[]> {
+    this.commentsState.next({
+      loading: LoadingState.LOADING,
+      data: this.commentsState.value.data
+    });
+    
+    return this.http.get<Comment[]>(
+      environment.ENDPOINT.comments(),
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(response => {
+        if (response) {
+          this.commentsState.next({
+            loading: LoadingState.LOADED,
+            data: response
+          });
+        }
+      }),
+      catchError(error => {
+        this.commentsState.next({
+          loading: LoadingState.ERROR,
+          data: [],
+          error: error.message || 'Erreur lors du chargement des commentaires'
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Approuver un commentaire
+  approveComment(commentId: string): Observable<Comment> {
+    return this.http.patch<Comment>(
+      `${environment.ENDPOINT.commentsById(commentId)}/approve`,
+      {},
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(response => {
+        if (response) {
+          const currentData = this.commentsState.value.data || [];
+          const updatedData = currentData.map(comment => 
+            comment.id === commentId ? response : comment
+          );
+          this.commentsState.next({
+            loading: LoadingState.LOADED,
+            data: updatedData
+          });
+        }
+      }),
+      catchError(error => throwError(() => error))
+    );
+  }
+
+  // Rejeter un commentaire
+  rejectComment(commentId: string): Observable<Comment> {
+    return this.http.patch<Comment>(
+      `${environment.ENDPOINT.commentsById(commentId)}/reject`,
+      {},
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(response => {
+        if (response) {
+          const currentData = this.commentsState.value.data || [];
+          const updatedData = currentData.map(comment => 
+            comment.id === commentId ? response : comment
+          );
+          this.commentsState.next({
+            loading: LoadingState.LOADED,
+            data: updatedData
+          });
+        }
+      }),
       catchError(error => throwError(() => error))
     );
   }
