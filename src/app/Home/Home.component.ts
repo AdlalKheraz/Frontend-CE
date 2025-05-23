@@ -26,6 +26,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     @ViewChild(TimeLineScrolleComponent) timelineComponent!: any;
 
     isLoggedIn = false;
+    isAdmin = false; // Nouvelle propriété pour détecter les administrateurs
     private _subscription: Subscription = new Subscription();
     text= 'Cliquer'
     
@@ -143,8 +144,11 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.authService.fetchCurrentUserFromToken().subscribe(user=>{
             if (user) {
                 this.userName = `${user.firstName} ${user.lastName}` || user.email || 'Utilisateur';
+                // Vérifier si l'utilisateur est administrateur
+                this.isAdmin = user.role === 'ADMIN';
             } else {
                 this.userName = 'Visiteur';
+                this.isAdmin = false;
             }
             this.cdr.markForCheck();
         })
