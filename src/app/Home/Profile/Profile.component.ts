@@ -131,18 +131,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
       console.error('ID utilisateur manquant');
       return;
     }
-
-    // this.authService.deleteUser(this.user.id).subscribe({
-    //   next: () => {
-    //     console.log('Compte supprimé avec succès');
-    //     this.authService.signOut();
-    //     this.router.navigate(['/']);
-    //   },
-    //   error: (error) => {
-    //     console.error('Erreur lors de la suppression du compte:', error);
-    //     // Ici, vous pourriez afficher un message d'erreur à l'utilisateur
-    //   }
-    // });
+    this.authService.deleteUser(this.user.id).subscribe({
+      next: () => {
+        console.log('Compte supprimé avec succès');
+        this.authService.signOut();
+        this.router.navigate(['/']);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la suppression du compte:', error);
+        // Ici, vous pourriez afficher un message d'erreur à l'utilisateur
+      }
+    });
   }
 
   viewEvent(eventId: string): void {

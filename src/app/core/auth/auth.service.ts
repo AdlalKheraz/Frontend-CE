@@ -340,6 +340,17 @@ export class AuthService {
             catchError(error => throwError(() => error))
         );
     }
+    /**
+     * Supprimer un utilisateur (admin uniquement)
+     */
+    deleteUser(userId: string): Observable<void> {
+        return this._httpClient.delete<void>(
+            environment.ENDPOINT.userById(userId),
+            { headers: this.getHeaders() }
+        ).pipe(
+            catchError(error => throwError(() => error))
+        );
+    }
     
     /**
      * Mettre à jour le rôle d'un utilisateur (admin uniquement)
