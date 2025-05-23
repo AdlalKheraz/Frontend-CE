@@ -1,6 +1,6 @@
 <div class="flex h-screen bg-gray-100">
   <!-- Sidebar -->
-  <div class="w-64 bg-white shadow-md">
+  <div class="w-72 bg-white shadow-md">
     <div class="p-4">
       <div class="flex items-center gap-2 mb-8">
         <div class="bg-indigo-500 p-2 rounded-lg">
@@ -9,12 +9,11 @@
           </svg>
         </div>
       </div>
-
       <!-- User Info in Sidebar -->
       <div class="mb-8 p-4 bg-gray-50 rounded-lg">
         <div class="flex items-center space-x-3">
           <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-            <img [src]="user?.avatar || 'assets/images/default-avatar.png'" [alt]="user?.firstName" class="w-full h-full object-cover" />
+            <img [src]="avatar || 'assets/images/default-avatar.png'" [alt]="user?.firstName" class="w-full h-full object-cover" />
           </div>
           <div>
             <div class="font-semibold text-gray-800">{{ user?.firstName }} {{ user?.lastName }}</div>

@@ -10,6 +10,7 @@ import { Comment, CommentService } from '@core/services/comment.service'; // Imp
 import { FilterService } from '@core/services/filter.service';
 import { Subscription } from 'rxjs';
 import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
+import { generateAvatar } from '@core/avatar/avatar.lib';
 
 
 @Component({
@@ -46,6 +47,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     userName = 'Visiteur'; // Valeur par défaut
     islandExpanded = false;
+    avatar=generateAvatar( 'default');
+    
 
     // Pour le panneau de commentaires
     commentsOpen = false;
@@ -144,10 +147,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.authService.fetchCurrentUserFromToken().subscribe(user=>{
             if (user) {
                 this.userName = `${user.firstName} ${user.lastName}` || user.email || 'Utilisateur';
+                this.avatar=generateAvatar(user?.firstName || 'default');
                 // Vérifier si l'utilisateur est administrateur
                 this.isAdmin = user.role === 'ADMIN';
             } else {
                 this.userName = 'Visiteur';
+                this.avatar=generateAvatar('Visiteur');
                 this.isAdmin = false;
             }
             this.cdr.markForCheck();
@@ -201,7 +206,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         // Surveillance des changements d'événements après l'initialisation de la vue
         setTimeout(() => {
             if (this.timelineComponent) {
-                console.log('Configuration de la surveillance des événements dans la timeline');
                 this._subscription.add(
                     this.timelineComponent.eventSelected.subscribe((eventId: number) => {
                         console.log(`Événement capturé par surveillance: ${eventId}`);

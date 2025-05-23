@@ -3,6 +3,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
+import { generateAvatar } from '@core/avatar/avatar.lib';
 import { Favorite, FavoritesService } from '@core/services/favorites.service';
 import { Subscription } from 'rxjs';
 
@@ -28,6 +29,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private favoritesService = inject(FavoritesService);
 
   user: User | null = null;
+  avatar=generateAvatar(this.user?.firstName || 'default');
   editableUser: User = {};
   isLoading = true;
   isEditing = false;
@@ -53,6 +55,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       next: (user) => {
         if (user) {
           this.user = user;
+          this.avatar=generateAvatar(user?.firstName || 'default');
+
           this.editableUser = { ...user };
         } else {
           this.router.navigate(['/login']);
@@ -109,6 +113,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.authService.updateUser(this.user.id, updateData).subscribe({
       next: (updatedUser) => {
         this.user = updatedUser;
+        this.avatar=generateAvatar(updatedUser?.firstName || 'default');
+
         this.editableUser = { ...updatedUser };
         this.isEditing = false;
         console.log('Profil mis à jour avec succès via AuthService');
