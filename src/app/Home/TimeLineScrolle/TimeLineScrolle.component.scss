@@ -28,7 +28,7 @@
   z-index: 50;
   & >li {
     & > hr{
-      height: 25px;
+      min-height: 25px;
     }
   } 
   &::before {
