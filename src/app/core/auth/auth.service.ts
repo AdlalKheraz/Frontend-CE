@@ -260,7 +260,8 @@ export class AuthService {
      */
     getAllUsers(): Observable<User[]> {
         return this._httpClient.get<User[]>(
-            environment.ENDPOINT.users()
+            environment.ENDPOINT.users(),
+            { headers: this.getHeaders() }
         ).pipe(
             catchError(error => throwError(() => error))
         );
@@ -364,9 +365,10 @@ export class AuthService {
      * Mettre à jour le rôle d'un utilisateur (admin uniquement)
      */
     updateUserRole(userId: string, roleData: UpdateRoleData): Observable<User> {
-        return this._httpClient.put<User>(
+        return this._httpClient.patch<User>(
             environment.ENDPOINT.updateUserRole(userId),
-            roleData
+            roleData,
+            { headers: this.getHeaders() }
         ).pipe(
             catchError(error => throwError(() => error))
         );
