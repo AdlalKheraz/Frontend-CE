@@ -147,4 +147,43 @@ export class EventService {
       catchError(error => throwError(() => error))
     );
   }
+
+  deleteEvent(id: string): Observable<void> {
+    return this.http.delete<void>(
+      environment.ENDPOINT.eventById(id),
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(() => {
+        // Mettre à jour la liste en supprimant l'événement
+        const currentData = this.eventsState.value.data || [];
+        const updatedData = currentData.filter(event => event.id !== id);
+        this.eventsState.next({
+          loading: LoadingState.LOADED,
+          data: updatedData
+        });
+      }),
+      catchError(error => throwError(() => error))
+    );
+  }
+
+  updateEvent(id: string, event: HistoricalEvent): Observable<HistoricalEvent> {
+    return this.http.put<HistoricalEvent>(
+      environment.ENDPOINT.eventById(id),
+      event,
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(response => {
+        if (response) {
+          // Mettre à jour l'événement dans la liste
+          const currentData = this.eventsState.value.data || [];
+          const updatedData = currentData.map(e => e.id === id ? response : e);
+          this.eventsState.next({
+            loading: LoadingState.LOADED,
+            data: updatedData
+          });
+        }
+      }),
+      catchError(error => throwError(() => error))
+    );
+  }
 }

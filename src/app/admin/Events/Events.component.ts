@@ -1,14 +1,8 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-
-interface Event {
-  id: number;
-  name: string;
-  description: string;
-  location: string;
-  creationDate: string;
-}
+import { EventService, HistoricalEvent } from '../../core/services/event.service';
+import { LoadingState } from '../../core/models/api.model';
 
 @Component({
   selector: 'app-events',
@@ -19,18 +13,38 @@ interface Event {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventsComponent implements OnInit {
-  // Liste des événements
-  events: Event[] = [
-    { id: 1, name: 'Jane Cooper', description: 'Mona Lisa', location: 'Mona lisa te99ers...', creationDate: '17 May 2025' },
-    { id: 2, name: 'Floyd Miles', description: 'Hitler Vs Yacin', location: 'Hitler Itak wo71...', creationDate: '17 May 2025' },
-    { id: 3, name: 'Ronald Richards', description: 'Kherrata 1945', location: 'Dirgazzen ro7en...', creationDate: '17 May 2025' },
-    { id: 4, name: 'Marvin McKinney', description: 'Mona lisa', location: 'anda le point...', creationDate: '17 May 2025' },
-    { id: 5, name: 'Jerome Bell', description: 'payment nature', location: 'cest geniole ce tru...', creationDate: '17 May 2025' }
-  ];
+  events: HistoricalEvent[] = [];
+  loading = false;
+  error: string | null = null;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private eventService: EventService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadEvents();
+  }
+
+  // Charger tous les événements
+  loadEvents(): void {
+    this.eventService.events$.subscribe(state => {
+      this.loading = state.loading === LoadingState.LOADING;
+      this.events = state.data || [];
+      this.error = state.error || null;
+      this.cdr.markForCheck();
+    });
+
+    this.eventService.loadAllEvents().subscribe({
+      next: () => {
+        console.log('Événements chargés avec succès');
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des événements:', error);
+      }
+    });
+  }
 
   // Navigation vers le Dashboard
   navigateToDashboard(): void {
@@ -44,7 +58,6 @@ export class EventsComponent implements OnInit {
 
   // Déconnexion
   signOut(): void {
-    // Ajoutez ici la logique de déconnexion
     this.router.navigate(['/auth/login']);
   }
 
@@ -54,21 +67,32 @@ export class EventsComponent implements OnInit {
   }
 
   // Modifier un événement
-  modifyEvent(id: number): void {
+  modifyEvent(id: string): void {
     this.router.navigate(['/admin/edit-event', id]);
   }
 
   // Supprimer un événement
-  deleteEvent(id: number): void {
-    // Dans un cas réel, vous devriez appeler une API pour supprimer l'événement
+  deleteEvent(id: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
+      // TODO: Implémenter la méthode deleteEvent dans le service
+      // Pour l'instant, on supprime localement
       this.events = this.events.filter(event => event.id !== id);
-      // On devrait également rafraîchir la vue ici dans un cas réel
+      this.cdr.markForCheck();
+      
+      // Dans un cas réel, vous devriez appeler le service :
+      this.eventService.deleteEvent(id).subscribe({
+        next: () => {
+          this.loadEvents(); // Recharger la liste
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression:', error);
+        }
+      });
     }
   }
 
   // Afficher les détails d'un événement
-  showEventDetails(id: number): void {
+  showEventDetails(id: string): void {
     this.router.navigate(['/admin/event-details', id]);
   }
 }
