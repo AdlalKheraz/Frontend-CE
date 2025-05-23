@@ -291,11 +291,11 @@ export class NewEventComponent implements OnInit {
       };
       
       const eventResponse = await firstValueFrom(this.eventService.createEvent(event));
-      if (!eventResponse?.success || !eventResponse.data || !eventResponse.data.id) {
+      if (!eventResponse || !eventResponse.id) {
         throw new Error('Échec de la création de l\'événement');
       }
       
-      const eventId = eventResponse.data.id as string;
+      const eventId = eventResponse.id as string;
       
       // 3. Upload files
       for (const file of this.selectedFiles) {
@@ -316,7 +316,6 @@ export class NewEventComponent implements OnInit {
         
         await firstValueFrom(this.mediaService.addMedia(media));
       }
-      
       this.successMessage = 'Événement créé avec succès!';
       setTimeout(() => {
         this.router.navigate(['/admin/events']);

@@ -99,21 +99,21 @@ export class EventService {
     );
   }
 
-  loadEventsByCivilization(civilizationId: string): Observable<ApiResponse<HistoricalEvent[]>> {
+  loadEventsByCivilization(civilizationId: string): Observable<HistoricalEvent[]> {
     this.eventsState.next({
       loading: LoadingState.LOADING,
       data: this.eventsState.value.data
     });
     
-    return this.http.get<ApiResponse<HistoricalEvent[]>>(
+    return this.http.get<HistoricalEvent[]>(
       environment.ENDPOINT.eventsByCivilization(civilizationId),
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
+        if (response) {
           this.eventsState.next({
             loading: LoadingState.LOADED,
-            data: response.data
+            data: response
           });
         }
       }),
@@ -128,19 +128,19 @@ export class EventService {
     );
   }
 
-  createEvent(event: HistoricalEvent): Observable<ApiResponse<HistoricalEvent>> {
-    return this.http.post<ApiResponse<HistoricalEvent>>(
+  createEvent(event: HistoricalEvent): Observable<HistoricalEvent> {
+    return this.http.post<HistoricalEvent>(
       environment.ENDPOINT.events(),
       event,
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
+        if ( response) {
           // Mettre à jour la liste des événements
           const currentData = this.eventsState.value.data || [];
           this.eventsState.next({
             loading: LoadingState.LOADED,
-            data: [...currentData, response.data]
+            data: [...currentData, response]
           });
         }
       }),
