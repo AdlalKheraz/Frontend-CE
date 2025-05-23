@@ -170,7 +170,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         });
 
         // Chargez les commentaires pour l'événement initial
-        this.loadCommentsForEvent(this.currentEventId);
+        // this.loadCommentsForEvent(this.currentEventId);
+        this.loadComments();
+        
 
         // S'abonner aux changements d'état du filtre
         this._subscription.add(
@@ -498,7 +500,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Méthode pour charger les commentaires lors d'un changement d'événement
     loadCommentsForEvent(eventId: string): void {
-        console.log(`Chargement des commentaires pour l'événement ${eventId} (actuel: ${this.currentEventId})`);
+        // console.log(`Chargement des commentaires pour l'événement ${eventId} (actuel: ${this.currentEventId})`);
         
         // Si l'ID d'événement a changé, réinitialiser les commentaires
         if (this.currentEventId !== eventId) {
@@ -507,6 +509,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.loadComments();
             this.cdr.markForCheck();
         }
+        this.loadComments();
     }
 
     // Méthode pour charger plus de commentaires (pagination)
