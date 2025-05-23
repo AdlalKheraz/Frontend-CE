@@ -16,6 +16,10 @@ export class EventsComponent implements OnInit {
   events: HistoricalEvent[] = [];
   loading = false;
   error: string | null = null;
+  
+  // Propriétés de pagination
+  currentPage = 1;
+  itemsPerPage = 5;
 
   constructor(
     private router: Router,
@@ -27,12 +31,69 @@ export class EventsComponent implements OnInit {
     this.loadEvents();
   }
 
+  // Getter pour les événements paginés
+  get paginatedEvents(): HistoricalEvent[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.events.slice(startIndex, endIndex);
+  }
+
+  // Getter pour le nombre total de pages
+  get totalPages(): number {
+    return Math.ceil(this.events.length / this.itemsPerPage);
+  }
+
+  // Getter pour le tableau des numéros de page
+  get totalPagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  // Getter pour les informations d'affichage
+  get displayInfo() {
+    if (this.events.length === 0) {
+      return { start: 0, end: 0, total: 0 };
+    }
+    
+    const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const endItem = Math.min(this.currentPage * this.itemsPerPage, this.events.length);
+    return {
+      start: startItem,
+      end: endItem,
+      total: this.events.length
+    };
+  }
+
+  // Méthodes de pagination
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.cdr.markForCheck();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.markForCheck();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.markForCheck();
+    }
+  }
+
   // Charger tous les événements
   loadEvents(): void {
     this.eventService.events$.subscribe(state => {
       this.loading = state.loading === LoadingState.LOADING;
       this.events = state.data || [];
       this.error = state.error || null;
+      
+      // Réinitialiser à la première page lors du chargement
+      this.currentPage = 1;
       this.cdr.markForCheck();
     });
 
@@ -74,15 +135,10 @@ export class EventsComponent implements OnInit {
   // Supprimer un événement
   deleteEvent(id: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
-      // TODO: Implémenter la méthode deleteEvent dans le service
-      // Pour l'instant, on supprime localement
-      this.events = this.events.filter(event => event.id !== id);
-      this.cdr.markForCheck();
-      
-      // Dans un cas réel, vous devriez appeler le service :
       this.eventService.deleteEvent(id).subscribe({
         next: () => {
-          this.loadEvents(); // Recharger la liste
+          console.log('Événement supprimé avec succès');
+          // La liste se mettra à jour automatiquement via l'observable
         },
         error: (error) => {
           console.error('Erreur lors de la suppression:', error);
