@@ -313,4 +313,66 @@
       </svg>
     </div>
   </div>
+
+  <!-- Comment Modal -->
+  <dialog id="comment_modal" class="modal">
+    <div class="modal-box w-11/12 max-w-3xl">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-lg mb-2">Comment Details</h3>
+      
+      <div *ngIf="selectedComment" class="space-y-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm text-gray-500">From: <span class="font-medium text-gray-700">{{ selectedComment.userName }}</span></p>
+            <p class="text-sm text-gray-500">Email: <span class="font-medium text-gray-700">{{ selectedComment.authorEmail }}</span></p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Event: <span class="font-medium text-gray-700">{{ selectedComment.eventName }}</span></p>
+            <p class="text-sm text-gray-500">Date: <span class="font-medium text-gray-700">{{ selectedComment.date }}</span></p>
+          </div>
+          <div>
+            <span 
+              class="px-3 py-1 rounded-full text-xs font-medium"
+              [ngClass]="{
+                'bg-amber-100 text-amber-800': selectedComment.status === 'pending',
+                'bg-green-100 text-green-800': selectedComment.status === 'approved',
+                'bg-red-100 text-red-800': selectedComment.status === 'rejected'
+              }"
+            >
+              {{ selectedComment.status | titlecase }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="text-sm font-semibold text-gray-600 mb-2">Comment Content:</h4>
+          <p class="whitespace-pre-line text-gray-800">{{ selectedComment.content }}</p>
+        </div>
+        
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-xs text-gray-500">Comment ID: {{ selectedComment.id }}</p>
+          <p class="text-xs text-gray-500">Length: {{ selectedComment.content.length }} characters</p>
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-4">
+          <button 
+            (click)="deleteComment(selectedComment.id)"
+            class="btn btn-sm btn-error"
+          >
+            Delete Comment
+          </button>
+          <button 
+            class="btn btn-sm btn-primary"
+            (click)="closeModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
 </div>

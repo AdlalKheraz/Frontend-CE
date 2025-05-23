@@ -29,6 +29,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   filteredComments: Comment[] = [];
   loading = false;
   error: string | null = null;
+  selectedComment: Comment | null = null;
   
   stats = {
     pending: 0,
@@ -155,23 +156,20 @@ export class CommentsComponent implements OnInit, OnDestroy {
   showCommentDetails(commentId: string): void {
     const comment = this.comments.find(c => c.id === commentId);
     if (comment) {
-      // Créer une modal ou alert plus détaillée
-      const details = `
-📝 Détails du commentaire #${commentId}
-
-👤 Auteur: ${comment.userName}
-📧 Email: ${comment.authorEmail}
-🎯 Événement: ${comment.eventName}
-📅 Date: ${comment.date}
-⚡ Statut: ${comment.status.toUpperCase()}
-
-💬 Contenu:
-"${comment.content}"
-
-📊 Longueur: ${comment.content.length} caractères
-      `;
+      this.selectedComment = comment;
       
-      alert(details);
+      // Open the modal dialog
+      const modal = document.getElementById('comment_modal') as HTMLDialogElement;
+      if (modal) {
+        modal.showModal();
+      }
+    }
+  }
+  
+  closeModal(): void {
+    const modal = document.getElementById('comment_modal') as HTMLDialogElement;
+    if (modal) {
+      modal.close();
     }
   }
 
