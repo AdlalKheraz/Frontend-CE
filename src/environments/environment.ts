@@ -8,6 +8,7 @@ export const environment = {
         
         // User Management
         users: () => `${environment.baseUrl}/api/users`,
+        usersMe: () => `${environment.baseUrl}/api/users/me`,
         userById: (id: string) => `${environment.baseUrl}/api/users/${id}`,
         updateUserRole: (id: string) => `${environment.baseUrl}/api/users/${id}/role`,
         

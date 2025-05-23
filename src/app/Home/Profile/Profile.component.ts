@@ -137,7 +137,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       console.error('ID utilisateur manquant');
       return;
     }
-    this.authService.deleteUser(this.user.id).subscribe({
+    this.authService.deleteMeUser().subscribe({
       next: () => {
         console.log('Compte supprimé avec succès');
         this.authService.signOut();

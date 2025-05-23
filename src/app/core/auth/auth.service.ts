@@ -351,6 +351,14 @@ export class AuthService {
             catchError(error => throwError(() => error))
         );
     }
+    deleteMeUser(): Observable<void> {
+        return this._httpClient.delete<void>(
+            environment.ENDPOINT.usersMe(),
+            { headers: this.getHeaders() }
+        ).pipe(
+            catchError(error => throwError(() => error))
+        );
+    }
     
     /**
      * Mettre à jour le rôle d'un utilisateur (admin uniquement)
