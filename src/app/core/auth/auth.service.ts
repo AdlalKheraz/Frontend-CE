@@ -332,9 +332,11 @@ export class AuthService {
      * Mettre à jour les informations d'un utilisateur
      */
     updateUser(userId: string, userData: UpdateUserData): Observable<User> {
+        console.log('🚀 ~ AuthService ~ updateUser ~ userData:', userData)
         return this._httpClient.put<User>(
             environment.ENDPOINT.userById(userId),
-            userData
+            userData,
+            { headers: this.getHeaders() }
         ).pipe(
             catchError(error => throwError(() => error))
         );

@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
 import { Favorite, FavoritesService } from '@core/services/favorites.service';
-import { UpdateUserRequest, UserService } from '@core/services/user.service';
 import { Subscription } from 'rxjs';
 
 interface User {
@@ -27,7 +26,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private favoritesService = inject(FavoritesService);
-  private userService = inject(UserService);
 
   user: User | null = null;
   editableUser: User = {};
@@ -96,36 +94,37 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.editableUser = { ...this.user };
   }
 
-  cancelEditing(): void {
-    this.isEditing = false;
-    this.editableUser = { ...this.user };
-  }
-
-  saveProfile(): void {
+  updateUserFromAuthService(): void {
     if (!this.user?.id) {
       console.error('ID utilisateur manquant');
       return;
     }
 
-    const updateData: UpdateUserRequest = {
+    const updateData = {
       firstName: this.editableUser.firstName,
       lastName: this.editableUser.lastName,
       email: this.editableUser.email
     };
 
-    this.userService.updateUserProfile(this.user.id, updateData).subscribe({
+    this.authService.updateUser(this.user.id, updateData).subscribe({
       next: (updatedUser) => {
         this.user = updatedUser;
         this.editableUser = { ...updatedUser };
         this.isEditing = false;
-        console.log('Profil mis à jour avec succès');
+        console.log('Profil mis à jour avec succès via AuthService');
       },
       error: (error) => {
-        console.error('Erreur lors de la sauvegarde du profil:', error);
-        // Ici, vous pourriez afficher un message d'erreur à l'utilisateur
+        console.error('Erreur lors de la mise à jour via AuthService:', error);
       }
     });
   }
+
+  cancelEditing(): void {
+    this.isEditing = false;
+    this.editableUser = { ...this.user };
+  }
+
+  
 
   deleteAccount(): void {
     if (!this.user?.id) {
@@ -133,17 +132,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.userService.deleteUser(this.user.id).subscribe({
-      next: () => {
-        console.log('Compte supprimé avec succès');
-        this.authService.signOut();
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        console.error('Erreur lors de la suppression du compte:', error);
-        // Ici, vous pourriez afficher un message d'erreur à l'utilisateur
-      }
-    });
+    // this.authService.deleteUser(this.user.id).subscribe({
+    //   next: () => {
+    //     console.log('Compte supprimé avec succès');
+    //     this.authService.signOut();
+    //     this.router.navigate(['/']);
+    //   },
+    //   error: (error) => {
+    //     console.error('Erreur lors de la suppression du compte:', error);
+    //     // Ici, vous pourriez afficher un message d'erreur à l'utilisateur
+    //   }
+    // });
   }
 
   viewEvent(eventId: string): void {
