@@ -132,8 +132,7 @@ export class NewEventComponent implements OnInit {
     if (!civilizationId) {
       return 'Aucune sélectionnée';
     }
-    
-    const selectedCivilization = this.civilizations.find(c => c.id === civilizationId);
+    const selectedCivilization = this.civilizations.find(c => Number(c.id) === Number(civilizationId));
     return selectedCivilization?.name || 'Aucune sélectionnée';
   }
 
