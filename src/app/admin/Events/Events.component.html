@@ -136,3 +136,133 @@
     </div>
   </div>
 </div>
+
+<!-- Popup de détails de l'événement -->
+<div *ngIf="showDetailsPopup" class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="closeDetailsPopup()">
+  <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+    <!-- Header du popup -->
+    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+      <h2 class="text-2xl font-bold text-gray-900">Détails de l'événement</h2>
+      <button (click)="closeDetailsPopup()" class="text-gray-400 hover:text-gray-600 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Contenu du popup -->
+    <div class="p-6">
+      <!-- Loading indicator -->
+      <div *ngIf="loadingDetails" class="flex justify-center items-center py-12">
+        <div class="loading loading-spinner loading-lg"></div>
+        <span class="ml-4 text-gray-600">Chargement des détails...</span>
+      </div>
+
+      <!-- Détails de l'événement -->
+      <div *ngIf="!loadingDetails && selectedEvent" class="space-y-6">
+        <!-- Informations principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-3 text-gray-900">Informations générales</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Titre</label>
+                <p class="mt-1 text-sm text-gray-900">{{ selectedEvent.title }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Date</label>
+                <p class="mt-1 text-sm text-gray-900">{{ selectedEvent.date }}</p>
+              </div>
+              <div *ngIf="selectedEventCivilization">
+                <label class="block text-sm font-medium text-gray-700">Civilisation</label>
+                <p class="mt-1 text-sm text-gray-900">{{ selectedEventCivilization.name }}</p>
+                <p *ngIf="selectedEventCivilization.description" class="mt-1 text-xs text-gray-600">{{ selectedEventCivilization.description }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-3 text-gray-900">Description</h3>
+            <p class="text-sm text-gray-700 leading-relaxed">{{ selectedEvent.description }}</p>
+          </div>
+        </div>
+
+        <!-- Médias associés -->
+        <div *ngIf="selectedEventMedia.length > 0">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900">Médias associés ({{ selectedEventMedia.length }})</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div *ngFor="let media of selectedEventMedia" class="border rounded-lg overflow-hidden bg-gray-50">
+              <!-- Header du média -->
+              <div class="bg-gray-100 p-3 border-b">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium truncate">{{ media.title || 'Sans titre' }}</span>
+                  <span class="badge badge-sm" [ngClass]="{'badge-primary': media.type === 'IMAGE', 'badge-secondary': media.type === 'VIDEO'}">
+                    {{ media.type }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Contenu du média -->
+              <div class="p-3">
+                <!-- Image -->
+                <div *ngIf="media.type === 'IMAGE'" class="relative w-full h-32 bg-gray-200 rounded-md overflow-hidden">
+                  <img [src]="getMediaUrl(media)" 
+                       class="w-full h-full object-cover" 
+                       (error)="handleImageError($event)"
+                       [alt]="media.title || 'Image'">
+                </div>
+
+                <!-- Vidéo -->
+                <div *ngIf="media.type === 'VIDEO'" class="relative w-full h-32 bg-gray-200 rounded-md overflow-hidden">
+                  <!-- YouTube -->
+                  <iframe *ngIf="isYouTubeUrl(getMediaUrl(media))" 
+                          [src]="getSafeYoutubeUrl(getMediaUrl(media))" 
+                          class="w-full h-full" 
+                          frameborder="0" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowfullscreen>
+                  </iframe>
+                  
+                  <!-- Vidéo standard -->
+                  <video *ngIf="!isYouTubeUrl(getMediaUrl(media))" 
+                         [src]="getMediaUrl(media)" 
+                         controls 
+                         class="w-full h-full object-cover">
+                  </video>
+                </div>
+
+                <!-- Description du média -->
+                <p *ngIf="media.description" class="text-xs text-gray-600 mt-2 line-clamp-2">
+                  {{ media.description }}
+                </p>
+
+                <!-- URL (pour debug) -->
+                <div class="text-xs text-gray-400 mt-2 truncate" title="{{ getMediaUrl(media) }}">
+                  {{ getMediaUrl(media) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message si aucun média -->
+        <div *ngIf="selectedEventMedia.length === 0 && !loadingDetails" class="text-center py-8 text-gray-500">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p>Aucun média associé à cet événement</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer du popup -->
+    <div class="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+      <button (click)="modifyEvent(selectedEvent?.id!)" class="btn btn-primary">
+        Modifier l'événement
+      </button>
+      <button (click)="closeDetailsPopup()" class="btn btn-ghost">
+        Fermer
+      </button>
+    </div>
+  </div>
+</div>
