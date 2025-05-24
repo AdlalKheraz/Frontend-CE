@@ -133,6 +133,6 @@ export class SignUpComponent implements OnInit {
     // Navigation plus rapide pour synchroniser avec l'animation
     setTimeout(() => {
       this.router.navigate(['/home']);
-    }, 300);
+    }, 100);
   }
 }
