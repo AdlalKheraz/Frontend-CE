@@ -985,11 +985,27 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         });
     }
 
-    // Méthode pour fermer seulement les commentaires
+    // Méthode pour fermer seulement les commentaires avec animation
     closeComments(): void {
         if (this.commentsOpen) {
-            this.commentsOpen = false;
-            this.cdr.markForCheck();
+            // Ajouter la classe de fermeture pour déclencher l'animation
+            const commentsPanel = document.querySelector('.comments-panel');
+            if (commentsPanel) {
+                commentsPanel.classList.add('closing');
+                
+                // Attendre la fin de l'animation avant de fermer complètement
+                setTimeout(() => {
+                    this.commentsOpen = false;
+                    if (commentsPanel) {
+                        commentsPanel.classList.remove('closing');
+                    }
+                    this.cdr.markForCheck();
+                }, 400); // Durée de l'animation de fermeture
+            } else {
+                // Fallback si l'élément n'est pas trouvé
+                this.commentsOpen = false;
+                this.cdr.markForCheck();
+            }
         }
     }
 
