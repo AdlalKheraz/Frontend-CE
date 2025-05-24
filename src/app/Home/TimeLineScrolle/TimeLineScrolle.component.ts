@@ -207,11 +207,14 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     
     const subscription = this.eventService.events$.subscribe({
       next: (state) => {
+        console.log('🚀 ~ TimeLineScrolleComponent ~ loadEvents ~ state:', state)
         if (state.loading === LoadingState.LOADED) {
           // Vérifier si des données existent
           if (state.data && state.data.length > 0) {
+            console.log('🚀 ~ TimeLineScrolleComponent ~ loadEvents ~ state.data:', state.data)
             // Transformer les données du service en format TimelineEvent
             this.allEvents = this.mapHistoricalEventsToTimelineEvents(state.data);
+            console.log('🚀 ~ TimeLineScrolleComponent ~ loadEvents ~ allEvents:', this.allEvents)
           } else {
             // Aucun événement retourné
             this.allEvents = [];
@@ -243,6 +246,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   // Mapper les événements historiques au format TimelineEvent
   private mapHistoricalEventsToTimelineEvents(events: HistoricalEvent[]): TimelineEvent[] {
     return events.map((event, index) => {
+      console.log('🚀 ~ TimeLineScrolleComponent ~ returnevents.map ~ event:', event.media)
       // Extraire l'année de la date (format attendu: YYYY-MM-DD)
       const year = new Date(event.date).getFullYear();
       
