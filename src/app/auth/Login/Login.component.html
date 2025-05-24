@@ -21,13 +21,27 @@
     
     <!-- Image à droite cliquable qui montre un aperçu de la timeline home -->
     <div class="image-container" (click)="navigateToHome()" [ngClass]="{'expanding': isTransitioning}">
-        <div class="event-content">
-            <h1 class="event-title">La Joconde</h1>
-            <h2 class="event-date">1503 et 1506</h2>
+        <!-- Image de fond dynamique basée sur l'événement -->
+        <div class="background-image" 
+             [style.background-image]="(firstEvent$ | async)?.imageUrl ? 'url(' + (firstEvent$ | async)?.imageUrl + ')' : 'url(assets/images/default-event-bg.jpg)'">
+        </div>
+        
+        <div class="event-content" *ngIf="firstEvent$ | async as firstEvent; else defaultContent">
+            <h1 class="event-title">{{ firstEvent.title }}</h1>
+            <h2 class="event-date">{{ firstEvent.date }}</h2>
             <p class="event-description">
-                La Joconde est le portrait d'une jeune femme, sur un fond de paysage montagneux aux horizons lointains et brumeux. Elle est disposée de trois quarts et représente jusqu'à mi-corps une jeune femme assise dans une loggia, les bras croisés, tournée de trois quarts vers le spectateur.
+                {{ firstEvent.description }}
             </p>
         </div>
+        <ng-template #defaultContent>
+            <div class="event-content">
+                <h1 class="event-title">La Joconde</h1>
+                <h2 class="event-date">1503 et 1506</h2>
+                <p class="event-description">
+                    La Joconde est le portrait d'une jeune femme, sur un fond de paysage montagneux aux horizons lointains et brumeux. Elle est disposée de trois quarts et représente jusqu'à mi-corps une jeune femme assise dans une loggia, les bras croisés, tournée de trois quarts vers le spectateur.
+                </p>
+            </div>
+        </ng-template>
         <div class="preview-overlay">
             <div class="preview-message">
                 <span class="icon-expand">

@@ -3,7 +3,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject }
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from 'app/core/auth/auth.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { EventService, HistoricalEvent } from '../../core/services/event.service';
 
 @Component({
   selector: 'app-signup',
@@ -25,15 +27,23 @@ export class SignUpComponent implements OnInit {
 
   isSignedUp = new BehaviorSubject<boolean>(false);
   isLoading = new BehaviorSubject<boolean>(false);
-  
+  firstEvent$: Observable<HistoricalEvent | null>;
+
   private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
   constructor(
     private router: Router,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private eventService: EventService
+  ) {
+    this.firstEvent$ = this.eventService.events$.pipe(
+      map(state => state.data && state.data.length > 0 ? state.data[0] : null)
+    );
+  }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.eventService.loadAllEvents().subscribe();
+  }
 
   onSignUp(event: Event) {
     event.preventDefault();
