@@ -63,7 +63,7 @@
                                  [class.media-audio]="media.type === 'AUDIO'">
                                 
                                 <!-- Image -->
-                                <div *ngIf="media.type === 'IMAGE'" class="media-image-container">
+                                <!-- <div *ngIf="media.type === 'IMAGE'" class="media-image-container">
                                     <img [src]="media.url" 
                                          [alt]="media.title || event.title"
                                          class="media-image-element"
@@ -72,7 +72,7 @@
                                         <span class="media-title-overlay">{{ media.title }}</span>
                                     </div>
                                 </div>
-                                
+                                 -->
                                 <!-- Vidéo -->
                                 <div *ngIf="media.type === 'VIDEO'" class="media-video-container">
                                     <video [src]="media.url" 
