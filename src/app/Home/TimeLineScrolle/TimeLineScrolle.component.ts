@@ -41,8 +41,10 @@ interface ComponentEvent {
 export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   events: ComponentEvent[] = [];
   @Input() set selectedCivilization(value: string) {
+    console.log('🎯 Changement de civilisation:', value, '(ancienne:', this._selectedCivilization, ')');
     if (value !== this._selectedCivilization) {
       this._selectedCivilization = value;
+      console.log('🎯 Appel de filterEvents()');
       this.filterEvents();
     }
   }
@@ -193,8 +195,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
         year: year,
         title: event.title,
         description: event.description,
-        // Utiliser le nom de la civilisation trouvée, sinon utiliser l'ID
-        civilization: civilization?.name || event.civilizationId,
+        // ✅ FIX: Utiliser le nom de la civilisation trouvée, sinon 'Inconnue'
+        civilization: civilization?.name || 'Inconnue',
         image: event.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png',
         medias: event.medias || [],
         active: index === 0
@@ -279,7 +281,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     const relativeCenterPosition = centerPosition - containerTop;
     
     // Hauteur approximative d'un item avec le nouveau style (padding + margin + contenu)
-    const itemHeight = 90; // 15px padding top + 15px padding bottom + 8px margin top + 8px margin bottom
+    const itemHeight = 46; // 15px padding top + 15px padding bottom + 8px margin top + 8px margin bottom
     
     // Position de l'événement actif dans la liste (centre du dot)
     const activeItemPosition = this.activeEventIndex * itemHeight + (itemHeight / 2);
@@ -290,6 +292,9 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   }
   
   filterEvents() {
+    console.log('🔍 Filtrage des événements - Civilisation sélectionnée:', this._selectedCivilization);
+    console.log('🔍 Tous les événements disponibles:', this.allEvents.map(e => ({ title: e.title, civilization: e.civilization })));
+    
     if (this._selectedCivilization === 'Toutes') {
       this.filteredEvents = [...this.allEvents];
     } else {
@@ -297,6 +302,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
         event.civilization === this._selectedCivilization
       );
     }
+    
+    console.log('🔍 Événements après filtrage:', this.filteredEvents.map(e => ({ title: e.title, civilization: e.civilization })));
     
     // Trier par année
     this.filteredEvents.sort((a, b) => a.year - b.year);
@@ -315,7 +322,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       }, 0);
     }
     
-    console.log('Événements filtrés:', this.filteredEvents);
+    console.log('🔍 Événements filtrés finaux:', this.filteredEvents);
   }
   
   onYearClick(index: number) {

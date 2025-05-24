@@ -432,6 +432,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Méthode pour sélectionner une civilisation
     selectCivilization(civ: string): void {
+        console.log('🏛️ Sélection de civilisation:', civ);
         this.selectedCivilization = civ;
 
         // Si c'est une des 3 premières, on ne change rien
@@ -451,19 +452,28 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses événements
         if (civ !== 'Toutes') {
             const selectedCiv = this.getCivilizationByName(civ);
+            console.log('🏛️ Civilisation trouvée:', selectedCiv);
             if (selectedCiv && selectedCiv.id) {
                 // Charger les événements de cette civilisation
+                console.log('🏛️ Chargement des événements pour la civilisation:', selectedCiv.id);
                 this.eventService.loadEventsByCivilization(selectedCiv.id).subscribe();
             }
         } else {
             // ✅ IMPORTANT : Charger tous les événements enrichis quand "Toutes" est sélectionné
+            console.log('🏛️ Chargement de tous les événements enrichis');
             this.eventService.loadAllEnrichedEvents().subscribe();
         }
         
         // Transmettre la civilisation sélectionnée au composant Timeline
         if (this.timelineComponent) {
+            console.log('🏛️ Transmission de la civilisation au timeline:', civ);
             this.timelineComponent.selectedCivilization = civ;
+        } else {
+            console.warn('🏛️ Timeline component non disponible');
         }
+
+        // Forcer la détection des changements
+        this.cdr.markForCheck();
 
         // Gestion de l'affichage des civilisations (optionnel)
         if (!this.displayedCivilizations.includes(civ)) {
@@ -859,13 +869,14 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.cdr.markForCheck();
     }
 
-    // Méthode pour cacher le panneau des civilisations
+    // Méthode pour fermer le panneau des civilisations
     hideCivilizationsPanel(): void {
-        // Animation de sortie puis fermeture
-        this.closeWithAnimation(() => {
-            this.civilizationsPanelOpen = false;
-            this.cdr.markForCheck();
-        });
+        this.civilizationsPanelOpen = false;
+        // Si aucun autre panneau n'est ouvert, fermer l'island
+        if (!this.userMenuOpen && !this.searchOpen) {
+            this.islandExpanded = false;
+        }
+        this.cdr.markForCheck();
     }
 
     // Méthode pour afficher la recherche au survol
