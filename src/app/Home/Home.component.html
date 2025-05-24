@@ -114,7 +114,7 @@
                     <h2 class="highlight-title">{{ timelineComponent.getActiveEvent().title }}</h2>
                     <div class="highlight-year">{{ timelineComponent.getActiveEvent().year < 0 ? timelineComponent.getActiveEvent().year * -1 + ' av. J.-C.' : timelineComponent.getActiveEvent().year }}</div>
                     <div class="highlight-image">
-                        <img [src]="timelineComponent.getActiveEvent().image" [alt]="timelineComponent.getActiveEvent().title">
+                        <img [src]="timelineComponent.getActiveEvent().url" [alt]="timelineComponent.getActiveEvent().title">
                     </div>
                     <p class="highlight-description">{{ timelineComponent.getActiveEvent().description }}</p>
                     
