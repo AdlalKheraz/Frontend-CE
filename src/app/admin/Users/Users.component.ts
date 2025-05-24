@@ -114,8 +114,8 @@ export class UsersComponent implements OnInit {
         this.users = users;
         this.loading = false;
         this.error = null;
-        this.currentPage = 1;
-        this.cdr.markForCheck();
+      this.currentPage = 1;
+      this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error loading users:', error);
@@ -140,7 +140,7 @@ export class UsersComponent implements OnInit {
   signOut(): void {
     this.authService.signOut().subscribe({
       next: () => {
-        this.router.navigate(['/auth/login']);
+    this.router.navigate(['/auth/login']);
       },
       error: (error) => {
         console.error('Error signing out:', error);
@@ -172,6 +172,19 @@ export class UsersComponent implements OnInit {
         const modal = document.getElementById('user_modal') as HTMLDialogElement;
         if (modal) {
           modal.showModal();
+          
+          // Add event listener to close on backdrop click
+          modal.addEventListener('click', (event) => {
+            const modalDimensions = modal.getBoundingClientRect();
+            if (
+              event.clientX < modalDimensions.left ||
+              event.clientX > modalDimensions.right ||
+              event.clientY < modalDimensions.top ||
+              event.clientY > modalDimensions.bottom
+            ) {
+              this.closeUserDetails();
+            }
+          });
         }
         
         this.loading = false;
@@ -228,7 +241,7 @@ export class UsersComponent implements OnInit {
     
     this.loading = true;
     this.authService.updateUserRole(this.selectedUser.id, roleData).subscribe({
-      next: () => {
+        next: () => {
         // Fermer le modal
         const modal = document.getElementById('edit_role_modal') as HTMLDialogElement;
         if (modal) {
@@ -237,8 +250,8 @@ export class UsersComponent implements OnInit {
         
         this.showNotificationPopup('User role updated successfully', true);
         this.loadUsers(); // Reload to get updated list
-      },
-      error: (error) => {
+        },
+        error: (error) => {
         console.error('Error updating user role:', error);
         this.error = error.message || 'Error updating user role';
         this.loading = false;

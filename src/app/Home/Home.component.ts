@@ -4,14 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SearchParams } from '@app/shared/interfaces/search-params.interface';
 import { AuthService } from '@core/auth/auth.service';
+import { generateAvatar } from '@core/avatar/avatar.lib';
 import { LoadingState } from '@core/models/api.model'; // Importez également le type de chargement
 import { Civilization, CivilizationService } from '@core/services/civilization.service'; // Ajout de cette ligne
 import { Comment, CommentService } from '@core/services/comment.service'; // Importez le service et l'interface
-import { FilterService } from '@core/services/filter.service';
 import { EventService } from '@core/services/event.service'; // Ajout de l'import
+import { FilterService } from '@core/services/filter.service';
 import { Subscription } from 'rxjs';
 import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
-import { generateAvatar } from '@core/avatar/avatar.lib';
 
 
 @Component({
@@ -187,6 +187,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
         // Charger les événements enrichis au lieu des événements normaux
         this.loadEnrichedEvents();
+        
+        // Ajouter un écouteur pour la touche Escape
+        document.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
 
     ngAfterViewInit(): void {
@@ -228,6 +231,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     ngOnDestroy(): void {
         // Nettoyage des ressources lors de la destruction du composant
         document.removeEventListener('mousemove', this.mouseMoveListener);
+        // Supprimer l'écouteur de clavier
+        document.removeEventListener('keydown', this.handleKeyDown.bind(this));
 
         if (this.animationFrameId !== null) {
             cancelAnimationFrame(this.animationFrameId);
@@ -347,17 +352,51 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         });
     }
     
-    // Méthode pour basculer l'affichage des détails
+    // Toggle l'affichage des détails
     toggleDetails(): void {
         this.detailsVisible = !this.detailsVisible;
+        
+        if (this.detailsVisible) {
+            // Fermer les autres panels si nécessaire
+            this.closeAllPanels();
+            
+            // Ajouter un effet de flou au conteneur d'image
+            this.container.classList.add('blurred');
+        } else {
+            // Retirer l'effet de flou
+            this.container.classList.remove('blurred');
+        }
+        
         this.cdr.markForCheck();
     }
     
-    // Méthode pour masquer les détails
+    // Cache les détails
     hideDetails(): void {
-        this.detailsVisible = false;
-        this.text = 'Cliquer';
-        this.cdr.markForCheck();
+        if (this.detailsVisible) {
+            // Animation de sortie
+            const detailsOverlay = document.querySelector('.details-overlay') as HTMLElement;
+            const eventHighlight = document.querySelector('.event-highlight') as HTMLElement;
+            
+            if (detailsOverlay && eventHighlight) {
+                // Animer la sortie
+                detailsOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+                detailsOverlay.style.backdropFilter = 'blur(0px)';
+                eventHighlight.style.opacity = '0';
+                eventHighlight.style.transform = 'scale(0.95) translateY(10px)';
+                
+                // Délai avant de fermer complètement
+                setTimeout(() => {
+                    this.detailsVisible = false;
+                    this.container.classList.remove('blurred');
+                    this.cdr.markForCheck();
+                }, 200);
+            } else {
+                // Fallback si les éléments ne sont pas trouvés
+                this.detailsVisible = false;
+                this.container.classList.remove('blurred');
+                this.cdr.markForCheck();
+            }
+        }
     }
 
     logout(): void {
@@ -811,8 +850,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.civilizationsPanelOpen = false;
         this.searchOpen = false;
         this.userMenuOpen = false;
-        this.detailsVisible = false;
+        this.closeComments();
         this.islandExpanded = false;
+        
         this.cdr.markForCheck();
     }
 
@@ -919,5 +959,20 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 this.cdr.markForCheck();
             }
         });
+    }
+
+    // Nouvelle méthode pour gérer les événements clavier
+    handleKeyDown(event: KeyboardEvent): void {
+        if (event.key === 'Escape') {
+            this.ngZone.run(() => {
+                // Fermer le popup de détails si ouvert
+                if (this.detailsVisible) {
+                    this.hideDetails();
+                }
+                
+                // Fermer d'autres panels si nécessaire
+                this.closeAllPanels();
+            });
+        }
     }
 }
