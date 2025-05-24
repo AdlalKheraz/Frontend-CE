@@ -286,7 +286,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     const relativeCenterPosition = centerPosition - containerTop;
     
     // Hauteur approximative d'un item avec le nouveau style (padding + margin + contenu)
-    const itemHeight = 46; // 15px padding top + 15px padding bottom + 8px margin top + 8px margin bottom
+    const itemHeight = 90; // 15px padding top + 15px padding bottom + 8px margin top + 8px margin bottom
     
     // Position de l'événement actif dans la liste (centre du dot)
     const activeItemPosition = this.activeEventIndex * itemHeight + (itemHeight / 2);
