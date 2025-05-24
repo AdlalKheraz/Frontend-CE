@@ -207,7 +207,7 @@
 
 /* Boutons harmonisés pour l'admin */
 .btn-admin {
-  @extend .btn;
+  // @extend .btn;
   
   &.btn-admin-primary {
     background: var(--admin-primary);
