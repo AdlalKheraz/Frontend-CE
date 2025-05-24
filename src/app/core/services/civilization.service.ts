@@ -100,21 +100,15 @@ export class CivilizationService {
     );
   }
 
-  createCivilization(civilization: Civilization): Observable<ApiResponse<Civilization>> {
-    return this.http.post<ApiResponse<Civilization>>(
+  createCivilization(civilization: Civilization): Observable<any> {
+    return this.http.post<any>(
       environment.ENDPOINT.civilizations(),
       civilization,
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          // Mettre à jour la liste des civilisations
-          const currentData = this.civilizationsState.value.data || [];
-          this.civilizationsState.next({
-            loading: LoadingState.LOADED,
-            data: [...currentData, response.data]
-          });
-        }
+        // Recharger toutes les civilisations pour s'assurer d'avoir les données à jour
+        this.loadAllCivilizations().subscribe();
       }),
       catchError(error => throwError(() => error))
     );
