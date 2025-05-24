@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject }
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, firstValueFrom, switchMap } from 'rxjs';
+import { finalize, firstValueFrom, Observable, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { Civilization, CivilizationService } from '../../core/services/civilization.service';
 import { EventService, HistoricalEvent } from '../../core/services/event.service';
@@ -67,7 +67,6 @@ export class EditEventComponent implements OnInit {
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       date: ['', Validators.required],
-      location: ['']
     });
     
     // Civilization form
@@ -154,7 +153,6 @@ export class EditEventComponent implements OnInit {
       title: event.title || '',
       description: event.description || '',
       date: event.date ? new Date(event.date).toISOString().split('T')[0] : '',
-      location: event.hasOwnProperty('location') ? (event as any).location : ''
     });
     
     // Sélectionner la civilisation
@@ -245,7 +243,18 @@ export class EditEventComponent implements OnInit {
   
   // Remove external URL form
   removeExternalUrl(index: number) {
+    const urlControl = this.externalUrls.at(index);
+    const mediaId = urlControl?.value?.id;
+    
+    // Si le média a un ID, l'ajouter à la liste de suppression
+    if (mediaId) {
+      console.log(`Marquage du média ${mediaId} pour suppression`);
+      this.mediaToDelete.push(mediaId);
+    }
+    
+    // Retirer du formulaire
     this.externalUrls.removeAt(index);
+    this.cdr.markForCheck();
   }
   
   // Récupérer le nom de la civilisation sélectionnée
@@ -394,7 +403,6 @@ export class EditEventComponent implements OnInit {
         throw new Error('ID de civilisation manquant');
       }
       
-      // Format exact selon Postman avec conversion explicite des types
       const updatedEvent: EventUpdateDTO = {
         title: String(this.eventForm.get('title')?.value || ''),
         description: String(this.eventForm.get('description')?.value || ''),
@@ -405,14 +413,12 @@ export class EditEventComponent implements OnInit {
       console.log('Updating event with data:', JSON.stringify(updatedEvent));
       
       try {
-        // Envoi de la requête avec l'objet brut JSON plutôt qu'un cast
         const url = `${environment.baseUrl}/api/events/${this.eventId}`;
         const headers = new HttpHeaders({
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         });
         
-        // Utiliser directement HttpClient pour contrôler exactement ce qui est envoyé
         const eventResponse = await firstValueFrom(
           this.http.put<any>(url, updatedEvent, { headers })
         );
@@ -426,63 +432,90 @@ export class EditEventComponent implements OnInit {
           const deletePromises = this.mediaToDelete.map(async (mediaId) => {
             try {
               return await firstValueFrom(this.mediaService.deleteMedia(mediaId));
-        } catch (error) {
+            } catch (error) {
               console.error(`Erreur lors de la suppression du média ${mediaId}:`, error);
-          return null;
-        }
-      });
-      
+              return null;
+            }
+          });
+          
           const deleteResults = await Promise.all(deletePromises);
           const successfulDeletes = deleteResults.filter(result => result !== null).length;
           console.log(`${successfulDeletes}/${this.mediaToDelete.length} médias supprimés avec succès`);
         }
         
-        // 4. Gérer les URLs externes
-      const urlPromises = this.externalUrls.controls.map(async (urlControl, index) => {
-        try {
-            const mediaData = urlControl.value;
-            
-            // Créer l'objet média
-          const media: Media = {
-              url: mediaData.url,
-              type: mediaData.type as 'IMAGE' | 'VIDEO',
-              eventId: this.eventId!,
-              title: mediaData.title || `Media externe ${index + 1}`,
-              description: mediaData.description || ''
-            };
-            
-            // Si l'ID existe, c'est une mise à jour
-            if (mediaData.id) {
-              media.id = mediaData.id;
+        // 4. Gérer UNIQUEMENT les NOUVEAUX médias externes (sans ID)
+        const newUrlPromises = this.externalUrls.controls
+          .filter(urlControl => !urlControl.value.id) // Filtrer uniquement les nouveaux (sans ID)
+          .map(async (urlControl, index) => {
+            try {
+              const mediaData = urlControl.value;
+              
+              const media: Media = {
+                url: mediaData.url,
+                type: mediaData.type as 'IMAGE' | 'VIDEO',
+                eventId: this.eventId!,
+                title: mediaData.title || `Media externe ${index + 1}`,
+                description: mediaData.description || ''
+              };
+              
+              console.log('Ajout nouveau média:', media);
+              return await firstValueFrom(this.mediaService.addMedia(media));
+            } catch (error) {
+              console.error(`Erreur lors de l'ajout de l'URL ${urlControl.value.url}:`, error);
+              return null;
             }
-            
-            // Utiliser la méthode addMedia pour les mises à jour et les nouvelles entrées
-          return await firstValueFrom(this.mediaService.addMedia(media));
-        } catch (error) {
-            console.error(`Erreur lors de l'ajout/mise à jour de l'URL ${urlControl.value.url}:`, error);
-          return null;
-        }
-      });
-      
-      const urlResults = await Promise.all(urlPromises);
-      const successfulUrls = urlResults.filter(result => result !== null);
-      
-      // Message de succès avec détails
+          });
+        
+        // 5. Mettre à jour les médias externes existants (avec ID)
+        const updateUrlPromises = this.externalUrls.controls
+          .filter(urlControl => urlControl.value.id) // Filtrer uniquement ceux avec ID
+          .map(async (urlControl) => {
+            try {
+              const mediaData = urlControl.value;
+              
+              const media: Media = {
+                id: mediaData.id,
+                url: mediaData.url,
+                type: mediaData.type as 'IMAGE' | 'VIDEO',
+                eventId: this.eventId!,
+                title: mediaData.title || 'Media externe',
+                description: mediaData.description || ''
+              };
+              
+              console.log('Mise à jour média existant:', media);
+              // Utiliser une méthode PUT spécifique pour la mise à jour
+              return await firstValueFrom(this.updateExistingMedia(media));
+            } catch (error) {
+              console.error(`Erreur lors de la mise à jour du média ${urlControl.value.id}:`, error);
+              return null;
+            }
+          });
+        
+        const newUrlResults = await Promise.all(newUrlPromises);
+        const updateUrlResults = await Promise.all(updateUrlPromises);
+        
+        const successfulNewUrls = newUrlResults.filter(result => result !== null);
+        const successfulUpdatedUrls = updateUrlResults.filter(result => result !== null);
+        
+        // Message de succès avec détails
         let message = 'Événement mis à jour avec succès!';
         if (this.mediaToDelete.length > 0) {
           const successfulDeletes = this.mediaToDelete.length;
           message += ` ${successfulDeletes} médias supprimés.`;
-      }
-      if (this.externalUrls.length > 0) {
-          message += ` ${successfulUrls.length}/${this.externalUrls.length} URLs ajoutées/mises à jour.`;
-      }
-      
-      this.successMessage = message;
-      
+        }
+        if (successfulNewUrls.length > 0) {
+          message += ` ${successfulNewUrls.length} nouveaux médias ajoutés.`;
+        }
+        if (successfulUpdatedUrls.length > 0) {
+          message += ` ${successfulUpdatedUrls.length} médias mis à jour.`;
+        }
+        
+        this.successMessage = message;
+        
         // Rediriger vers la liste des événements après un court délai
-      setTimeout(() => {
-        this.router.navigate(['/admin/events']);
-      }, 2000);
+        setTimeout(() => {
+          this.router.navigate(['/admin/events']);
+        }, 1000);
       } catch (updateError: any) {
         console.error('Erreur complète:', updateError);
         if (updateError.error && updateError.error.message) {
@@ -641,5 +674,19 @@ export class EditEventComponent implements OnInit {
       this.mediaToDelete.push(mediaId);
     }
     this.cdr.markForCheck();
+  }
+  
+  // Nouvelle méthode pour mettre à jour un média existant
+  private updateExistingMedia(media: Media): Observable<Media> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    });
+    
+    return this.http.put<Media>(
+      `${environment.baseUrl}/api/media/${media.id}`,
+      media,
+      { headers }
+    );
   }
 }

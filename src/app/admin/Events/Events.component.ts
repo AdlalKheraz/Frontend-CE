@@ -4,11 +4,14 @@ import { Router, RouterModule } from '@angular/router';
 import { LoadingState } from '../../core/models/api.model';
 import { EventService, HistoricalEvent } from '../../core/services/event.service';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
+import { MediaService, Media } from '../../core/services/media.service';
+import { CivilizationService, Civilization } from '../../core/services/civilization.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule,RouterModule, AdminSidebarComponent],
+  imports: [CommonModule, RouterModule, AdminSidebarComponent],
   templateUrl: './Events.component.html',
   styleUrl: './Events.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,9 +25,19 @@ export class EventsComponent implements OnInit {
   currentPage = 1;
   itemsPerPage = 5;
 
+  // Propriétés pour le popup de détails
+  showDetailsPopup = false;
+  selectedEvent: HistoricalEvent | null = null;
+  selectedEventMedia: Media[] = [];
+  selectedEventCivilization: Civilization | null = null;
+  loadingDetails = false;
+
   constructor(
     private router: Router,
     private eventService: EventService,
+    private mediaService: MediaService,
+    private civilizationService: CivilizationService,
+    private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -148,8 +161,104 @@ export class EventsComponent implements OnInit {
     }
   }
 
-  // Afficher les détails d'un événement
+  // Afficher les détails d'un événement dans un popup
   showEventDetails(id: string): void {
-    this.router.navigate(['/admin/event-details', id]);
+    this.loadingDetails = true;
+    this.showDetailsPopup = true;
+    this.selectedEvent = null;
+    this.selectedEventMedia = [];
+    this.selectedEventCivilization = null;
+    this.cdr.markForCheck();
+
+    // Charger l'événement enrichi avec ses médias
+    this.eventService.loadEnrichedEventById(id).subscribe({
+      next: (event) => {
+        this.selectedEvent = event;
+        
+        // Charger les médias de l'événement
+        if (event.id) {
+          this.mediaService.loadMediaByEvent(event.id).subscribe({
+            next: (media) => {
+              this.selectedEventMedia = media;
+              this.cdr.markForCheck();
+            },
+            error: (error) => {
+              console.error('Erreur lors du chargement des médias:', error);
+            }
+          });
+        }
+
+        // Charger les détails de la civilisation
+        if (event.civilizationId) {
+          this.civilizationService.loadCivilizationById(event.civilizationId).subscribe({
+            next: (civilization) => {
+              this.selectedEventCivilization = civilization;
+              this.cdr.markForCheck();
+            },
+            error: (error) => {
+              console.error('Erreur lors du chargement de la civilisation:', error);
+            }
+          });
+        }
+
+        this.loadingDetails = false;
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement de l\'événement:', error);
+        this.loadingDetails = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  // Fermer le popup de détails
+  closeDetailsPopup(): void {
+    this.showDetailsPopup = false;
+    this.selectedEvent = null;
+    this.selectedEventMedia = [];
+    this.selectedEventCivilization = null;
+    this.cdr.markForCheck();
+  }
+
+  // Méthodes utilitaires pour les médias
+  getMediaUrl(media: Media): string {
+    if (!media.url) return '';
+    
+    // Si l'URL est externe (HTTP/HTTPS), la retourner telle quelle
+    if (media.url.startsWith('http://') || media.url.startsWith('https://')) {
+      return media.url;
+    }
+    
+    // Si c'est un fichier uploadé, utiliser le service pour construire l'URL
+    return this.mediaService.getMediaFileUrl(media.url);
+  }
+
+  isYouTubeUrl(url: string): boolean {
+    if (!url) return false;
+    return url.includes('youtube.com') || url.includes('youtu.be');
+  }
+
+  getSafeYoutubeUrl(url: string): SafeResourceUrl {
+    let embedUrl = url;
+    
+    // Convertir les URLs YouTube en format embed
+    if (url.includes('youtube.com/watch?v=')) {
+      const videoId = url.split('v=')[1]?.split('&')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    }
+    
+    return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+  }
+
+  // Gérer les erreurs d'images
+  handleImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/images/placeholder-image.png';
+    imgElement.alt = 'Image non disponible';
+    imgElement.classList.add('opacity-50');
   }
 }

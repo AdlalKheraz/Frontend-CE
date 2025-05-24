@@ -90,14 +90,6 @@
                   </div>
                 </div>
 
-                <!-- Location field -->
-                <div>
-                  <label class="block text-sm font-medium mb-2">Location</label>
-                  <div class="relative">
-                    <input type="text" placeholder="Ex: Kherrata" class="input input-bordered w-full pr-10" formControlName="location" />
-                  </div>
-                </div>
-
                 <!-- Date field -->
                 <div>
                   <label class="block text-sm font-medium mb-2">Date</label>
@@ -289,8 +281,6 @@
                   <div>{{ eventForm.get('title')?.value }}</div>
                   <div class="text-gray-500">Date:</div>
                   <div>{{ eventForm.get('date')?.value | date }}</div>
-                  <div class="text-gray-500">Location:</div>
-                  <div>{{ eventForm.get('location')?.value || 'Not specified' }}</div>
                 </div>
               </div>
 

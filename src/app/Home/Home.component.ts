@@ -39,7 +39,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     selectedCivilization = 'Toutes';
     
     // Pour l'affichage de la liste de civilisations (objets complets)
-    private civilizationData: Civilization[] = [];
+    civilizationData: Civilization[] = [];
     
     // Pour l'affichage des civilisations en boutons
     displayedCivilizations: string[] = [];
@@ -302,6 +302,11 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         return this.civilizationData.find(civ => civ.name === name);
     }
     
+    // Ajouter cette nouvelle méthode
+    getCivilizationById(id: string): Civilization | undefined {
+        return this.civilizationData.find(civ => civ.id === id);
+    }
+    
     // Animation fluide du bouton
     private animate(): void {
         // Calcul de la nouvelle position avec effet de lissage
@@ -430,40 +435,48 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.selectedCivilization = civ;
 
         // Si c'est une des 3 premières, on ne change rien
-        if (this.displayedCivilizations.includes(civ)) {
-            return;
-        }
+        // if (this.displayedCivilizations.includes(civ)) {
+        //     return;
+        // }
 
-        // Sinon, on met la civilisation sélectionnée en premier
-        const updatedCivs = [civ];
-        for (let i = 0; i < 2 && i < this.civilizations.length - 1; i++) {
-            if (this.civilizations[i] !== civ) {
-                updatedCivs.push(this.civilizations[i]);
-            }
-        }
-        this.displayedCivilizations = updatedCivs;
+        // // Sinon, on met la civilisation sélectionnée en premier
+        // const updatedCivs = [civ];
+        // for (let i = 0; i < 2 && i < this.civilizations.length - 1; i++) {
+        //     if (this.civilizations[i] !== civ) {
+        //         updatedCivs.push(this.civilizations[i]);
+        //     }
+        // }
+        // this.displayedCivs = updatedCivs;
 
-        // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses détails
+        // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses événements
         if (civ !== 'Toutes') {
             const selectedCiv = this.getCivilizationByName(civ);
             if (selectedCiv && selectedCiv.id) {
-                // Charger les détails complets depuis l'API
-                this.civilizationService.loadCivilizationById(selectedCiv.id).subscribe({
-                    next: (civilization) => {
-                        console.log('Détails de la civilisation chargés:', civilization);
-                        // Ici vous pouvez faire quelque chose avec les détails chargés
-                    },
-                    error: (error) => {
-                        console.error('Erreur lors du chargement des détails de la civilisation:', error);
-                    }
-                });
+                // Charger les événements de cette civilisation
+                this.eventService.loadEventsByCivilization(selectedCiv.id).subscribe();
             }
+        } else {
+            // ✅ IMPORTANT : Charger tous les événements enrichis quand "Toutes" est sélectionné
+            this.eventService.loadAllEnrichedEvents().subscribe();
         }
+        
         // Transmettre la civilisation sélectionnée au composant Timeline
         if (this.timelineComponent) {
             this.timelineComponent.selectedCivilization = civ;
         }
 
+        // Gestion de l'affichage des civilisations (optionnel)
+        if (!this.displayedCivilizations.includes(civ)) {
+            // Réorganiser l'affichage si nécessaire
+            const updatedCivs = [civ];
+            for (let i = 0; i < 2 && i < this.civilizations.length - 1; i++) {
+                if (this.civilizations[i] !== civ) {
+                    updatedCivs.push(this.civilizations[i]);
+                }
+            }
+            // Si vous voulez réorganiser l'affichage, décommentez cette ligne :
+            // this.displayedCivilizations = updatedCivs;
+        }
     }
     // Méthode pour ouvrir/fermer le panneau des civilisations
     toggleCivilizationsPanel(): void {
@@ -997,15 +1010,49 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     // Nouvelle méthode pour gérer les événements clavier
     handleKeyDown(event: KeyboardEvent): void {
         if (event.key === 'Escape') {
-            this.ngZone.run(() => {
-                // Fermer le popup de détails si ouvert
-                if (this.detailsVisible) {
-                    this.hideDetails();
-                }
-                
-                // Fermer d'autres panels si nécessaire
-                this.closeAllPanels();
-            });
+            this.closeAllPanels();
+            if (this.detailsVisible) {
+                this.hideDetails();
+            }
         }
+    }
+
+    // Méthode pour gérer les événements vidéo
+    onVideoEvent(event: Event): void {
+        event.stopPropagation();
+        console.log('Video event:', event.type);
+    }
+
+    // Méthode pour gérer le clic sur une vidéo
+    onVideoClick(event: Event, media: any): void {
+        event.stopPropagation();
+        const video = event.target as HTMLVideoElement;
+        
+        if (video.paused) {
+            video.play().catch(error => {
+                console.error('Erreur lors de la lecture de la vidéo:', error);
+            });
+        } else {
+            video.pause();
+        }
+    }
+
+    // Méthode pour vérifier si l'URL de la vidéo est valide
+    isValidVideoUrl(url: string): boolean {
+        if (!url) return false;
+        
+        // Vérifier les extensions vidéo courantes
+        const videoExtensions = ['.mp4', '.webm', '.ogg', '.avi', '.mov'];
+        const hasValidExtension = videoExtensions.some(ext => 
+            url.toLowerCase().includes(ext)
+        );
+        
+        // Vérifier les domaines de streaming courants
+        const streamingDomains = ['youtube.com', 'vimeo.com', 'dailymotion.com'];
+        const isStreamingUrl = streamingDomains.some(domain => 
+            url.toLowerCase().includes(domain)
+        );
+        
+        return hasValidExtension || isStreamingUrl || url.startsWith('blob:') || url.startsWith('data:');
     }
 }
