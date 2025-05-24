@@ -102,96 +102,156 @@
             <!-- Contenu de l'événement avec défilement -->
             <div class="highlight-content-wrapper">
                 <div class="highlight-content">
-                    <div class="highlight-civilization">{{ timelineComponent.getActiveEvent().civilization }}</div>
-                    <h2 class="highlight-title">{{ timelineComponent.getActiveEvent().title }}</h2>
-                    <div class="highlight-year">{{ timelineComponent.getActiveEvent().year < 0 ? timelineComponent.getActiveEvent().year * -1 + ' av. J.-C.' : timelineComponent.getActiveEvent().year }}</div>
-                    <div class="highlight-image" *ngIf="timelineComponent.getActiveEvent().medias && timelineComponent.getActiveEvent().medias.length > 0">
-                        <img [src]="timelineComponent.getActiveEvent().medias[0].url" [alt]="timelineComponent.getActiveEvent().title">
+                    <!-- En-tête de l'événement -->
+                    <div class="event-header">
+                        <div class="event-meta">
+                            <span class="highlight-civilization">{{ timelineComponent.getActiveEvent().civilization }}</span>
+                            <span class="highlight-year">{{ timelineComponent.getActiveEvent().year < 0 ? timelineComponent.getActiveEvent().year * -1 + ' av. J.-C.' : timelineComponent.getActiveEvent().year }}</span>
+                        </div>
+                        <h1 class="highlight-title">{{ timelineComponent.getActiveEvent().title }}</h1>
+                        <p class="highlight-description" 
+                           [class.short-description]="getDescriptionLength(timelineComponent.getActiveEvent().description) <= 50"
+                           [class.medium-description]="getDescriptionLength(timelineComponent.getActiveEvent().description) > 50 && getDescriptionLength(timelineComponent.getActiveEvent().description) <= 150"
+                           [class.long-description]="getDescriptionLength(timelineComponent.getActiveEvent().description) > 150 && getDescriptionLength(timelineComponent.getActiveEvent().description) <= 400"
+                           [class.extra-long-description]="getDescriptionLength(timelineComponent.getActiveEvent().description) > 400"
+                           [class.multi-paragraph]="hasMultipleParagraphs(timelineComponent.getActiveEvent().description)"
+                           [innerHTML]="formatDescription(timelineComponent.getActiveEvent().description)">
+                        </p>
                     </div>
-                    <p class="highlight-description">{{ timelineComponent.getActiveEvent().description }}</p>
 
-                    <!-- Galerie de tous les médias -->
-                    <div class="highlight-media-gallery" *ngIf="timelineComponent.getActiveEvent().medias && timelineComponent.getActiveEvent().medias.length > 0">
-                        <h3 class="media-gallery-title">Médias associés</h3>
-                        <div class="media-gallery-grid">
-                            <div *ngFor="let media of timelineComponent.getActiveEvent().medias; let i = index"
-                                 class="media-gallery-item"
-                                 [class.media-image]="media.type === 'IMAGE'"
-                                 [class.media-video]="media.type === 'VIDEO'"
-                                 [class.media-audio]="media.type === 'AUDIO'">
+                    <!-- Section médias mise en avant -->
+                    <div class="media-showcase" *ngIf="timelineComponent.getActiveEvent().medias && timelineComponent.getActiveEvent().medias.length > 0">
+                        <!-- Média principal (premier média) -->
+                        <div class="featured-media" *ngIf="timelineComponent.getActiveEvent().medias[0]">
+                            <div class="featured-media-container">
+                                <!-- Image principale -->
+                                <div *ngIf="timelineComponent.getActiveEvent().medias[0].type === 'IMAGE'" class="featured-image">
+                                    <img [src]="timelineComponent.getActiveEvent().medias[0].url" 
+                                         [alt]="timelineComponent.getActiveEvent().medias[0].title || timelineComponent.getActiveEvent().title"
+                                         class="main-media-element">
+                                    <div class="media-badge">
+                                        <svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                        </svg>
+                                    </div>
+                                </div>
 
-                                <!-- Image -->
-                                <div *ngIf="media.type === 'IMAGE'" class="media-container">
-                                    <div class="media-preview">
+                                <!-- Vidéo principale -->
+                                <div *ngIf="timelineComponent.getActiveEvent().medias[0].type === 'VIDEO'" class="featured-video">
+                                    <video *ngIf="isValidVideoUrl(timelineComponent.getActiveEvent().medias[0].url)"
+                                           [src]="timelineComponent.getActiveEvent().medias[0].url"
+                                           class="main-media-element video-player"
+                                           controls
+                                           preload="metadata"
+                                           playsinline
+                                           webkit-playsinline
+                                           crossorigin="anonymous"
+                                           (click)="onVideoClick($event, timelineComponent.getActiveEvent().medias[0])"
+                                           (play)="onVideoEvent($event)"
+                                           (pause)="onVideoEvent($event)"
+                                           (loadstart)="onVideoEvent($event)"
+                                           (canplay)="onVideoEvent($event)"
+                                           (error)="onVideoEvent($event)">
+                                        Votre navigateur ne supporte pas la lecture vidéo.
+                                    </video>
+                                    <div class="media-badge">
+                                        <svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M8 5v14l11-7z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Audio principal -->
+                                <div *ngIf="timelineComponent.getActiveEvent().medias[0].type === 'AUDIO'" class="featured-audio">
+                                    <div class="audio-visualization">
+                                        <div class="audio-waves">
+                                            <div class="wave" *ngFor="let w of [1,2,3,4,5,6,7,8,9,10]"></div>
+                                        </div>
+                                        <audio [src]="timelineComponent.getActiveEvent().medias[0].url" controls class="audio-player">
+                                            Votre navigateur ne supporte pas la lecture audio.
+                                        </audio>
+                                    </div>
+                                    <div class="media-badge">
+                                        <svg class="badge-icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Informations du média principal -->
+                                <div class="featured-media-info">
+                                    <h3 class="featured-media-title">{{ timelineComponent.getActiveEvent().medias[0].title || 'Média principal' }}</h3>
+                                    <p class="featured-media-description" *ngIf="timelineComponent.getActiveEvent().medias[0].description">
+                                        {{ timelineComponent.getActiveEvent().medias[0].description }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Galerie des médias supplémentaires -->
+                        <div class="media-gallery" *ngIf="timelineComponent.getActiveEvent().medias.length > 1">
+                            <h3 class="gallery-title">
+                                <svg class="gallery-icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11.5-6L8 13.5l2.5 3.01L14.5 12l4.5 6H8l2.5-3.5z"/>
+                                    <path d="M2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/>
+                                </svg>
+                                Galerie ({{ timelineComponent.getActiveEvent().medias.length - 1 }} médias supplémentaires)
+                            </h3>
+                            <div class="gallery-grid">
+                                <div *ngFor="let media of timelineComponent.getActiveEvent().medias.slice(1); let i = index"
+                                     class="gallery-item"
+                                     [class.gallery-image]="media.type === 'IMAGE'"
+                                     [class.gallery-video]="media.type === 'VIDEO'"
+                                     [class.gallery-audio]="media.type === 'AUDIO'">
+
+                                    <!-- Miniature d'image -->
+                                    <div *ngIf="media.type === 'IMAGE'" class="gallery-thumbnail">
                                         <img [src]="media.url"
-                                             [alt]="media.title || timelineComponent.getActiveEvent().title"
-                                             class="media-element">
-                                        <div class="media-overlay">
-                                            <svg class="media-icon" viewBox="0 0 24 24" fill="currentColor">
+                                             [alt]="media.title || 'Image ' + (i + 2)"
+                                             class="thumbnail-image">
+                                        <div class="thumbnail-overlay">
+                                            <svg class="thumbnail-icon" viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
                                             </svg>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Vidéo -->
-                                <div *ngIf="media.type === 'VIDEO'" class="media-container video-container">
-                                    <div class="media-preview">
-                                        <video *ngIf="isValidVideoUrl(media.url)"
-                                               [src]="media.url"
-                                               class="media-element video-player"
-                                               controls
-                                               preload="metadata"
-                                               playsinline
-                                               webkit-playsinline
-                                               crossorigin="anonymous"
-                                               (click)="onVideoClick($event, media)"
-                                               (play)="onVideoEvent($event)"
-                                               (pause)="onVideoEvent($event)"
-                                               (loadstart)="onVideoEvent($event)"
-                                               (canplay)="onVideoEvent($event)"
-                                               (error)="onVideoEvent($event)">
-                                            Votre navigateur ne supporte pas la lecture vidéo.
+                                    <!-- Miniature de vidéo -->
+                                    <div *ngIf="media.type === 'VIDEO'" class="gallery-thumbnail video-thumbnail">
+                                        <video [src]="media.url" class="thumbnail-video" preload="metadata" muted>
                                         </video>
-
-                                        <!-- Bouton de lecture personnalisé -->
-                                        <div class="custom-play-button"
-                                             (click)="onVideoClick($event, media)"
-                                             *ngIf="isValidVideoUrl(media.url)">
-                                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <div class="thumbnail-overlay">
+                                            <svg class="thumbnail-icon play-icon" viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M8 5v14l11-7z"/>
                                             </svg>
                                         </div>
-
-                                        <div *ngIf="!isValidVideoUrl(media.url)" class="video-error">
-                                            <svg class="media-icon" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                            </svg>
-                                            <p>URL vidéo non valide</p>
-                                        </div>
+                                        <div class="video-duration">{{ media.duration || '00:00' }}</div>
                                     </div>
-                                </div>
 
-                                <!-- Audio -->
-                                <div *ngIf="media.type === 'AUDIO'" class="media-container">
-                                    <div class="media-preview audio-preview">
-                                        <div class="audio-placeholder">
-                                            <svg class="media-icon" viewBox="0 0 24 24" fill="currentColor">
+                                    <!-- Miniature d'audio -->
+                                    <div *ngIf="media.type === 'AUDIO'" class="gallery-thumbnail audio-thumbnail">
+                                        <div class="audio-visual">
+                                            <div class="mini-waves">
+                                                <div class="mini-wave" *ngFor="let w of [1,2,3,4,5]"></div>
+                                            </div>
+                                        </div>
+                                        <div class="thumbnail-overlay">
+                                            <svg class="thumbnail-icon" viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                                             </svg>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Informations du média -->
-                                <div class="media-info">
-                                    <h4 class="media-title">{{ media.title || 'Média ' + (i + 1) }}</h4>
-                                    <p class="media-description" *ngIf="media.description">{{ media.description }}</p>
+                                    <!-- Informations de la miniature -->
+                                    <div class="thumbnail-info">
+                                        <h4 class="thumbnail-title">{{ media.title || 'Média ' + (i + 2) }}</h4>
+                                        <p class="thumbnail-description" *ngIf="media.description">{{ media.description }}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
+                    
                     <!-- Boutons d'action -->
                     <div class="highlight-actions">
                         <button class="action-btn comments-btn" (click)="openCommentsForCurrentEvent(); $event.stopPropagation();">
@@ -200,12 +260,22 @@
                             </svg>
                             Voir les commentaires
                         </button>
+                        <button class="action-btn share-btn" (click)="$event.stopPropagation();">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="18" cy="5" r="3"></circle>
+                                <circle cx="6" cy="12" r="3"></circle>
+                                <circle cx="18" cy="19" r="3"></circle>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                            </svg>
+                            Partager
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+   
     <!-- Panel de recherche avancée (s'affiche au clic sur le bouton recherche) -->
     <div class="search-panel" *ngIf="searchOpen">
         <div class="panel-content simplified search-content" (click)="$event.stopPropagation()">
@@ -219,15 +289,15 @@
 
                 <div class="search-field">
                     <div class="period-inputs">
-                        <input
-                            type="number"
-                            placeholder="Année de début"
+                        <input 
+                            type="number" 
+                            placeholder="Année de début" 
                             [(ngModel)]="searchStartYear"
                         >
                         <span>à</span>
-                        <input
-                            type="number"
-                            placeholder="Année de fin"
+                        <input 
+                            type="number" 
+                            placeholder="Année de fin" 
                             [(ngModel)]="searchEndYear"
                         >
                     </div>
@@ -271,9 +341,9 @@
 
     <!-- Image à droite qui s'agrandit après connexion -->
     <div class="image-container logged-in" #container>
-        <app-time-line-scrolle
-            class="size-full"
-            [selectedCivilization]="selectedCivilization"
+        <app-time-line-scrolle 
+            class="size-full" 
+            [selectedCivilization]="selectedCivilization" 
             [searchParams]="activeSearchParams"
             [civilizations]="civilizationData"
             [detailsVisible]="detailsVisible && isLoggedIn"
@@ -348,3 +418,4 @@
         </div>
     </div>
 </div>
+
