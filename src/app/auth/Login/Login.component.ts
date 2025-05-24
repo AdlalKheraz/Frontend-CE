@@ -36,7 +36,7 @@ export class LoginComponent implements OnInit {
 		);
 
 		// Charger tous les événements pour récupérer le premier
-		this.eventService.loadAllEvents().subscribe();
+		this.eventService.loadAllEnrichedEvents().subscribe();
 	}
 
 	onLogin(e: Event) {

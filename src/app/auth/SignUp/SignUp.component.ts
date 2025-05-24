@@ -42,7 +42,7 @@ export class SignUpComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.eventService.loadAllEvents().subscribe();
+    this.eventService.loadAllEnrichedEvents().subscribe();
   }
 
   onSignUp(event: Event) {
