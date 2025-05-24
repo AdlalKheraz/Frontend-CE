@@ -3,7 +3,6 @@ import { inject } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { AuthUtils } from './auth.utils';
-import { environment } from 'environments/environment';
 
 /**
  * Intercept

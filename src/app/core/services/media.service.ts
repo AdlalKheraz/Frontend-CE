@@ -1,8 +1,8 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponseBase } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, firstValueFrom, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import {  LoadingState, StateData } from '../models/api.model';
+import { LoadingState, StateData } from '../models/api.model';
 
 export interface Media {
   id?: string;
@@ -111,6 +111,23 @@ export class MediaService {
   }
 
   getMediaFileUrl(filename: string): string {
+    if (!filename) return '';
+    
+    // Si l'URL est déjà complète, la retourner telle quelle
+    if (filename.startsWith('http://') || filename.startsWith('https://')) {
+      return filename;
+    }
+    
+    // Si l'URL contient déjà le chemin d'API, retourner l'URL complète
+    if (filename.includes('/api/media/files/')) {
+      // Extraire le nom du fichier depuis le chemin
+      const parts = filename.split('/');
+      const actualFilename = parts[parts.length - 1];
+      return environment.ENDPOINT.mediaFiles(actualFilename);
+    }
+    
+    // Sinon, construire l'URL complète
+    console.log(`Generating file URL for: ${filename}`);
     return environment.ENDPOINT.mediaFiles(filename);
   }
 
@@ -160,5 +177,28 @@ export class MediaService {
         })
         .catch(error => observer.error(error));
     });
+  }
+  
+  // Supprimer un média par son ID
+  deleteMedia(mediaId: string): Observable<any> {
+    return this.http.delete(
+      `${environment.ENDPOINT.media()}/${mediaId}`,
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(() => {
+        // Mettre à jour l'état en supprimant le média de la liste
+        const currentData = this.mediaState.value.data || [];
+        const updatedData = currentData.filter(media => media.id !== mediaId);
+        
+        this.mediaState.next({
+          loading: LoadingState.LOADED,
+          data: updatedData
+        });
+      }),
+      catchError(error => {
+        console.error(`Erreur lors de la suppression du média ${mediaId}:`, error);
+        return throwError(() => error);
+      })
+    );
   }
 }

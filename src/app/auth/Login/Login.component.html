@@ -8,8 +8,16 @@
             <h2 class="form-title">Password</h2>
             <input type="password" name="password" [(ngModel)]="password" placeholder="at least 8 characters" class="form-input" required/>
             
+            <!-- Message d'erreur -->
+            <div *ngIf="errorMessage" class="error-message">
+                {{ errorMessage }}
+            </div>
+            
             <div class="form-actions">
-                <button type="button" class="sign-in-btn" (click)="onLogin($event)">Sign in</button>
+                <button type="button" class="sign-in-btn" (click)="onLogin($event)" [disabled]="isLoading">
+                    <span *ngIf="!isLoading">Sign in</span>
+                    <span *ngIf="isLoading" class="loading-spinner"></span>
+                </button>
             </div>
             
             <div class="register-link">

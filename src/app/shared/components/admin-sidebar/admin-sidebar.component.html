@@ -1,0 +1,108 @@
+<div class="w-64 bg-white shadow-lg">
+  <div class="p-4 flex items-center space-x-2">
+    <div class="w-10 h-10 rounded-lg bg-indigo-500 flex items-center justify-center">
+      <div class="w-[1.5rem] h-[1.5rem] text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+        </svg>
+      </div>
+    </div>
+    <span class="text-xl font-bold">Explorer</span>
+  </div>
+
+  <div class="mt-8">
+    <!-- Dashboard -->
+    <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'dashboard'}">
+      <a (click)="navigateTo('/admin/dashboard')" class="flex items-center space-x-2 cursor-pointer" 
+         [ngClass]="{'text-indigo-700': activePage === 'dashboard', 'text-gray-600 hover:text-indigo-600': activePage !== 'dashboard'}">
+        <div class="w-[1.5rem] h-[1.5rem]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+          </svg>
+        </div>
+        <span>Dashboard</span>
+      </a>
+    </div>
+
+    <!-- Events -->
+    <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'events'}">
+      <a (click)="navigateTo('/admin/events')" class="flex items-center space-x-2 cursor-pointer"
+         [ngClass]="{'text-indigo-700': activePage === 'events', 'text-gray-600 hover:text-indigo-600': activePage !== 'events'}">
+        <div class="w-[1.5rem] h-[1.5rem]">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <span>Events</span>
+      </a>
+    </div>
+
+    <!-- Users -->
+    <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'users'}">
+      <a (click)="navigateTo('/admin/users')" class="flex items-center space-x-2 cursor-pointer"
+         [ngClass]="{'text-indigo-700': activePage === 'users', 'text-gray-600 hover:text-indigo-600': activePage !== 'users'}">
+        <div class="w-[1.5rem] h-[1.5rem]">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        <span>Users</span>
+      </a>
+    </div>
+
+    <!-- Comments -->
+    <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'comments'}">
+      <a (click)="navigateTo('/admin/comments')" class="flex items-center space-x-2 cursor-pointer"
+         [ngClass]="{'text-indigo-700': activePage === 'comments', 'text-gray-600 hover:text-indigo-600': activePage !== 'comments'}">
+        <div class="w-[1.5rem] h-[1.5rem]">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        </div>
+        <span>Comments</span>
+      </a>
+    </div>
+
+    <!-- Settings -->
+    <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'settings'}">
+      <a (click)="navigateTo('/admin/settings')" class="flex items-center space-x-2 cursor-pointer"
+         [ngClass]="{'text-indigo-700': activePage === 'settings', 'text-gray-600 hover:text-indigo-600': activePage !== 'settings'}">
+        <div class="w-[1.5rem] h-[1.5rem]">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <span>Settings</span>
+      </a>
+    </div>
+
+    <!-- Sign Out -->
+    <div class="px-4 py-3 mt-auto">
+      <a (click)="signOut()" class="flex items-center space-x-2 text-gray-600 hover:text-indigo-600 cursor-pointer">
+        <div class="w-[1.5rem] h-[1.5rem]">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </div>
+        <span>Sign Out</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- User Profile -->
+  <div class="mt-12 p-4" *ngIf="currentUser">
+    <div class="flex items-center space-x-3">
+      <div class="w-12 h-12 flex-shrink-0 bg-indigo-100 rounded-full flex items-center justify-center">
+        <span class="text-indigo-700 font-bold">{{ currentUser.firstName?.charAt(0) || 'A' }}{{ currentUser.lastName?.charAt(0) || '' }}</span>
+      </div>
+      <div>
+        <div class="flex items-center">
+          <span class="text-gray-600 font-semibold">{{ currentUser.firstName }} {{ currentUser.lastName }}</span>
+        </div>
+        <div class="text-xs text-gray-500">{{ currentUser.role }}</div>
+      </div>
+    </div>
+  </div>
+</div> 

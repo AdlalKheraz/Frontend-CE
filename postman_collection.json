@@ -1,0 +1,996 @@
+{
+	"info": {
+		"_postman_id": "6b2d7d3c-5b43-4eef-b1c5-7f1c32e8c3e9",
+		"name": "Chrono Explorer API",
+		"description": "Collection complète des endpoints de l'API Chrono Explorer pour la gestion des civilisations, événements historiques, médias et commentaires.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string",
+			"description": "URL de base de la gateway"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "Token JWT pour l'authentification"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "ID de l'utilisateur actuel"
+		},
+		{
+			"key": "userEmail",
+			"value": "",
+			"type": "string",
+			"description": "Email de l'utilisateur connecté"
+		},
+		{
+			"key": "civilizationId",
+			"value": "1",
+			"type": "string",
+			"description": "ID de la civilisation sélectionnée"
+		},
+		{
+			"key": "eventId",
+			"value": "1",
+			"type": "string",
+			"description": "ID de l'événement sélectionné"
+		},
+		{
+			"key": "mediaId",
+			"value": "",
+			"type": "string",
+			"description": "ID du média sélectionné"
+		},
+		{
+			"key": "commentId",
+			"value": "",
+			"type": "string",
+			"description": "ID du commentaire sélectionné"
+		}
+	],
+	"item": [
+		{
+			"name": "🔓 Public Endpoints",
+			"item": [
+				{
+					"name": "Events",
+					"item": [
+						{
+							"name": "Get All Events",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events"]
+								}
+							},
+							"description": "Récupère tous les événements de base sans enrichissement"
+						},
+						{
+							"name": "Get Event by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/{{eventId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "{{eventId}}"]
+								}
+							},
+							"description": "Récupère un événement spécifique par son ID sans enrichissement"
+						},
+						{
+							"name": "Get Events by Civilization",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/civilization/{{civilizationId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "civilization", "{{civilizationId}}"]
+								}
+							},
+							"description": "Récupère tous les événements d'une civilisation spécifique sans enrichissement"
+						},
+						{
+							"name": "Get All Enriched Events",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/enriched",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "enriched"]
+								}
+							},
+							"description": "Récupère tous les événements enrichis avec leurs médias associés. Contient uniquement l'ID de la civilisation (pas l'objet complet) et pas de commentaires."
+						},
+						{
+							"name": "Get Enriched Event by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/enriched/{{eventId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "enriched", "{{eventId}}"]
+								}
+							},
+							"description": "Récupère un événement enrichi spécifique avec ses médias associés. Contient uniquement l'ID de la civilisation (pas l'objet complet) et pas de commentaires."
+						},
+						{
+							"name": "Get Enriched Events by Civilization",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/enriched/civilization/{{civilizationId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "enriched", "civilization", "{{civilizationId}}"]
+								}
+							},
+							"description": "Récupère tous les événements enrichis d'une civilisation spécifique avec leurs médias associés. Contient uniquement l'ID de la civilisation (pas l'objet complet) et pas de commentaires."
+						}
+					]
+				},
+				{
+					"name": "Civilizations",
+					"item": [
+						{
+							"name": "Get All Civilizations",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "civilizations"]
+								}
+							},
+							"description": "Récupère toutes les civilisations au format DTO (id, name, description, period) sans les événements associés"
+						},
+						{
+							"name": "Get Civilization by ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "civilizations", "{{civilizationId}}"]
+								}
+							},
+							"description": "Récupère une civilisation spécifique au format DTO (id, name, description, period) sans les événements associés"
+						}
+					]
+				},
+				{
+					"name": "Media",
+					"item": [
+						{
+							"name": "Get All Media",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media"]
+								}
+							},
+							"description": "Récupère tous les médias de la plateforme"
+						},
+						{
+							"name": "Get Media by Event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media/event/{{eventId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media", "event", "{{eventId}}"]
+								}
+							},
+							"description": "Récupère tous les médias associés à un événement spécifique"
+						}
+					]
+				},
+				{
+					"name": "Comments",
+					"item": [
+						{
+							"name": "Get All Comments",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/comments",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments"]
+								}
+							},
+							"description": "Récupère tous les commentaires de la plateforme sous forme de DTOs simplifiés (sans les entités Event complètes)"
+						},
+						{
+							"name": "Get Comments for Event",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/comments/event/{{eventId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments", "event", "{{eventId}}"]
+								}
+							},
+							"description": "Récupère les commentaires associés à un événement spécifique sous forme de DTOs simplifiés"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🔐 Authentication",
+			"item": [
+									{
+						"name": "Register",
+						"event": [
+							{
+								"listen": "test",
+								"script": {
+									"exec": [
+										"if (pm.response.status === 'Created' || pm.response.status === 'OK') {",
+										"    var jsonData = pm.response.json();",
+										"    if (jsonData.token) {",
+										"        pm.globals.set('token', jsonData.token);",
+										"        console.log('Token saved:', jsonData.token);",
+										"    }",
+										"    // L'API auth retourne l'email mais pas l'ID directement",
+										"    // Nous pouvons donc stocker l'email comme identifiant",
+										"    if (jsonData.email) {",
+										"        // Un vrai ID sera retourné lors d'appels utilisateur ultérieurs",
+										"        pm.globals.set('userEmail', jsonData.email);",
+										"    }",
+										"}"
+									],
+									"type": "text/javascript"
+								}
+							}
+						],
+						"request": {
+							"method": "POST",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": {
+								"mode": "raw",
+								"raw": "{\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+							},
+							"url": {
+								"raw": "{{baseUrl}}/api/auth/register",
+								"host": ["{{baseUrl}}"],
+								"path": ["api", "auth", "register"]
+							}
+						},
+						"description": "Crée un nouveau compte utilisateur et retourne un token JWT avec les informations utilisateur (email, firstName, lastName, role, expiresIn)",
+						"response": [
+							{
+								"name": "Successful registration",
+								"originalRequest": {
+									"method": "POST",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": {
+										"mode": "raw",
+										"raw": "{\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+									},
+									"url": {
+										"raw": "{{baseUrl}}/api/auth/register"
+									}
+								},
+								"status": "OK",
+								"code": 200,
+								"_postman_previewlanguage": "json",
+								"header": [],
+								"cookie": [],
+								"body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"email\": \"testuser@example.com\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"role\": \"USER\",\n    \"expiresIn\": 86400000\n}"
+							}
+						]
+				},
+									{
+						"name": "Login",
+						"event": [
+							{
+								"listen": "test",
+								"script": {
+									"exec": [
+										"if (pm.response.status === 'OK') {",
+										"    var jsonData = pm.response.json();",
+										"    if (jsonData.token) {",
+										"        pm.globals.set('token', jsonData.token);",
+										"        console.log('Token saved:', jsonData.token);",
+										"    }",
+										"    // L'API auth retourne l'email mais pas l'ID directement",
+										"    // Nous pouvons donc stocker l'email comme identifiant",
+										"    if (jsonData.email) {",
+										"        // Un vrai ID sera retourné lors d'appels utilisateur ultérieurs",
+										"        pm.globals.set('userEmail', jsonData.email);",
+										"    }",
+										"}"
+									],
+									"type": "text/javascript"
+								}
+							}
+						],
+						"request": {
+							"method": "POST",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": {
+								"mode": "raw",
+								"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+							},
+							"url": {
+								"raw": "{{baseUrl}}/api/auth/login",
+								"host": ["{{baseUrl}}"],
+								"path": ["api", "auth", "login"]
+							}
+						},
+						"description": "Authentifie un utilisateur et retourne un token JWT avec les informations utilisateur (email, firstName, lastName, role, expiresIn)",
+						"response": [
+							{
+								"name": "Successful login",
+								"originalRequest": {
+									"method": "POST",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"body": {
+										"mode": "raw",
+										"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+									},
+									"url": {
+										"raw": "{{baseUrl}}/api/auth/login"
+									}
+								},
+								"status": "OK",
+								"code": 200,
+								"_postman_previewlanguage": "json",
+								"header": [],
+								"cookie": [],
+								"body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"email\": \"testuser@example.com\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"role\": \"USER\",\n    \"expiresIn\": 86400000\n}"
+							}
+						]
+				}
+			]
+		},
+		{
+			"name": "🔒 Protected Endpoints",
+			"item": [
+				{
+					"name": "User Management",
+					"item": [
+						{
+							"name": "Get Current User",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/me",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "me"]
+								}
+							},
+							"description": "Récupère les informations de l'utilisateur actuellement authentifié"
+						},
+						{
+							"name": "Get All Users (Admin)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users"]
+								}
+							},
+							"description": "Récupère la liste de tous les utilisateurs (réservé aux administrateurs)"
+						},
+						{
+							"name": "Get User by ID",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/{{userId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "{{userId}}"]
+								}
+							},
+							"description": "Récupère les informations d'un utilisateur spécifique par son ID"
+						},
+						{
+							"name": "Update User (Admin)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"User\",\n    \"email\": \"updateduser@example.com\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/users/{{userId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "{{userId}}"]
+								}
+							},
+							"description": "Met à jour les informations d'un utilisateur (réservé aux administrateurs)"
+						},
+						{
+							"name": "Update Own Profile",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"Profile\",\n    \"email\": \"updated-profile@example.com\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/users/profile",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "profile"]
+								}
+							},
+							"description": "Permet à l'utilisateur connecté de mettre à jour son propre profil"
+						},
+						{
+							"name": "Update Profile with Password",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"Updated\",\n    \"lastName\": \"Profile\",\n    \"email\": \"updated-profile@example.com\",\n    \"currentPassword\": \"password123\",\n    \"newPassword\": \"newPassword123\",\n    \"confirmPassword\": \"newPassword123\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/users/profile",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "profile"]
+								}
+							},
+							"description": "Permet à l'utilisateur connecté de mettre à jour son profil et son mot de passe"
+						},
+						{
+							"name": "Change User Role (Admin)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"role\": \"ADMIN\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/users/{{userId}}/role",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "{{userId}}", "role"]
+								}
+							},
+							"description": "Change le rôle d'un utilisateur (réservé aux administrateurs)"
+						},
+						{
+							"name": "Delete User (Admin or Self)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/{{userId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "{{userId}}"]
+								}
+							},
+							"description": "Supprime un utilisateur (nécessite des droits administrateur ou être le propriétaire du compte)"
+						},
+						{
+							"name": "Delete Own Account",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/me",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "users", "me"]
+								},
+								"description": "Permet à un utilisateur de supprimer son propre compte avec son token JWT - Retourne 204 No Content en cas de succès"
+							},
+							"response": [
+								{
+									"name": "Successful account deletion",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/users/me",
+											"host": ["{{baseUrl}}"],
+											"path": ["api", "users", "me"]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Civilization Management",
+					"item": [
+						{
+							"name": "Create Civilization",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.status === 'Created') {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.id) {",
+											"        pm.globals.set('civilizationId', jsonData.id);",
+											"        console.log('Civilization ID saved:', jsonData.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Ancient Rome\",\n    \"description\": \"The Roman Empire was one of the largest empires in ancient history\",\n    \"startDate\": \"0753-04-21\",\n    \"endDate\": \"1453-05-29\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "civilizations"]
+								}
+							},
+							"description": "Crée une nouvelle civilisation et retourne un DTO avec (id, name, description, period)"
+						},
+						{
+							"name": "Update Civilization",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Ancient Rome Updated\",\n    \"description\": \"Updated description of the Roman Empire\",\n    \"startDate\": \"0753-04-21\",\n    \"endDate\": \"1453-05-29\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "civilizations", "{{civilizationId}}"]
+								}
+							},
+							"description": "Met à jour une civilisation existante et retourne un DTO avec (id, name, description, period)"
+						},
+						{
+							"name": "Delete Civilization",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/civilizations/{{civilizationId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "civilizations", "{{civilizationId}}"]
+								}
+							},
+							"description": "Supprime une civilisation et tous ses événements associés (cascade). Supprime également les médias et commentaires liés aux événements"
+						}
+					]
+				},
+				{
+					"name": "Event Management",
+					"item": [
+						{
+							"name": "Create Event",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.status === 'Created') {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.id) {",
+											"        pm.globals.set('eventId', jsonData.id);",
+											"        console.log('Event ID saved:', jsonData.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Foundation of Rome\",\n    \"description\": \"The legendary founding of Rome by Romulus\",\n    \"date\": \"0753-04-21\",\n    \"civilizationId\": {{civilizationId}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/events",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events"]
+								}
+							},
+							"description": "Crée un nouvel événement historique associé à une civilisation existante"
+						},
+						{
+							"name": "Update Event",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Foundation of Rome (Updated)\",\n    \"description\": \"Updated description of Rome's foundation\",\n    \"date\": \"0753-04-21\",\n    \"civilizationId\": {{civilizationId}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/events/{{eventId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "{{eventId}}"]
+								}
+							},
+							"description": "Met à jour les informations d'un événement historique existant"
+						},
+						{
+							"name": "Delete Event",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/events/{{eventId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "events", "{{eventId}}"]
+								}
+							},
+							"description": "Supprime un événement et tous ses médias et commentaires associés (cascade)"
+						}
+					]
+				},
+				{
+					"name": "Media Management",
+					"item": [
+						{
+							"name": "Add Media by URL",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.status === 'Created') {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.id) {",
+											"        pm.globals.set('mediaId', jsonData.id);",
+											"        console.log('Media ID saved:', jsonData.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"url\": \"https://example.com/image.jpg\",\n    \"title\": \"Colisée romain\",\n    \"description\": \"Photo du Colisée à Rome\",\n    \"type\": \"IMAGE\",\n    \"eventId\": {{eventId}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/media",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media"]
+								},
+								"description": "Permet d'ajouter un média à partir d'une URL externe (sans upload de fichier). Les médias ajoutés apparaîtront dans les événements enrichis."
+							}
+						},
+						{
+							"name": "Update Media",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Updated Media Title\",\n    \"description\": \"Updated media description\",\n    \"eventId\": {{eventId}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media", "{{mediaId}}"]
+								},
+								"description": "Met à jour les informations d'un média existant"
+							}
+						},
+						{
+							"name": "Delete Media",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/media/{{mediaId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "media", "{{mediaId}}"]
+								},
+								"description": "Supprime un média. Le média ne sera plus visible dans les événements enrichis."
+							}
+						}
+					]
+				},
+				{
+					"name": "Comment Management",
+					"item": [
+						{
+							"name": "Add Comment",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.status === 'Created') {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.id) {",
+											"        pm.globals.set('commentId', jsonData.id);",
+											"        console.log('Comment ID saved:', jsonData.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"content\": \"This is a test comment.\",\n    \"eventId\": {{eventId}},\n    \"authorEmail\": \"{{userEmail}}\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/comments",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments"]
+								},
+								"description": "Ajoute un commentaire à un événement. Nécessite l'authorEmail qui est obtenu lors de l'authentification. La réponse est un DTO simplifié sans l'objet Event complet."
+							}
+						},
+						{
+							"name": "Update Comment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"content\": \"This is an updated comment.\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/comments/{{commentId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments", "{{commentId}}"]
+								},
+								"description": "Met à jour le contenu d'un commentaire existant. La réponse est un DTO simplifié."
+							}
+						},
+						{
+							"name": "Delete Comment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/comments/{{commentId}}",
+									"host": ["{{baseUrl}}"],
+									"path": ["api", "comments", "{{commentId}}"]
+								},
+								"description": "Supprime un commentaire"
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script global exécuté avant chaque requête",
+					"console.log('Executing request to:', pm.request.url.toString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script global exécuté après chaque requête",
+					"console.log('Response status:', pm.response.status);",
+					"console.log('Response time:', pm.response.responseTime + 'ms');"
+				]
+			}
+		}
+	]
+} 

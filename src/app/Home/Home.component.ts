@@ -168,13 +168,21 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.commentSubscription = this.commentService.comments$.subscribe(state => {
             this.apiComments = state.data!;
             this.commentsLoading = state.loading;
+            console.log('État des commentaires mis à jour:', {
+                loading: this.commentsLoading,
+                count: this.apiComments.length,
+                error: state.error
+            });
             this.cdr.markForCheck();
         });
 
-        // Chargez les commentaires pour l'événement initial
-        // this.loadCommentsForEvent(this.currentEventId);
-        this.loadComments();
-        
+        // Chargez les commentaires pour l'événement initial après un court délai
+        // pour s'assurer que les composants enfants sont initialisés
+        setTimeout(() => {
+            if (this.getActiveEvent()) {
+                this.loadCommentsForEvent(this.getActiveEvent().id.toString());
+            }
+        }, 1000);
 
         // S'abonner aux changements d'état du filtre
         this._subscription.add(
@@ -386,7 +394,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 
                 // Délai avant de fermer complètement
                 setTimeout(() => {
-                    this.detailsVisible = false;
+        this.detailsVisible = false;
                     this.container.classList.remove('blurred');
                     this.cdr.markForCheck();
                 }, 200);
@@ -394,7 +402,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 // Fallback si les éléments ne sont pas trouvés
                 this.detailsVisible = false;
                 this.container.classList.remove('blurred');
-                this.cdr.markForCheck();
+        this.cdr.markForCheck();
             }
         }
     }
@@ -498,8 +506,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             if (activeEvent) {
                 const eventId = activeEvent.id.toString();
                 console.log(`Ouverture des commentaires pour l'événement ${eventId}`);
-                this.currentEventId = eventId; // Mettre à jour l'ID actuel
                 this.loadCommentsForEvent(eventId);
+            } else {
+                console.warn('Panneau de commentaires ouvert mais aucun événement actif trouvé');
             }
         }
 
@@ -530,30 +539,48 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Méthode pour charger les commentaires de l'événement actuel
     loadComments(): void {
-        this.commentService.loadCommentsByEvent(this.currentEventId).subscribe({
-            next: (comments) => {
-                // Les données sont déjà mises à jour via le BehaviorSubject
-                this.cdr.markForCheck();
-            },
-            error: (error) => {
-                console.error('Erreur lors du chargement des commentaires:', error);
-                this.cdr.markForCheck();
-            }
-        });
+        // Cette méthode est maintenant remplacée par loadCommentsForEvent
+        this.loadCommentsForEvent(this.currentEventId);
     }
 
     // Méthode pour charger les commentaires lors d'un changement d'événement
     loadCommentsForEvent(eventId: string): void {
-        // console.log(`Chargement des commentaires pour l'événement ${eventId} (actuel: ${this.currentEventId})`);
+        console.log(`Chargement des commentaires pour l'événement ${eventId} (actuel: ${this.currentEventId})`);
+        
+        if (!eventId) {
+            console.error('ID d\'événement invalide ou manquant');
+            return;
+        }
         
         // Si l'ID d'événement a changé, réinitialiser les commentaires
         if (this.currentEventId !== eventId) {
             this.commentService.resetComments();
             this.currentEventId = eventId;
-            this.loadComments();
-            this.cdr.markForCheck();
+            
+            // Essayer de charger les commentaires pour le nouvel événement
+            this.commentService.loadCommentsByEvent(eventId).subscribe({
+                next: (comments) => {
+                    console.log(`${comments.length} commentaires chargés pour l'événement ${eventId}`);
+                    this.cdr.markForCheck();
+                },
+                error: (error) => {
+                    console.error(`Erreur lors du chargement des commentaires pour l'événement ${eventId}:`, error);
+                    this.cdr.markForCheck();
+                }
+            });
+        } else {
+            // Même événement, juste rafraîchir les commentaires
+            this.commentService.refreshComments(eventId).subscribe({
+                next: (comments) => {
+                    console.log(`${comments.length} commentaires rafraîchis pour l'événement ${eventId}`);
+                    this.cdr.markForCheck();
+                },
+                error: (error) => {
+                    console.error(`Erreur lors du rafraîchissement des commentaires pour l'événement ${eventId}:`, error);
+                    this.cdr.markForCheck();
+                }
+            });
         }
-        this.loadComments();
     }
 
     // Méthode pour charger plus de commentaires (pagination)
@@ -591,7 +618,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     setCurrentEvent(eventId: string): void {
       if (this.currentEventId !== eventId) {
         this.currentEventId = eventId;
-        this.loadComments();
+        this.loadCommentsForEvent(eventId);
       }
     }
 
@@ -605,18 +632,22 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         const eventId = activeEvent.id.toString();
         console.log(`Ajout d'un commentaire pour l'événement actif: ${eventId}`);
         
+        // Créer le commentaire en utilisant le nom d'utilisateur comme authorEmail
         const comment: Comment = {
             content: this.newComment.trim(),
             eventId: eventId,
-            authorEmail: this.userName // Utilisation temporaire du nom d'utilisateur comme email
+            authorEmail: this.userName // Utiliser le nom d'utilisateur (pas l'email)
         };
         
+        console.log('Envoi du commentaire:', comment);
+        
         this.commentService.createComment(comment).subscribe({
-            next: () => {
+            next: (response) => {
+                console.log('Commentaire ajouté avec succès:', response);
                 this.newComment = ''; // Réinitialiser le champ après envoi
                 this.cdr.markForCheck();
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Erreur lors de l\'ajout du commentaire:', error);
             }
         });
@@ -869,9 +900,11 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.timelineComponent) {
             const activeEvent = this.timelineComponent.getActiveEvent();
             if (activeEvent) {
+                console.log('Active event found:', activeEvent);
                 return activeEvent;
             }
         }
+        console.warn('No active event found');
         return null;
     }
 

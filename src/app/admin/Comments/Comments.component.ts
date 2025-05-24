@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { CommentService, Comment as ServiceComment } from '../../core/services/comment.service';
 import { LoadingState } from '../../core/models/api.model';
+import { CommentService, Comment as ServiceComment } from '../../core/services/comment.service';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 interface Comment {
   id: string;
@@ -11,7 +12,6 @@ interface Comment {
   eventName: string;
   content: string;
   date: string;
-  status: 'pending' | 'approved' | 'rejected';
   authorEmail: string;
   eventId: string;
 }
@@ -19,7 +19,7 @@ interface Comment {
 @Component({
   selector: 'app-comments',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule, AdminSidebarComponent],
   templateUrl: './Comments.component.html',
   styleUrl: './Comments.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,13 +31,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   error: string | null = null;
   selectedComment: Comment | null = null;
   
-  stats = {
-    pending: 0,
-    approved: 0,
-    rejected: 0,
-    pendingTrend: 18,
-    approvedTrend: -1
-  };
+  // Suppression des stats de statut qui ne sont plus utilisées
 
   // Pagination
   currentPage = 1;
@@ -53,6 +47,16 @@ export class CommentsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Vérifier si l'utilisateur est authentifié
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      console.error('No authentication token found');
+      this.error = 'Vous devez être connecté pour accéder à cette page';
+      this.loading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+    
     this.loadAllComments();
     this.subscribeToCommentsState();
   }
@@ -66,13 +70,23 @@ export class CommentsComponent implements OnInit, OnDestroy {
     this.commentService.comments$
       .pipe(takeUntil(this.destroy$))
       .subscribe(state => {
+        console.log('Comments state updated:', state);
         this.loading = state.loading === LoadingState.LOADING;
         this.error = state.error || null;
         
         if (state.data) {
+          console.log('Transforming comments data:', state.data);
           this.comments = this.transformServiceComments(state.data);
           this.filteredComments = [...this.comments];
           this.totalItems = this.comments.length;
+          this.updateStats();
+        } else if (state.loading === LoadingState.LOADED) {
+          // Si l'état est chargé mais sans données, afficher un message
+          console.warn('No comments data received');
+          this.error = 'Aucun commentaire trouvé';
+          this.comments = [];
+          this.filteredComments = [];
+          this.totalItems = 0;
           this.updateStats();
         }
         
@@ -81,20 +95,33 @@ export class CommentsComponent implements OnInit, OnDestroy {
   }
 
   private transformServiceComments(serviceComments: ServiceComment[]): Comment[] {
-    return serviceComments.map(comment => ({
+    if (!serviceComments || !Array.isArray(serviceComments)) {
+      console.error('Invalid service comments:', serviceComments);
+      return [];
+    }
+    
+    return serviceComments.map(comment => {
+      // Vérifier si l'objet comment est valide
+      if (!comment || typeof comment !== 'object') {
+        console.error('Invalid comment object:', comment);
+        return null;
+      }
+      
+      return {
       id: comment.id || '',
-      userName: this.extractUserName(comment.authorEmail),
-      eventName: `Event ${comment.eventId}`, // À améliorer avec un service Event
-      content: comment.content,
+        userName: this.extractUserName(comment.authorEmail || 'anonymous@user.com'),
+        eventName: `Event ${comment.eventId || 'unknown'}`,
+        content: comment.content || 'No content',
       date: this.formatDate(comment.createdAt),
-      status: 'pending' as const, // Par défaut, à améliorer avec un champ status dans le service
-      authorEmail: comment.authorEmail,
-      eventId: comment.eventId
-    }));
+        authorEmail: comment.authorEmail || 'anonymous@user.com',
+        eventId: comment.eventId || 'unknown'
+      };
+    }).filter(comment => comment !== null) as Comment[];
   }
 
   private extractUserName(email: string): string {
-    return email.split('@')[0] || 'Utilisateur anonyme';
+    if (!email) return 'Utilisateur anonyme';
+    return email.includes('@') ? email.split('@')[0] : email;
   }
 
   private formatDate(dateString?: string): string {
@@ -103,20 +130,28 @@ export class CommentsComponent implements OnInit, OnDestroy {
   }
 
   private updateStats(): void {
-    this.stats.pending = this.comments.filter(c => c.status === 'pending').length;
-    this.stats.approved = this.comments.filter(c => c.status === 'approved').length;
-    this.stats.rejected = this.comments.filter(c => c.status === 'rejected').length;
+    // Cette méthode est conservée mais vidée car les stats de statut ne sont plus nécessaires
   }
 
   loadAllComments(): void {
+    this.loading = true;
+    this.error = null;
+    this.cdr.markForCheck();
+    
     this.commentService.loadAllComments()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
+        next: (comments) => {
+          console.log('Comments loaded in component:', comments);
           // Les données sont automatiquement mises à jour via l'observable
+          this.loading = false;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Erreur lors du chargement des commentaires:', error);
+          this.loading = false;
+          this.error = error.message || 'Erreur lors du chargement des commentaires';
+          this.cdr.markForCheck();
         }
       });
   }
@@ -258,6 +293,11 @@ export class CommentsComponent implements OnInit, OnDestroy {
   }
 
   refreshComments(): void {
+    console.log('Refreshing comments...');
+    this.loading = true;
+    this.error = null;
+    this.cdr.markForCheck();
+    
     this.loadAllComments();
   }
 }

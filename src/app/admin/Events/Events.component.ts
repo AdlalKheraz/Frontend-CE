@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { EventService, HistoricalEvent } from '../../core/services/event.service';
 import { LoadingState } from '../../core/models/api.model';
+import { EventService, HistoricalEvent } from '../../core/services/event.service';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule,RouterModule],
+  imports: [CommonModule,RouterModule, AdminSidebarComponent],
   templateUrl: './Events.component.html',
   styleUrl: './Events.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
