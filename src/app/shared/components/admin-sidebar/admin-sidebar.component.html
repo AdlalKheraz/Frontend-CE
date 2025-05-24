@@ -13,7 +13,7 @@
   <div class="mt-8">
     <!-- Dashboard -->
     <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'dashboard'}">
-      <a (click)="navigateTo('/admin/dashboard')" class="flex items-center space-x-2 cursor-pointer" 
+      <a (click)="navigateTo('/admin/dashboard')" class="flex items-center space-x-2 cursor-pointer"
          [ngClass]="{'text-indigo-700': activePage === 'dashboard', 'text-gray-600 hover:text-indigo-600': activePage !== 'dashboard'}">
         <div class="w-[1.5rem] h-[1.5rem]">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -66,7 +66,7 @@
 
     <!-- Settings -->
     <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'settings'}">
-      <a (click)="navigateTo('/admin/settings')" class="flex items-center space-x-2 cursor-pointer"
+      <a (click)="navigateTo('/home')" class="flex items-center space-x-2 cursor-pointer"
          [ngClass]="{'text-indigo-700': activePage === 'settings', 'text-gray-600 hover:text-indigo-600': activePage !== 'settings'}">
         <div class="w-[1.5rem] h-[1.5rem]">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,7 +74,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
-        <span>Settings</span>
+        <span>Accueil</span>
       </a>
     </div>
 
@@ -105,4 +105,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>
