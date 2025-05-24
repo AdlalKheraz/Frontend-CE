@@ -42,7 +42,6 @@ export class NewEventComponent implements OnInit {
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       date: ['', Validators.required],
-      location: ['']
     });
     
     // Civilization form

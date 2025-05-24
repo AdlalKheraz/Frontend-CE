@@ -67,7 +67,6 @@ export class EditEventComponent implements OnInit {
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       date: ['', Validators.required],
-      location: ['']
     });
     
     // Civilization form
@@ -154,7 +153,6 @@ export class EditEventComponent implements OnInit {
       title: event.title || '',
       description: event.description || '',
       date: event.date ? new Date(event.date).toISOString().split('T')[0] : '',
-      location: event.hasOwnProperty('location') ? (event as any).location : ''
     });
     
     // Sélectionner la civilisation
