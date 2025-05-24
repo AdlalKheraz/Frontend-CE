@@ -118,9 +118,86 @@
                     </div>
                     <p class="highlight-description">{{ timelineComponent.getActiveEvent().description }}</p>
                     
-                    <!-- Espace pour les médias futurs -->
-                    <div class="highlight-media" *ngIf="timelineComponent.getActiveEvent().media">
-                        <!-- Contenu média futur sera ajouté ici dynamiquement -->
+                    <!-- Galerie de tous les médias -->
+                    <div class="highlight-media-gallery" *ngIf="timelineComponent.getActiveEvent().medias && timelineComponent.getActiveEvent().medias.length > 0">
+                        <h3 class="media-gallery-title">Médias associés</h3>
+                        <div class="media-gallery-grid">
+                            <div *ngFor="let media of timelineComponent.getActiveEvent().medias; let i = index" 
+                                 class="media-gallery-item"
+                                 [class.media-image]="media.type === 'IMAGE'"
+                                 [class.media-video]="media.type === 'VIDEO'"
+                                 [class.media-audio]="media.type === 'AUDIO'">
+                                
+                                <!-- Image -->
+                                <div *ngIf="media.type === 'IMAGE'" class="media-container">
+                                    <div class="media-preview">
+                                        <img [src]="media.url" 
+                                             [alt]="media.title || timelineComponent.getActiveEvent().title"
+                                             class="media-element">
+                                        <div class="media-overlay">
+                                            <svg class="media-icon" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Vidéo -->
+                                <div *ngIf="media.type === 'VIDEO'" class="media-container video-container">
+                                    <div class="media-preview">
+                                        <video *ngIf="isValidVideoUrl(media.url)"
+                                               [src]="media.url" 
+                                               class="media-element video-player"
+                                               controls
+                                               preload="metadata"
+                                               playsinline
+                                               webkit-playsinline
+                                               crossorigin="anonymous"
+                                               (click)="onVideoClick($event, media)"
+                                               (play)="onVideoEvent($event)"
+                                               (pause)="onVideoEvent($event)"
+                                               (loadstart)="onVideoEvent($event)"
+                                               (canplay)="onVideoEvent($event)"
+                                               (error)="onVideoEvent($event)">
+                                            Votre navigateur ne supporte pas la lecture vidéo.
+                                        </video>
+                                        
+                                        <!-- Bouton de lecture personnalisé -->
+                                        <div class="custom-play-button" 
+                                             (click)="onVideoClick($event, media)"
+                                             *ngIf="isValidVideoUrl(media.url)">
+                                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M8 5v14l11-7z"/>
+                                            </svg>
+                                        </div>
+                                        
+                                        <div *ngIf="!isValidVideoUrl(media.url)" class="video-error">
+                                            <svg class="media-icon" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                            </svg>
+                                            <p>URL vidéo non valide</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Audio -->
+                                <div *ngIf="media.type === 'AUDIO'" class="media-container">
+                                    <div class="media-preview audio-preview">
+                                        <div class="audio-placeholder">
+                                            <svg class="media-icon" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Informations du média -->
+                                <div class="media-info">
+                                    <h4 class="media-title">{{ media.title || 'Média ' + (i + 1) }}</h4>
+                                    <p class="media-description" *ngIf="media.description">{{ media.description }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Boutons d'action -->
