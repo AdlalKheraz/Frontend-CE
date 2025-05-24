@@ -435,17 +435,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         console.log('🏛️ Sélection de civilisation:', civ);
         this.selectedCivilization = civ;
 
-        // Si c'est une des 3 premières, on ne change rien
-        if (this.displayedCivilizations.includes(civ)) {
-            return;
-        }
-
-        // Sinon, on met la civilisation sélectionnée en premier
-        const updatedCivs = [civ];
-        for (let i = 0; i < 2 && i < this.civilizations.length - 1; i++) {
-            if (this.civilizations[i] !== civ) {
-                updatedCivs.push(this.civilizations[i]);
-            }
+        // Transmettre immédiatement la civilisation sélectionnée au composant Timeline
+        if (this.timelineComponent) {
+            console.log('🏛️ Transmission de la civilisation au timeline:', civ);
+            this.timelineComponent.selectedCivilization = civ;
+        } else {
+            console.warn('🏛️ Timeline component non disponible');
         }
 
         // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses événements
@@ -457,12 +452,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 console.log('🏛️ Chargement des événements pour la civilisation:', selectedCiv.id);
                 this.eventService.loadEventsByCivilization(selectedCiv.id).subscribe({
                     next: (events) => {
-                        console.log('🏛️ Événements chargés pour la civilisation:', events);
-                        // Transmettre immédiatement au timeline
-                        if (this.timelineComponent) {
-                            this.timelineComponent.selectedCivilization = civ;
-                        }
-                        this.cdr.markForCheck();
+                        console.log('🏛️ Événements chargés pour la civilisation:', events.length, 'événements');
                     },
                     error: (error) => {
                         console.error('🏛️ Erreur lors du chargement des événements:', error);
@@ -474,44 +464,16 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             console.log('🏛️ Chargement de tous les événements enrichis');
             this.eventService.loadAllEnrichedEvents().subscribe({
                 next: (events) => {
-                    console.log('🏛️ Tous les événements enrichis chargés:', events);
-                    // Transmettre immédiatement au timeline
-                    if (this.timelineComponent) {
-                        this.timelineComponent.selectedCivilization = civ;
-                        // Forcer le rechargement des données dans le timeline
-                        this.timelineComponent.setEnrichedEvents(events);
-                    }
-                    this.cdr.markForCheck();
+                    console.log('🏛️ Tous les événements enrichis chargés:', events.length, 'événements');
                 },
                 error: (error) => {
                     console.error('🏛️ Erreur lors du chargement de tous les événements:', error);
                 }
             });
         }
-        
-        // Transmettre la civilisation sélectionnée au composant Timeline
-        if (this.timelineComponent) {
-            console.log('🏛️ Transmission de la civilisation au timeline:', civ);
-            this.timelineComponent.selectedCivilization = civ;
-        } else {
-            console.warn('🏛️ Timeline component non disponible');
-        }
 
         // Forcer la détection des changements
         this.cdr.markForCheck();
-
-        // Gestion de l'affichage des civilisations (optionnel)
-        if (!this.displayedCivilizations.includes(civ)) {
-            // Réorganiser l'affichage si nécessaire
-            const updatedCivs = [civ];
-            for (let i = 0; i < 2 && i < this.civilizations.length - 1; i++) {
-                if (this.civilizations[i] !== civ) {
-                    updatedCivs.push(this.civilizations[i]);
-                }
-            }
-            // Si vous voulez réorganiser l'affichage, décommentez cette ligne :
-            // this.displayedCivilizations = updatedCivs;
-        }
     }
     // Méthode pour ouvrir/fermer le panneau des civilisations
     toggleCivilizationsPanel(): void {
@@ -1030,10 +992,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.eventService.loadAllEnrichedEvents().subscribe({
             next: (enrichedEvents) => {
                 console.log('Événements enrichis chargés:', enrichedEvents);
-                // Transmettre les événements enrichis au composant Timeline
-                if (this.timelineComponent) {
-                    this.timelineComponent.setEnrichedEvents(enrichedEvents);
-                }
+                // Le timeline réagira automatiquement aux changements du service
                 this.cdr.markForCheck();
             },
             error: (error) => {

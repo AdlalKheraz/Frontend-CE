@@ -155,12 +155,15 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
             // Transformer les données du service en format TimelineEvent
             this.allEvents = this.mapHistoricalEventsToTimelineEvents(state.data);
             console.log('🚀 ~ TimeLineScrolleComponent ~ loadEvents ~ allEvents:', this.allEvents)
+            
+            // ✅ Appliquer immédiatement le filtrage avec la civilisation sélectionnée
+            this.filterEvents();
           } else {
             // Aucun événement retourné
             this.allEvents = [];
+            this.filteredEvents = [];
           }
           
-          this.filterEvents();
           this.currentYear = this.filteredEvents[0]?.year || 0;
           this.loading = false;
           this.cdr.detectChanges();
@@ -179,8 +182,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     
     this.subscriptions.add(subscription);
     
-    // Déclencher le chargement des événements
-    console.log('📥 Déclenchement du chargement des événements enrichis');
+    // Déclencher le chargement initial des événements enrichis
+    console.log('📥 Déclenchement du chargement initial des événements enrichis');
     this.eventService.loadAllEnrichedEvents().subscribe();
   }
   
@@ -376,21 +379,6 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     return this.filteredEvents[this.activeEventIndex];
   }
   
-  // Nouvelle méthode pour définir les événements enrichis
-  setEnrichedEvents(events: HistoricalEvent[]): void {
-    console.log('🔄 Mise à jour des événements enrichis:', events.length, 'événements');
-    this.enrichedEvents = events;
-    
-    // ✅ Utiliser la même logique de mapping que mapHistoricalEventsToTimelineEvents
-    this.allEvents = this.mapHistoricalEventsToTimelineEvents(events);
-    
-    console.log('🔄 AllEvents mis à jour:', this.allEvents.map(e => ({ title: e.title, civilization: e.civilization })));
-    
-    // Appliquer le filtrage avec la civilisation actuellement sélectionnée
-    this.filterEvents();
-    
-    this.cdr.markForCheck();
-  }
   updateActiveEvent() {
     // Implémentation de la méthode updateActiveEvent
     if (this.filteredEvents.length > 0) {
