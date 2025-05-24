@@ -359,6 +359,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             } else {
                 this.text= this.text === 'Cliquer' ? 'Anuller' : 'Cliquer';
                 
+                // ✅ Fermer la dynamic island avant d'afficher les détails
+                this.islandExpanded = false;
+                this.civilizationsPanelOpen = false;
+                this.searchOpen = false;
+                this.userMenuOpen = false;
+                
                 // Basculer l'affichage des détails pour les utilisateurs connectés
                 this.toggleDetails();
             }
@@ -372,6 +378,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.detailsVisible) {
             // Fermer les autres panels si nécessaire
             this.closeAllPanels();
+            
+            // ✅ Fermer la dynamic island quand on affiche les détails
+            this.islandExpanded = false;
+            this.civilizationsPanelOpen = false;
+            this.searchOpen = false;
+            this.userMenuOpen = false;
             
             // Ajouter un effet de flou au conteneur d'image
             this.container.classList.add('blurred');
@@ -416,6 +428,18 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.authService.signOut().subscribe(() => {
             // Mettre à jour le nom d'utilisateur à "Visiteur" après la déconnexion
             this.userName = 'Visiteur';
+            
+            // ✅ Fermer la dynamic island et tous les panneaux lors de la déconnexion
+            this.islandExpanded = false;
+            this.civilizationsPanelOpen = false;
+            this.searchOpen = false;
+            this.userMenuOpen = false;
+            this.commentsOpen = false;
+            this.detailsVisible = false;
+            
+            // Retirer l'effet de flou si présent
+            this.container.classList.remove('blurred');
+            
             this.cdr.markForCheck();
             // setTimeout(() => {
             //     this.router.navigate(['/login']);
@@ -484,8 +508,19 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         // Inverser l'état du panneau des civilisations
         this.civilizationsPanelOpen = !this.civilizationsPanelOpen;
 
-        // Garder l'island ouverte si un panneau est ouvert
-        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        if (this.civilizationsPanelOpen) {
+            // Ouvrir l'island avec animation si elle n'est pas déjà ouverte
+            if (!this.islandExpanded) {
+                this.showIsland();
+            } else {
+                this.keepIslandOpen();
+            }
+        } else {
+            // Fermer l'island si aucun autre panneau n'est ouvert
+            if (!this.userMenuOpen && !this.searchOpen) {
+                this.animateIslandClose();
+            }
+        }
 
         this.cdr.markForCheck();
     }
@@ -529,8 +564,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     toggleSearch(): void {
         // Vérifier si l'utilisateur est connecté
         if (!this.isLoggedIn) {
-            // Informer l'utilisateur qu'il doit se connecter
-            // ou simplement ne rien faire
             return;
         }
 
@@ -541,8 +574,19 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         // Inverser l'état du panneau de recherche
         this.searchOpen = !this.searchOpen;
 
-        // Garder l'island ouverte si un panneau est ouvert
-        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        if (this.searchOpen) {
+            // Ouvrir l'island avec animation si elle n'est pas déjà ouverte
+            if (!this.islandExpanded) {
+                this.showIsland();
+            } else {
+                this.keepIslandOpen();
+            }
+        } else {
+            // Fermer l'island si aucun autre panneau n'est ouvert
+            if (!this.userMenuOpen && !this.civilizationsPanelOpen) {
+                this.animateIslandClose();
+            }
+        }
 
         this.cdr.markForCheck();
     }
@@ -673,6 +717,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
         // Animation fluide pour l'ouverture
         if (!this.islandExpanded) {
+            // Retirer la classe de fermeture si elle existe
+            const islandElement = document.querySelector('.dynamic-island');
+            if (islandElement) {
+                islandElement.classList.remove('closing');
+            }
+            
             // Utiliser requestAnimationFrame pour que la transition démarre au bon moment
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
@@ -700,17 +750,32 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         }, 200);
     }
 
-    // Méthode pour cacher l'îlot dynamique à la fin du survol
+    // Méthode pour cacher l'îlot dynamique à la fin du survol avec animation
     hideIsland(): void {
         // Ne pas fermer si un des panneaux est ouvert
         if (this.civilizationsPanelOpen || this.searchOpen || this.userMenuOpen) return;
 
         // Petit délai avant de fermer pour éviter la fermeture accidentelle
         this.islandAnimationTimeout = setTimeout(() => {
-            this.islandExpanded = false;
-            this.cdr.markForCheck();
-            this.islandAnimationTimeout = null;
+            this.animateIslandClose();
         }, 150);
+    }
+
+    // Nouvelle méthode pour animer la fermeture de l'island
+    private animateIslandClose(): void {
+        const islandElement = document.querySelector('.dynamic-island');
+        if (islandElement && this.islandExpanded) {
+            // Ajouter la classe d'animation de fermeture
+            islandElement.classList.add('closing');
+            
+            // Attendre la fin de l'animation avant de changer l'état
+            setTimeout(() => {
+                this.islandExpanded = false;
+                islandElement.classList.remove('closing');
+                this.cdr.markForCheck();
+                this.islandAnimationTimeout = null;
+            }, 400); // Durée réduite pour correspondre à l'animation CSS
+        }
     }
 
     // Méthode pour maintenir l'îlot dynamique ouvert (utile quand on interagit avec le panneau des civilisations)
@@ -721,6 +786,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         if (this.islandAnimationTimeout) {
             clearTimeout(this.islandAnimationTimeout);
             this.islandAnimationTimeout = null;
+        }
+
+        // Retirer la classe de fermeture si elle existe
+        const islandElement = document.querySelector('.dynamic-island');
+        if (islandElement) {
+            islandElement.classList.remove('closing');
         }
 
         this.cdr.markForCheck();
@@ -838,8 +909,19 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         // Inverser l'état du menu utilisateur
         this.userMenuOpen = !this.userMenuOpen;
 
-        // Garder l'island ouverte si un panneau est ouvert
-        this.islandExpanded = this.civilizationsPanelOpen || this.userMenuOpen || this.searchOpen;
+        if (this.userMenuOpen) {
+            // Ouvrir l'island avec animation si elle n'est pas déjà ouverte
+            if (!this.islandExpanded) {
+                this.showIsland();
+            } else {
+                this.keepIslandOpen();
+            }
+        } else {
+            // Fermer l'island si aucun autre panneau n'est ouvert
+            if (!this.civilizationsPanelOpen && !this.searchOpen) {
+                this.animateIslandClose();
+            }
+        }
 
         this.cdr.markForCheck();
     }
@@ -887,15 +969,20 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         });
     }
 
-    // Méthode pour fermer tous les panneaux
+    // Méthode pour fermer tous les panneaux avec animation
     closeAllPanels(): void {
-        this.civilizationsPanelOpen = false;
-        this.searchOpen = false;
-        this.userMenuOpen = false;
-        this.closeComments();
-        this.islandExpanded = false;
-        
-        this.cdr.markForCheck();
+        // Animer la fermeture des panneaux d'abord
+        this.closeWithAnimation(() => {
+            this.civilizationsPanelOpen = false;
+            this.searchOpen = false;
+            this.userMenuOpen = false;
+            this.closeComments();
+            
+            // Puis animer la fermeture de l'island
+            this.animateIslandClose();
+            
+            this.cdr.markForCheck();
+        });
     }
 
     // Méthode pour fermer seulement les commentaires
@@ -961,6 +1048,13 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             this.currentEventId = eventId;
             this.loadCommentsForEvent(eventId);
             this.commentsOpen = true;
+            
+            // ✅ Fermer la dynamic island quand on ouvre les commentaires
+            this.islandExpanded = false;
+            this.civilizationsPanelOpen = false;
+            this.searchOpen = false;
+            this.userMenuOpen = false;
+            
             this.hideDetails(); // Fermer les détails de l'événement
             this.cdr.markForCheck();
         }
@@ -1049,5 +1143,116 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         );
         
         return hasValidExtension || isStreamingUrl || url.startsWith('blob:') || url.startsWith('data:');
+    }
+
+    // Méthode pour obtenir la longueur d'une description (en mots)
+    getDescriptionLength(description: string): number {
+        if (!description) return 0;
+        
+        // Nettoyer le texte HTML et compter les mots
+        const cleanText = description.replace(/<[^>]*>/g, '').trim();
+        if (!cleanText) return 0;
+        
+        return cleanText.split(/\s+/).length;
+    }
+
+    // Méthode pour vérifier si une description contient plusieurs paragraphes
+    hasMultipleParagraphs(description: string): boolean {
+        if (!description) return false;
+        
+        // Vérifier la présence de balises de paragraphe ou de sauts de ligne multiples
+        const paragraphIndicators = [
+            /<p[^>]*>/gi,
+            /\n\s*\n/g,
+            /<br\s*\/?>\s*<br\s*\/?>/gi
+        ];
+        
+        return paragraphIndicators.some(pattern => pattern.test(description));
+    }
+
+    // Méthode pour formater une description selon sa longueur
+    formatDescription(description: string): string {
+        if (!description) return '';
+        
+        const wordCount = this.getDescriptionLength(description);
+        const hasMultipleP = this.hasMultipleParagraphs(description);
+        
+        // Si la description contient déjà des balises HTML, la retourner telle quelle
+        if (description.includes('<p>') || description.includes('<br>')) {
+            return description;
+        }
+        
+        // Pour les descriptions courtes (≤ 50 mots), pas de formatage spécial
+        if (wordCount <= 50) {
+            return description;
+        }
+        
+        // Pour les descriptions moyennes (51-150 mots), ajouter des paragraphes si nécessaire
+        if (wordCount <= 150) {
+            // Diviser en phrases et regrouper
+            const sentences = description.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            if (sentences.length > 2) {
+                const midPoint = Math.ceil(sentences.length / 2);
+                const firstPart = sentences.slice(0, midPoint).join('. ').trim() + '.';
+                const secondPart = sentences.slice(midPoint).join('. ').trim() + '.';
+                return `<p>${firstPart}</p><p>${secondPart}</p>`;
+            }
+            return `<p>${description}</p>`;
+        }
+        
+        // Pour les descriptions longues (151-400 mots), créer des paragraphes structurés
+        if (wordCount <= 400) {
+            const sentences = description.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const paragraphs: string[] = [];
+            let currentParagraph: string[] = [];
+            let wordCountInParagraph = 0;
+            
+            sentences.forEach(sentence => {
+                const sentenceWords = sentence.trim().split(/\s+/).length;
+                
+                if (wordCountInParagraph + sentenceWords > 60 && currentParagraph.length > 0) {
+                    paragraphs.push(currentParagraph.join('. ').trim() + '.');
+                    currentParagraph = [sentence.trim()];
+                    wordCountInParagraph = sentenceWords;
+                } else {
+                    currentParagraph.push(sentence.trim());
+                    wordCountInParagraph += sentenceWords;
+                }
+            });
+            
+            if (currentParagraph.length > 0) {
+                paragraphs.push(currentParagraph.join('. ').trim() + '.');
+            }
+            
+            return paragraphs.map(p => `<p>${p}</p>`).join('');
+        }
+        
+        // Pour les descriptions très longues (> 400 mots), créer une structure plus complexe
+        const sentences = description.split(/[.!?]+/).filter(s => s.trim().length > 0);
+        const paragraphs: string[] = [];
+        let currentParagraph: string[] = [];
+        let wordCountInParagraph = 0;
+        
+        sentences.forEach((sentence, index) => {
+            const sentenceWords = sentence.trim().split(/\s+/).length;
+            
+            // Premier paragraphe plus court pour l'introduction
+            const targetLength = index === 0 ? 40 : 80;
+            
+            if (wordCountInParagraph + sentenceWords > targetLength && currentParagraph.length > 0) {
+                paragraphs.push(currentParagraph.join('. ').trim() + '.');
+                currentParagraph = [sentence.trim()];
+                wordCountInParagraph = sentenceWords;
+            } else {
+                currentParagraph.push(sentence.trim());
+                wordCountInParagraph += sentenceWords;
+            }
+        });
+        
+        if (currentParagraph.length > 0) {
+            paragraphs.push(currentParagraph.join('. ').trim() + '.');
+        }
+        
+        return paragraphs.map(p => `<p>${p}</p>`).join('');
     }
 }
