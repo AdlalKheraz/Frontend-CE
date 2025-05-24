@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponseBase } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponseBase } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, firstValueFrom, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import {  LoadingState, StateData } from '../models/api.model';
@@ -21,7 +21,13 @@ export class MediaService {
     loading: LoadingState.INIT,
     data: []
   });
-  
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('accessToken');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
   media$ = this.mediaState.asObservable();
   
   constructor(private http: HttpClient) {}
@@ -33,7 +39,8 @@ export class MediaService {
     });
     
     return this.http.get<Media[]>(
-      environment.ENDPOINT.mediaByEvent(eventId)
+      environment.ENDPOINT.mediaByEvent(eventId),
+      { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
         if (response) {
@@ -61,7 +68,8 @@ export class MediaService {
     });
     
     return this.http.get<Media[]>(
-      environment.ENDPOINT.media()
+      environment.ENDPOINT.media(),
+      { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
         if (response) {
@@ -85,7 +93,8 @@ export class MediaService {
   addMedia(media: Media): Observable<Media> {
     return this.http.post<Media>(
       environment.ENDPOINT.media(),
-      media
+      media,
+      { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
         if (response) {
@@ -111,6 +120,7 @@ export class MediaService {
       formData,
       {
         reportProgress: true, // Pour pouvoir suivre le progrès si nécessaire
+        headers: this.getHeaders() 
       }
     ).pipe(
       tap(response => {
