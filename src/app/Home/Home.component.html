@@ -37,14 +37,6 @@
                                     </svg>
                                     <span>{{ isAdmin ? 'Dashboard' : 'Profil' }}</span>
                                 </a>
-                                <a routerLink="#" class="menu-item">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                                        <polyline points="7 3 7 8 15 8"></polyline>
-                                    </svg>
-                                    <span>Mes favoris</span>
-                                </a>
                                 <a class="menu-item logout-item" (click)="logout()">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -117,21 +109,21 @@
                         <img [src]="timelineComponent.getActiveEvent().medias[0].url" [alt]="timelineComponent.getActiveEvent().title">
                     </div>
                     <p class="highlight-description">{{ timelineComponent.getActiveEvent().description }}</p>
-                    
+
                     <!-- Galerie de tous les médias -->
                     <div class="highlight-media-gallery" *ngIf="timelineComponent.getActiveEvent().medias && timelineComponent.getActiveEvent().medias.length > 0">
                         <h3 class="media-gallery-title">Médias associés</h3>
                         <div class="media-gallery-grid">
-                            <div *ngFor="let media of timelineComponent.getActiveEvent().medias; let i = index" 
+                            <div *ngFor="let media of timelineComponent.getActiveEvent().medias; let i = index"
                                  class="media-gallery-item"
                                  [class.media-image]="media.type === 'IMAGE'"
                                  [class.media-video]="media.type === 'VIDEO'"
                                  [class.media-audio]="media.type === 'AUDIO'">
-                                
+
                                 <!-- Image -->
                                 <div *ngIf="media.type === 'IMAGE'" class="media-container">
                                     <div class="media-preview">
-                                        <img [src]="media.url" 
+                                        <img [src]="media.url"
                                              [alt]="media.title || timelineComponent.getActiveEvent().title"
                                              class="media-element">
                                         <div class="media-overlay">
@@ -141,12 +133,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Vidéo -->
                                 <div *ngIf="media.type === 'VIDEO'" class="media-container video-container">
                                     <div class="media-preview">
                                         <video *ngIf="isValidVideoUrl(media.url)"
-                                               [src]="media.url" 
+                                               [src]="media.url"
                                                class="media-element video-player"
                                                controls
                                                preload="metadata"
@@ -161,16 +153,16 @@
                                                (error)="onVideoEvent($event)">
                                             Votre navigateur ne supporte pas la lecture vidéo.
                                         </video>
-                                        
+
                                         <!-- Bouton de lecture personnalisé -->
-                                        <div class="custom-play-button" 
+                                        <div class="custom-play-button"
                                              (click)="onVideoClick($event, media)"
                                              *ngIf="isValidVideoUrl(media.url)">
                                             <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M8 5v14l11-7z"/>
                                             </svg>
                                         </div>
-                                        
+
                                         <div *ngIf="!isValidVideoUrl(media.url)" class="video-error">
                                             <svg class="media-icon" viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -179,7 +171,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Audio -->
                                 <div *ngIf="media.type === 'AUDIO'" class="media-container">
                                     <div class="media-preview audio-preview">
@@ -190,7 +182,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Informations du média -->
                                 <div class="media-info">
                                     <h4 class="media-title">{{ media.title || 'Média ' + (i + 1) }}</h4>
@@ -199,7 +191,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Boutons d'action -->
                     <div class="highlight-actions">
                         <button class="action-btn comments-btn" (click)="openCommentsForCurrentEvent(); $event.stopPropagation();">
@@ -213,7 +205,7 @@
             </div>
         </div>
     </div>
-   
+
     <!-- Panel de recherche avancée (s'affiche au clic sur le bouton recherche) -->
     <div class="search-panel" *ngIf="searchOpen">
         <div class="panel-content simplified search-content" (click)="$event.stopPropagation()">
@@ -227,15 +219,15 @@
 
                 <div class="search-field">
                     <div class="period-inputs">
-                        <input 
-                            type="number" 
-                            placeholder="Année de début" 
+                        <input
+                            type="number"
+                            placeholder="Année de début"
                             [(ngModel)]="searchStartYear"
                         >
                         <span>à</span>
-                        <input 
-                            type="number" 
-                            placeholder="Année de fin" 
+                        <input
+                            type="number"
+                            placeholder="Année de fin"
                             [(ngModel)]="searchEndYear"
                         >
                     </div>
@@ -279,9 +271,9 @@
 
     <!-- Image à droite qui s'agrandit après connexion -->
     <div class="image-container logged-in" #container>
-        <app-time-line-scrolle 
-            class="size-full" 
-            [selectedCivilization]="selectedCivilization" 
+        <app-time-line-scrolle
+            class="size-full"
+            [selectedCivilization]="selectedCivilization"
             [searchParams]="activeSearchParams"
             [civilizations]="civilizationData"
             [detailsVisible]="detailsVisible && isLoggedIn"
