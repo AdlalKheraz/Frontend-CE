@@ -44,6 +44,7 @@
     
     <!-- Grande image à droite avec texte descriptif -->
     <div class="image-container" (click)="navigateToHome()" [ngClass]="{'expanding': isTransitioning}">
+        
         <div class="event-content" *ngIf="firstEvent$ | async as firstEvent; else defaultContent">
             <h1 class="event-title">{{ firstEvent.title }}</h1>
             <h2 class="event-date">{{ firstEvent.date }}</h2>

@@ -42,7 +42,7 @@ export class SignUpComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.eventService.loadAllEvents().subscribe();
+    this.eventService.loadAllEnrichedEvents().subscribe();
     
     // Vérifier si l'utilisateur est déjà connecté
     this.authService.check().subscribe(isAuthenticated => {
