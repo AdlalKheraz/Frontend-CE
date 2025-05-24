@@ -243,6 +243,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   // Mapper les événements historiques au format TimelineEvent
   private mapHistoricalEventsToTimelineEvents(events: HistoricalEvent[]): TimelineEvent[] {
     return events.map((event, index) => {
+      console.log('🚀 ~ TimeLineScrolleComponent ~ returnevents.map ~ event:', event.media)
       // Extraire l'année de la date (format attendu: YYYY-MM-DD)
       const year = new Date(event.date).getFullYear();
       
