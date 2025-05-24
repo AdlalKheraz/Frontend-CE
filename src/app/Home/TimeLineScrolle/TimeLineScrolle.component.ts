@@ -285,18 +285,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     const activeItemPosition = this.activeEventIndex * itemHeight + (itemHeight / 2);
     
     // Calculer l'offset pour que le centre du dot de l'événement actif soit exactement au centre du viewport
+    // TOUJOURS centrer l'événement actif, sans limites
     this.timelineOffset = relativeCenterPosition - activeItemPosition;
-    
-    // Optionnel: Limiter l'offset pour éviter que la timeline sorte trop des limites
-    const totalTimelineHeight = this.filteredEvents.length * itemHeight;
-    const containerHeight = this.timelineTrack.nativeElement.clientHeight;
-    const maxOffset = relativeCenterPosition - (itemHeight / 2);
-    const minOffset = relativeCenterPosition - totalTimelineHeight + (itemHeight / 2);
-    
-    // Appliquer les limites seulement si nécessaire pour éviter les espaces vides
-    if (totalTimelineHeight > containerHeight) {
-      this.timelineOffset = Math.max(minOffset, Math.min(maxOffset, this.timelineOffset));
-    }
   }
   
   filterEvents() {
