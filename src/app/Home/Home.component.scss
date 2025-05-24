@@ -1,11 +1,12 @@
 :host {
-  --bg-transparent: rgba(10, 10, 20, 0.75);
-  --bg-lighter: rgba(20, 20, 30, 0.65);
-  --bg-darker: rgba(5, 5, 10, 0.8);
-  --border-color: rgba(255, 255, 255, 0.1);
-  --highlight-color: rgba(94, 104, 241, 0.5);
-  --highlight-color-dark: rgba(80, 90, 220, 0.6);
-  --text-color: rgba(255, 255, 255, 0.9);
+  /* Utilisation du nouveau système de couleurs harmonisé */
+  --bg-transparent: var(--surface-dark-primary);
+  --bg-lighter: var(--surface-dark-secondary);
+  --bg-darker: var(--surface-dark-tertiary);
+  --border-color: var(--border-inverse);
+  --highlight-color: var(--app-primary);
+  --highlight-color-dark: var(--app-primary-hover);
+  --text-color: var(--text-inverse);
   --text-color-muted: rgba(255, 255, 255, 0.6);
   
   display: block;

@@ -2,15 +2,15 @@
   display: block;
 }
 
-/* Variables pour les couleurs communes */
-$primary-color: #6c5ce7;
-$success-color: #00b894;
-$danger-color: #d63031;
-$text-color: #333333;
+/* Variables harmonisées avec le nouveau système de couleurs */
+$primary-color: var(--app-primary);
+$success-color: var(--app-success);
+$danger-color: var(--app-error);
+$text-color: var(--text-primary);
 
 /* Styles pour l'animation des boutons */
 .btn {
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-normal);
 
   &:hover {
     transform: translateY(-2px);
@@ -37,7 +37,7 @@ $text-color: #333333;
 
 /* Style pour le logo flottant */
 .floating-logo {
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-normal);
   
   &:hover {
     transform: scale(1.1);
@@ -47,11 +47,11 @@ $text-color: #333333;
 /* Styles pour les boutons d'action */
 .action-buttons {
   .btn {
-    transition: all 0.2s ease;
+    transition: all var(--transition-normal);
     
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-md);
     }
     
     &:active {
@@ -59,17 +59,17 @@ $text-color: #333333;
     }
     
     &.btn-delete {
-      background-color: #dc2626;
+      background-color: var(--app-error);
       
       &:hover {
-        background-color: #b91c1c;
-        box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+        background-color: var(--error-600);
+        box-shadow: var(--shadow-error);
       }
     }
     
     &.btn-details {
       &:hover {
-        background-color: #6366f1;
+        background-color: var(--app-primary);
         color: white;
       }
     }
@@ -78,10 +78,10 @@ $text-color: #333333;
 
 /* Animation pour les lignes supprimées */
 .table tbody tr {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--transition-normal);
   
   &.deleting {
     opacity: 0.5;
-    background-color: #fef2f2;
+    background-color: var(--error-50);
   }
 }
