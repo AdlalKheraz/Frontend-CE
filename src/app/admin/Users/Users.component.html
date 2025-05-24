@@ -220,7 +220,7 @@
       </form>
       
       <!-- User Details View -->
-      <div *ngIf="selectedUser && !modalEditMode && !modalRoleEditMode && !modalDeleteMode">
+      <div *ngIf="selectedUser">
         <h3 class="font-bold text-lg mb-2">User Details</h3>
         
         <div class="space-y-4">
@@ -278,19 +278,19 @@
           
           <div class="flex justify-end gap-2 mt-4">
             <button 
-              (click)="modalRoleEditMode = true"
-              class="btn btn-sm btn-info"
-            >
-              Change Role
-            </button>
-            <button 
-              (click)="modalEditMode = true; prepareEditUser()"
-              class="btn btn-sm btn-success"
+              (click)="startEditUser(selectedUser)"
+              class="btn btn-sm btn-primary"
             >
               Edit User
             </button>
             <button 
-              (click)="modalDeleteMode = true"
+              (click)="startEditRole(selectedUser)"
+              class="btn btn-sm btn-secondary"
+            >
+              Change Role
+            </button>
+            <button 
+              (click)="confirmDeleteUser(selectedUser.id!)"
               class="btn btn-sm btn-error"
             >
               Delete User
@@ -305,138 +305,7 @@
         </div>
       </div>
       
-      <!-- Edit User Mode -->
-      <div *ngIf="selectedUser && modalEditMode">
-        <h3 class="font-bold text-lg mb-4">Edit User</h3>
-        
-        <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text">First Name</span>
-              </label>
-              <input 
-                type="text" 
-                [(ngModel)]="editUserData.firstName" 
-                class="input input-bordered w-full" 
-                placeholder="First Name"
-              />
-            </div>
-            
-            <div class="form-control w-full">
-              <label class="label">
-                <span class="label-text">Last Name</span>
-              </label>
-              <input 
-                type="text" 
-                [(ngModel)]="editUserData.lastName" 
-                class="input input-bordered w-full" 
-                placeholder="Last Name"
-              />
-            </div>
-          </div>
-          
-          <div class="form-control w-full">
-            <label class="label">
-              <span class="label-text">Email</span>
-            </label>
-            <input 
-              type="email" 
-              [(ngModel)]="editUserData.email" 
-              class="input input-bordered w-full" 
-              placeholder="Email"
-            />
-          </div>
-          
-          <div class="flex justify-end gap-2 mt-6">
-            <button 
-              (click)="saveUserChangesFromModal()"
-              class="btn btn-sm btn-success"
-              [disabled]="loading"
-            >
-              <span *ngIf="loading" class="loading loading-spinner loading-xs mr-2"></span>
-              Save Changes
-            </button>
-            <button 
-              (click)="modalEditMode = false"
-              class="btn btn-sm btn-ghost"
-              [disabled]="loading"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Change Role Mode -->
-      <div *ngIf="selectedUser && modalRoleEditMode">
-        <h3 class="font-bold text-lg mb-4">Change User Role</h3>
-        
-        <div class="space-y-4">
-          <p class="text-gray-600">
-            Changing role for: <span class="font-medium">{{ selectedUser.firstName || 'N/A' }} {{ selectedUser.lastName || 'N/A' }}</span>
-          </p>
-          
-          <div class="form-control w-full">
-            <label class="label">
-              <span class="label-text">Select Role</span>
-            </label>
-            <select [(ngModel)]="newRole" class="select select-bordered w-full">
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
-          
-          <div class="flex justify-end gap-2 mt-6">
-            <button 
-              (click)="saveRoleChangeFromModal()"
-              class="btn btn-sm btn-success"
-              [disabled]="loading"
-            >
-              <span *ngIf="loading" class="loading loading-spinner loading-xs mr-2"></span>
-              Save Changes
-            </button>
-            <button 
-              (click)="modalRoleEditMode = false"
-              class="btn btn-sm btn-ghost"
-              [disabled]="loading"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Delete Confirmation Mode -->
-      <div *ngIf="selectedUser && modalDeleteMode">
-        <h3 class="font-bold text-lg mb-4 text-error">Confirm Deletion</h3>
-        
-        <div class="space-y-4">
-          <div class="bg-red-50 p-4 rounded-lg border border-red-100">
-            <p class="text-red-800">Are you sure you want to delete this user?</p>
-            <p class="text-red-700 font-medium mt-2">{{ selectedUser.firstName || 'N/A' }} {{ selectedUser.lastName || 'N/A' }} ({{ selectedUser.email }})</p>
-            <p class="text-red-600 text-sm mt-2">This action cannot be undone.</p>
-          </div>
-          
-          <div class="flex justify-end gap-2 mt-6">
-            <button 
-              (click)="deleteUserFromModal()"
-              class="btn btn-sm btn-error"
-              [disabled]="loading"
-            >
-              <span *ngIf="loading" class="loading loading-spinner loading-xs mr-2"></span>
-              Delete User
-            </button>
-            <button 
-              (click)="modalDeleteMode = false"
-              class="btn btn-sm btn-ghost"
-              [disabled]="loading"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
+      <!-- Contenu du modal principal - seulement les détails de l'utilisateur -->
     </div>
   </dialog>
 
