@@ -1,9 +1,11 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui"{
+    themes: louvre
+};
 
 @plugin "daisyui/theme" {
     name: "louvre";
-    default: false;
+    default: true;
     prefersdark: false;
     color-scheme: "light";
     --color-base-100: oklch(98% 0.001 106.423);

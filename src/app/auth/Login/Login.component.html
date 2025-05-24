@@ -1,0 +1,67 @@
+<div class="login-container" [ngClass]="{'transition-active': isTransitioning}">
+    <!-- Partie formulaire de connexion -->
+    <div class="login-form">
+        <div class="login-form-content">
+            <h2 class="form-title">Email</h2>
+            <input type="email" name="email" [(ngModel)]="email" placeholder="Example@email.com" class="form-input" required/>
+            
+            <h2 class="form-title">Password</h2>
+            <input type="password" name="password" [(ngModel)]="password" placeholder="at least 8 characters" class="form-input" required/>
+            
+            <!-- Message d'erreur -->
+            <div *ngIf="errorMessage" class="error-message">
+                {{ errorMessage }}
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="sign-in-btn" (click)="onLogin($event)" [disabled]="isLoading">
+                    <span *ngIf="!isLoading">Sign in</span>
+                    <span *ngIf="isLoading" class="loading-spinner"></span>
+                </button>
+            </div>
+            
+            <div class="register-link">
+                <span>Don't you have an account? </span>
+                <a routerLink="/register" class="sign-up-link">Sign up</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image à droite cliquable qui montre un aperçu de la timeline home -->
+    <div class="image-container" (click)="navigateToHome()" [ngClass]="{'expanding': isTransitioning}">
+        <!-- Image de fond dynamique basée sur l'événement -->
+        <div class="background-image" 
+             [style.background-image]="(firstEvent$ | async)?.medias[0].url ? 'url(' + (firstEvent$ | async)?.medias[0].url + ')' : 'url(assets/images/default-event-bg.jpg)'">
+        </div>
+        
+        <div class="event-content" *ngIf="firstEvent$ | async as firstEvent; else defaultContent">
+            <h1 class="event-title">{{ firstEvent.title }}</h1>
+            <h2 class="event-date">{{ firstEvent.date }}</h2>
+            <p class="event-description">
+                {{ firstEvent.description }}
+            </p>
+        </div>
+        <ng-template #defaultContent>
+            <div class="event-content">
+                <h1 class="event-title">La Joconde</h1>
+                <h2 class="event-date">1503 et 1506</h2>
+                <p class="event-description">
+                    La Joconde est le portrait d'une jeune femme, sur un fond de paysage montagneux aux horizons lointains et brumeux. Elle est disposée de trois quarts et représente jusqu'à mi-corps une jeune femme assise dans une loggia, les bras croisés, tournée de trois quarts vers le spectateur.
+                </p>
+            </div>
+        </ng-template>
+        <div class="preview-overlay">
+            <div class="preview-message">
+                <span class="icon-expand">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                </span>
+                <span>Click to explore the timeline</span>
+            </div>
+        </div>
+    </div>
+</div>

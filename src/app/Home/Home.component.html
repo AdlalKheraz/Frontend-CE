@@ -1,0 +1,280 @@
+<div class="home-container">
+    <!-- Dynamic Island (style iPhone) minimaliste avec boutons intégrés -->
+    <div class="dynamic-island" [class.expanded]="islandExpanded" (mouseenter)="showIsland(); closeComments()" (mouseleave)="hideIsland()">
+        <div class="island-content">
+            <div class="island-icon">
+                <div class="dynamic-pill"></div>
+            </div>
+            <div class="island-text" *ngIf="islandExpanded">
+                <!-- Nom utilisateur avec avatar -->
+                <div class="panel-trigger-container">
+                    <div class="civ-trigger user-trigger" (click)="toggleUserMenu()">
+                        <img [src]="avatar" [alt]="userName" class="size-4 rounded-full object-cover" />
+                        <span class="text-nowrap">{{ userName }}</span>
+                    </div>
+
+                    <!-- Menu utilisateur -->
+                    <div class="user-menu-content island-dropdown" *ngIf="userMenuOpen">
+                        <div class="panel-content simplified">
+                            <a href="mailto:contact@explorer.com" class="menu-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 10.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4.5"/>
+                                    <polyline points="21 7 12 13 3 7"/>
+                                </svg>
+                                <span>Contact</span>
+                            </a>
+                            @if (isLoggedIn) {
+                                <a [routerLink]="isAdmin ? '/admin/dashboard' : '/profile'" class="menu-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        @if (isAdmin) {
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        } @else {
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        }
+                                    </svg>
+                                    <span>{{ isAdmin ? 'Dashboard' : 'Profil' }}</span>
+                                </a>
+                                <a routerLink="#" class="menu-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                        <polyline points="7 3 7 8 15 8"></polyline>
+                                    </svg>
+                                    <span>Mes favoris</span>
+                                </a>
+                                <a class="menu-item logout-item" (click)="logout()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                        <polyline points="16 17 21 12 16 7"></polyline>
+                                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                                    </svg>
+                                    <span>Déconnexion</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="island-actions">
+                    <!-- Élément unique pour les civilisations -->
+                    <div class="panel-trigger-container civ-container">
+                        <div class="civ-trigger" (click)="toggleCivilizationsPanel()">
+                            <span>{{ selectedCivilization }}</span>
+                        </div>
+
+                        <!-- Panel des civilisations -->
+                        <div class="civilizations-panel island-dropdown" *ngIf="civilizationsPanelOpen">
+                            <div class="panel-content simplified">
+                                <div class="civ-grid">
+                                    <button
+                                        *ngFor="let civ of civilizations"
+                                        class="civ-grid-btn"
+                                        [class.active]="selectedCivilization === civ"
+                                        (click)="selectCivilization(civ); hideCivilizationsPanel()">
+                                        {{ civ }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bouton de recherche -->
+                    <button class="island-search-btn" [disabled]="!isLoggedIn" (click)="toggleSearch()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+
+                    <!-- Bouton commentaire dans la Dynamic Island -->
+                    <button class="island-comment-btn" (click)="toggleComments(); $event.stopPropagation()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay semi-transparent pour les pop-ups -->
+    <div class="popups-overlay" *ngIf="civilizationsPanelOpen || searchOpen || userMenuOpen" (click)="closeAllPanels()"></div>
+
+    <!-- Overlay pour les détails supplémentaires avec effet de flou -->
+    <div class="details-overlay" *ngIf="detailsVisible && isLoggedIn" (click)="hideDetails()">
+        <!-- Affichage du texte de l'événement actif par-dessus l'effet de flou -->
+        <div class="event-highlight" *ngIf="timelineComponent?.getActiveEvent()" (click)="$event.stopPropagation()" (wheel)="onDetailScroll($event)">
+            <!-- Contenu de l'événement avec défilement -->
+            <div class="highlight-content-wrapper">
+                <div class="highlight-content">
+                    <div class="highlight-civilization">{{ timelineComponent.getActiveEvent().civilization }}</div>
+                    <h2 class="highlight-title">{{ timelineComponent.getActiveEvent().title }}</h2>
+                    <div class="highlight-year">{{ timelineComponent.getActiveEvent().year < 0 ? timelineComponent.getActiveEvent().year * -1 + ' av. J.-C.' : timelineComponent.getActiveEvent().year }}</div>
+                    <div class="highlight-image" *ngIf="timelineComponent.getActiveEvent().medias && timelineComponent.getActiveEvent().medias.length > 0">
+                        <img [src]="timelineComponent.getActiveEvent().medias[0].url" [alt]="timelineComponent.getActiveEvent().title">
+                    </div>
+                    <p class="highlight-description">{{ timelineComponent.getActiveEvent().description }}</p>
+                    
+                    <!-- Espace pour les médias futurs -->
+                    <div class="highlight-media" *ngIf="timelineComponent.getActiveEvent().media">
+                        <!-- Contenu média futur sera ajouté ici dynamiquement -->
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="highlight-actions">
+                        <button class="action-btn comments-btn" (click)="openCommentsForCurrentEvent(); $event.stopPropagation();">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                            Voir les commentaires
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <!-- Panel de recherche avancée (s'affiche au clic sur le bouton recherche) -->
+    <div class="search-panel" *ngIf="searchOpen">
+        <div class="panel-content simplified search-content" (click)="$event.stopPropagation()">
+            <div class="search-form">
+                <div class="search-field">
+                    <input
+                        placeholder="Nom de l'événement..."
+                        [(ngModel)]="searchEvent"
+                    >
+                </div>
+
+                <div class="search-field">
+                    <div class="period-inputs">
+                        <input 
+                            type="number" 
+                            placeholder="Année de début" 
+                            [(ngModel)]="searchStartYear"
+                        >
+                        <span>à</span>
+                        <input 
+                            type="number" 
+                            placeholder="Année de fin" 
+                            [(ngModel)]="searchEndYear"
+                        >
+                    </div>
+                </div>
+
+                <div class="search-field">
+                    <select [(ngModel)]="searchCivilization">
+                        <option value="">Toutes les civilisations</option>
+                        <option *ngFor="let civ of civilizations" [value]="civ">{{ civ }}</option>
+                    </select>
+                </div>
+
+                <div class="search-field">
+                    <div class="event-types">
+                        <label class="checkbox-label">
+                            <input type="checkbox" [(ngModel)]="searchEventTypes.cultural">
+                            <span>Culturel</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" [(ngModel)]="searchEventTypes.political">
+                            <span>Politique</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" [(ngModel)]="searchEventTypes.military">
+                            <span>Militaire</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" [(ngModel)]="searchEventTypes.scientific">
+                            <span>Scientifique</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="search-actions">
+                    <button class="search-reset" (click)="resetSearch()">Réinitialiser</button>
+                    <button class="search-submit" (click)="submitSearch()">Rechercher</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image à droite qui s'agrandit après connexion -->
+    <div class="image-container logged-in" #container>
+        <app-time-line-scrolle 
+            class="size-full" 
+            [selectedCivilization]="selectedCivilization" 
+            [searchParams]="activeSearchParams"
+            [detailsVisible]="detailsVisible && isLoggedIn"
+            (eventSelected)="onEventSelected($event)">
+        </app-time-line-scrolle>
+    </div>
+    <button class="follow-button btn" #followButton (click)="buttonClicked()">{{text}}</button>
+
+    <!-- Overlay pour fermer les commentaires en cliquant ailleurs -->
+    <div class="overlay" *ngIf="commentsOpen" (click)="closeComments()"></div>
+
+    <!-- Panneau de commentaires simplifié -->
+    <div class="comments-panel" [class.open]="commentsOpen" (clickOutside)="closeComments()">
+        <div class="comments-header">
+            <h3>Commentaires</h3>
+            <div class="event-reference" *ngIf="getActiveEvent()">
+                <span class="event-ref-title">Événement: {{ getActiveEvent().title }}</span>
+                <span class="event-ref-year">{{ getActiveEvent().year < 0 ? getActiveEvent().year * -1 + ' av. J.-C.' : getActiveEvent().year }}</span>
+            </div>
+        </div>
+
+        <div class="comments-list">
+            <!-- Indicateur de chargement -->
+            <div class="loading-spinner" *ngIf="commentsLoading === 'LOADING'">
+                <div class="spinner"></div>
+                <p>Chargement des commentaires...</p>
+            </div>
+
+            <!-- Message d'erreur -->
+            <div class="error-message" *ngIf="commentsLoading === 'ERROR'">
+                <p>Impossible de charger les commentaires. Veuillez réessayer plus tard.</p>
+            </div>
+
+            <!-- Information sur l'événement actif -->
+            <div class="current-event-info" *ngIf="commentsLoading === 'LOADED' && apiComments.length === 0">
+                <p>Vous consultez les commentaires pour l'événement <strong>{{ getActiveEvent()?.title }}</strong>.</p>
+            </div>
+
+            <!-- Liste des commentaires -->
+            <div class="comment-item" *ngFor="let comment of apiComments">
+                <div class="comment-avatar"></div>
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-author">{{ comment.authorEmail }}</span>
+                        <span class="comment-date">{{ comment.createdAt | date:'d MMM, HH:mm' }}</span>
+                    </div>
+                    <p class="comment-text">{{ comment.content }}</p>
+                </div>
+            </div>
+
+            <!-- Message si aucun commentaire -->
+            <div class="no-comments" *ngIf="commentsLoading === 'LOADED' && apiComments.length === 0">
+                <p>Aucun commentaire pour le moment. Soyez le premier à commenter!</p>
+            </div>
+        </div>
+
+        <div class="comment-form" [class.no-auth]="!isLoggedIn">
+            <input
+                type="text"
+                class="comment-input"
+                placeholder="{{ isLoggedIn ? 'Écrire un commentaire pour ' + (getActiveEvent()?.title || 'cet événement') + '...' : 'Connectez-vous pour commenter' }}"
+                [(ngModel)]="newComment"
+                (keyup.enter)="addComment()"
+                [disabled]="!isLoggedIn"
+            >
+            <button class="send-comment" [disabled]="!newComment.trim() || !isLoggedIn" (click)="addComment()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>

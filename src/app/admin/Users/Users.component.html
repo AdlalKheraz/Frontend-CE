@@ -1,0 +1,403 @@
+<div class="flex h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <app-admin-sidebar activePage="users"></app-admin-sidebar>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <div class="bg-white p-4 shadow-sm flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Users</h1>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 p-6 overflow-auto">
+      <!-- Loading indicator -->
+      <div *ngIf="loading" class="flex justify-center items-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+        <span class="ml-2">Loading users...</span>
+      </div>
+
+      <!-- Error message -->
+      <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+        {{ error }}
+      </div>
+
+      <!-- Users Table -->
+      <div class="bg-white rounded-lg shadow-sm p-6" *ngIf="!loading">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">All Users</h2>
+          <div class="bg-emerald-50 text-emerald-600 px-4 py-1 rounded-full text-sm font-medium">Active Users</div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+          <div class="text-sm text-gray-500">
+            {{ users.length }} users found
+          </div>
+
+          <div class="flex items-center text-sm">
+            <span class="text-gray-500">Sort by:</span>
+            <div class="flex items-center ml-2 font-medium">
+              Most Recent
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- No users message -->
+        <div *ngIf="users.length === 0 && !error" class="text-center py-8 text-gray-500">
+          <p>No users found</p>
+        </div>
+
+        <div class="overflow-x-auto" *ngIf="users.length > 0">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Name</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Email</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Role</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of paginatedUsers" class="border-b border-gray-200">
+                <td class="py-4 px-4 font-medium">{{ user.firstName || 'N/A' }} {{ user.lastName || 'N/A' }}</td>
+                <td class="py-4 px-4">{{ user.email }}</td>
+                <td class="py-4 px-4">
+                  <span class="px-2 py-1 rounded-full text-xs" 
+                        [class.bg-blue-100]="user.role === 'USER' || !user.role"
+                        [class.text-blue-700]="user.role === 'USER' || !user.role"
+                        [class.bg-indigo-100]="user.role === 'ADMIN'"
+                        [class.text-indigo-700]="user.role === 'ADMIN'">
+                    {{ user.role || 'USER' }}
+                  </span>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="flex space-x-2">
+                    <button (click)="startEditRole(user)" class="px-4 py-1 text-sm border border-blue-500 text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors">
+                      Change Role
+                    </button>
+                    <button (click)="editUser(user.id!)" class="px-4 py-1 text-sm border border-emerald-500 text-emerald-600 bg-emerald-50 rounded hover:bg-emerald-100 transition-colors">
+                      Edit
+                    </button>
+                    <button (click)="confirmDeleteUser(user.id!)" class="px-4 py-1 text-sm border border-red-500 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors">
+                      Delete
+                    </button>
+                    <button (click)="viewUserDetails(user.id!)" class="px-4 py-1 text-sm border border-gray-500 text-gray-600 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                      Details
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-6" *ngIf="users.length > itemsPerPage">
+          <div class="text-sm text-gray-500">
+            Showing <span class="font-medium">{{ displayInfo.start }}</span> to <span class="font-medium">{{ displayInfo.end }}</span> of <span class="font-medium">{{ displayInfo.total }}</span> entries
+          </div>
+
+          <div class="flex items-center space-x-1">
+            <!-- Previous button -->
+            <button 
+              (click)="previousPage()" 
+              [disabled]="currentPage === 1"
+              [class.opacity-50]="currentPage === 1"
+              [class.cursor-not-allowed]="currentPage === 1"
+              class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 hover:bg-gray-50 transition-colors disabled:hover:bg-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+
+            <!-- Page numbers -->
+            <button 
+              *ngFor="let page of totalPagesArray" 
+              (click)="goToPage(page)"
+              [class.bg-indigo-500]="page === currentPage"
+              [class.text-white]="page === currentPage"
+              [class.border-indigo-500]="page === currentPage"
+              [class.bg-white]="page !== currentPage"
+              [class.text-gray-700]="page !== currentPage"
+              [class.border-gray-200]="page !== currentPage"
+              [class.hover:bg-indigo-50]="page !== currentPage"
+              class="w-8 h-8 flex items-center justify-center rounded border transition-colors cursor-pointer text-sm font-medium">
+              {{ page }}
+            </button>
+
+            <!-- Next button -->
+            <button 
+              (click)="nextPage()" 
+              [disabled]="currentPage === totalPages"
+              [class.opacity-50]="currentPage === totalPages"
+              [class.cursor-not-allowed]="currentPage === totalPages"
+              class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 hover:bg-gray-50 transition-colors disabled:hover:bg-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- User Details Modal -->
+  <dialog id="user_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box w-11/12 max-w-3xl">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      
+      <!-- User Details View -->
+      <div *ngIf="selectedUser">
+        <h3 class="font-bold text-lg mb-2">User Details</h3>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-full bg-gray-100 border border-gray-300 flex items-center justify-center text-gray-700 text-xl font-bold">
+                {{ selectedUser.firstName?.charAt(0) || '' }}{{ selectedUser.lastName?.charAt(0) || '' }}
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Name: <span class="font-medium text-gray-700">{{ selectedUser.firstName || 'N/A' }} {{ selectedUser.lastName || 'N/A' }}</span></p>
+                <p class="text-sm text-gray-500">Email: <span class="font-medium text-gray-700">{{ selectedUser.email }}</span></p>
+              </div>
+            </div>
+            <div>
+              <span 
+                class="px-3 py-1 rounded-full text-xs font-medium"
+                [ngClass]="{
+                  'bg-blue-100 text-blue-700': selectedUser.role === 'USER' || !selectedUser.role,
+                  'bg-indigo-100 text-indigo-700': selectedUser.role === 'ADMIN'
+                }"
+              >
+                {{ selectedUser.role || 'USER' }}
+              </span>
+             </div>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <h4 class="text-sm font-semibold text-gray-600 mb-2">User Information:</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs text-gray-500">First Name:</p>
+                <p class="text-gray-800">{{ selectedUser.firstName || 'Not provided' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Last Name:</p>
+                <p class="text-gray-800">{{ selectedUser.lastName || 'Not provided' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Email:</p>
+                <p class="text-gray-800">{{ selectedUser.email }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Role:</p>
+                <p class="text-gray-800">{{ selectedUser.role || 'USER' }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mt-4">
+            <p class="text-xs text-gray-500">User ID: {{ selectedUser.id }}</p>
+            <p class="text-xs text-gray-500">Account Status: <span class="text-green-600">Active</span></p>
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-4">
+            <button 
+              (click)="startEditUser(selectedUser)"
+              class="btn btn-sm btn-primary"
+            >
+              Edit User
+            </button>
+            <button 
+              (click)="startEditRole(selectedUser)"
+              class="btn btn-sm btn-secondary"
+            >
+              Change Role
+            </button>
+            <button 
+              (click)="confirmDeleteUser(selectedUser.id!)"
+              class="btn btn-sm btn-error"
+            >
+              Delete User
+            </button>
+            <button 
+              class="btn btn-sm"
+              (click)="closeUserDetails()"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop" (click)="closeUserDetails()"></div>
+  </dialog>
+
+  <!-- Edit Role Modal -->
+  <dialog id="edit_role_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box w-11/12 max-w-md">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-lg mb-4">Change User Role</h3>
+      
+      <div *ngIf="selectedUser" class="space-y-4">
+        <p class="text-gray-600">
+          Changing role for: <span class="font-medium">{{ selectedUser.firstName || 'N/A' }} {{ selectedUser.lastName || 'N/A' }}</span>
+        </p>
+        
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Select Role</span>
+          </label>
+          <select [(ngModel)]="newRole" class="select select-bordered w-full">
+            <option value="USER">User</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-6">
+          <button 
+            (click)="saveRoleChange()"
+            class="btn btn-sm btn-success"
+            [disabled]="loading"
+          >
+            <span *ngIf="loading" class="loading loading-spinner loading-xs mr-2"></span>
+            Save Changes
+          </button>
+          <button 
+            (click)="cancelEditRole()"
+            class="btn btn-sm btn-ghost"
+            [disabled]="loading"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop" (click)="cancelEditRole()"></div>
+  </dialog>
+
+  <!-- Edit User Modal -->
+  <dialog id="edit_user_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box w-11/12 max-w-md">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-lg mb-4">Edit User</h3>
+      
+      <div *ngIf="selectedUser" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">First Name</span>
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="editUserData.firstName" 
+              class="input input-bordered w-full" 
+              placeholder="First Name"
+            />
+          </div>
+          
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">Last Name</span>
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="editUserData.lastName" 
+              class="input input-bordered w-full" 
+              placeholder="Last Name"
+            />
+          </div>
+        </div>
+        
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Email</span>
+          </label>
+          <input 
+            type="email" 
+            [(ngModel)]="editUserData.email" 
+            class="input input-bordered w-full" 
+            placeholder="Email"
+          />
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-6">
+          <button 
+            (click)="saveUserChanges()"
+            class="btn btn-sm btn-success"
+            [disabled]="loading"
+          >
+            <span *ngIf="loading" class="loading loading-spinner loading-xs mr-2"></span>
+            Save Changes
+          </button>
+          <button 
+            (click)="cancelEditUser()"
+            class="btn btn-sm btn-ghost"
+            [disabled]="loading"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop" (click)="cancelEditUser()"></div>
+  </dialog>
+
+  <!-- Delete Confirmation Modal -->
+  <dialog id="delete_user_modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box w-11/12 max-w-md">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-lg mb-4 text-error">Confirm Deletion</h3>
+      
+      <div *ngIf="selectedUser" class="space-y-4">
+        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+          <p class="text-red-800">Are you sure you want to delete this user?</p>
+          <p class="text-red-700 font-medium mt-2">{{ selectedUser.firstName || 'N/A' }} {{ selectedUser.lastName || 'N/A' }} ({{ selectedUser.email }})</p>
+          <p class="text-red-600 text-sm mt-2">This action cannot be undone.</p>
+        </div>
+        
+        <div class="flex justify-end gap-2 mt-6">
+          <button 
+            (click)="deleteUser()"
+            class="btn btn-sm btn-error"
+            [disabled]="loading"
+          >
+            <span *ngIf="loading" class="loading loading-spinner loading-xs mr-2"></span>
+            Delete User
+          </button>
+          <button 
+            (click)="cancelDeleteUser()"
+            class="btn btn-sm btn-ghost"
+            [disabled]="loading"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop" (click)="cancelDeleteUser()"></div>
+  </dialog>
+
+  <!-- Notification Toast -->
+  <div *ngIf="showNotification" class="toast toast-bottom toast-center z-[1000]">
+    <div [class]="notificationSuccess ? 'alert alert-success' : 'alert alert-error'">
+      <div>
+        <span>{{ notificationMessage }}</span>
+      </div>
+    </div>
+  </div>
+</div>

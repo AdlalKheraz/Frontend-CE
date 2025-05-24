@@ -1,0 +1,138 @@
+<div class="flex h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <app-admin-sidebar activePage="events"></app-admin-sidebar>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <div class="bg-white p-4 shadow-sm flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Events</h1>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 p-6 overflow-auto">
+      <!-- Loading indicator -->
+      <div *ngIf="loading" class="flex justify-center items-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+        <span class="ml-2">Chargement des événements...</span>
+      </div>
+
+      <!-- Error message -->
+      <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+        {{ error }}
+      </div>
+
+      <!-- Create Button -->
+      <div (click)="createNewEvent()" class="flex items-center justify-center mx-auto bg-white rounded-full shadow px-6 py-3 mb-6 cursor-pointer hover:shadow-md transition-shadow w-max">
+        <div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white mr-2">+</div>
+        <span class="font-medium">Nouvel événement</span>
+      </div>
+
+      <!-- Events Table -->
+      <div class="bg-white rounded-lg shadow-sm p-6" *ngIf="!loading">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold">Tous les événements</h2>
+          <div class="bg-emerald-50 text-emerald-600 px-4 py-1 rounded-full text-sm font-medium">Événements actifs</div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+          <div class="text-sm text-gray-500">
+            {{ events.length }} événements trouvés
+          </div>
+
+          <div class="flex items-center text-sm">
+            <span class="text-gray-500">Trier par:</span>
+            <div class="flex items-center ml-2 font-medium">
+              Plus récent
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- No events message -->
+        <div *ngIf="events.length === 0 && !error" class="text-center py-8 text-gray-500">
+          <p>Aucun événement trouvé</p>
+        </div>
+
+        <div class="overflow-x-auto" *ngIf="events.length > 0">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Titre</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Description</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Date</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Civilisation</th>
+                <th class="text-left py-3 px-4 text-gray-500 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let event of paginatedEvents" class="border-b border-gray-200">
+                <td class="py-4 px-4 font-medium">{{ event.title }}</td>
+                <td class="py-4 px-4">{{ event.description }}</td>
+                <td class="py-4 px-4">{{ event.date }}</td>
+                <td class="py-4 px-4">{{ event.civilizationId }}</td>
+                <td class="py-4 px-4">
+                  <div class="flex space-x-2">
+                    <button (click)="modifyEvent(event.id!)" class="px-4 py-1 text-sm border border-emerald-500 text-emerald-600 bg-emerald-50 rounded hover:bg-emerald-100 transition-colors">Modifier</button>
+                    <button (click)="deleteEvent(event.id!)" class="px-4 py-1 text-sm border border-red-500 text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors">Supprimer</button>
+                    <button (click)="showEventDetails(event.id!)" class="px-4 py-1 text-sm border border-gray-500 text-gray-600 bg-gray-50 rounded hover:bg-gray-100 transition-colors">Détails</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination améliorée -->
+        <div class="flex items-center justify-between mt-6" *ngIf="events.length > itemsPerPage">
+          <div class="text-sm text-gray-500">
+            Affichage de <span class="font-medium">{{ displayInfo.start }}</span> à <span class="font-medium">{{ displayInfo.end }}</span> sur <span class="font-medium">{{ displayInfo.total }}</span> entrées
+          </div>
+
+          <div class="flex items-center space-x-1">
+            <!-- Bouton précédent -->
+            <button 
+              (click)="previousPage()" 
+              [disabled]="currentPage === 1"
+              [class.opacity-50]="currentPage === 1"
+              [class.cursor-not-allowed]="currentPage === 1"
+              class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 hover:bg-gray-50 transition-colors disabled:hover:bg-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+
+            <!-- Numéros de page -->
+            <button 
+              *ngFor="let page of totalPagesArray" 
+              (click)="goToPage(page)"
+              [class.bg-indigo-500]="page === currentPage"
+              [class.text-white]="page === currentPage"
+              [class.border-indigo-500]="page === currentPage"
+              [class.bg-white]="page !== currentPage"
+              [class.text-gray-700]="page !== currentPage"
+              [class.border-gray-200]="page !== currentPage"
+              [class.hover:bg-indigo-50]="page !== currentPage"
+              class="w-8 h-8 flex items-center justify-center rounded border transition-colors cursor-pointer text-sm font-medium">
+              {{ page }}
+            </button>
+
+            <!-- Bouton suivant -->
+            <button 
+              (click)="nextPage()" 
+              [disabled]="currentPage === totalPages"
+              [class.opacity-50]="currentPage === totalPages"
+              [class.cursor-not-allowed]="currentPage === totalPages"
+              class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 hover:bg-gray-50 transition-colors disabled:hover:bg-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+:host {
+  display: block;
+}
+
+/* Variables pour les couleurs communes */
+$primary-color: #6c5ce7;
+$success-color: #00b894;
+$danger-color: #d63031;
+$text-color: #333333;
+
+/* Styles pour l'animation des boutons */
+.btn {
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Style pour les avatars groupés */
+.avatar-group {
+  display: flex;
+  
+  .mini-avatar {
+    @apply w-6 h-6 rounded-full border-2 border-white;
+    margin-left: -0.5rem;
+    
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+/* Style pour le logo flottant */
+.floating-logo {
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+/* Styles pour les boutons d'action */
+.action-buttons {
+  .btn {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &.btn-delete {
+      background-color: #dc2626;
+      
+      &:hover {
+        background-color: #b91c1c;
+        box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+      }
+    }
+    
+    &.btn-details {
+      &:hover {
+        background-color: #6366f1;
+        color: white;
+      }
+    }
+  }
+}
+
+/* Animation pour les lignes supprimées */
+.table tbody tr {
+  transition: opacity 0.3s ease;
+  
+  &.deleting {
+    opacity: 0.5;
+    background-color: #fef2f2;
+  }
+}

@@ -1,0 +1,78 @@
+<div class="signup-container" [ngClass]="{'transition-active': isTransitioning}">
+    <!-- Partie formulaire d'inscription -->
+    <div class="signup-form">
+        <div class="signup-form-content">
+            <!-- Réorganisation des champs pour plus d'efficacité -->
+            <h2 class="form-title">First Name</h2>
+            <input type="text" name="firstName" [(ngModel)]="firstName" placeholder="Your first name" class="form-input" required/>
+            
+            <h2 class="form-title">Last Name</h2>
+            <input type="text" name="lastName" [(ngModel)]="lastName" placeholder="Your last name" class="form-input" required/>
+            
+            <h2 class="form-title">Email</h2>
+            <input type="email" name="email" [(ngModel)]="email" placeholder="Example@email.com" class="form-input" required/>
+            
+            <!-- Mettre les mots de passe sur la même ligne -->
+            <div class="password-row">
+                <div class="password-field">
+                    <h2 class="form-title">Password</h2>
+                    <input type="password" name="password" [(ngModel)]="password" placeholder="at least 8 characters" class="form-input" required/>
+                </div>
+                <div class="password-field">
+                    <h2 class="form-title">Confirm Password</h2>
+                    <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Confirm your password" class="form-input" required/>
+                </div>
+            </div>
+            
+            <div class="alert-error" *ngIf="errorMessage">
+                <span>{{errorMessage}}</span>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="sign-up-btn" (click)="onSignUp($event)" [disabled]="isLoading | async">
+                    <span *ngIf="isLoading | async" class="loading-spinner"></span>
+                    Sign up
+                </button>
+            </div>
+            
+            <div class="login-link">
+                <span>Already have an account? </span>
+                <a routerLink="/login" class="sign-in-link">Sign in</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Grande image à droite avec texte descriptif -->
+    <div class="image-container" (click)="navigateToHome()" [ngClass]="{'expanding': isTransitioning}">
+        
+        <div class="event-content" *ngIf="firstEvent$ | async as firstEvent; else defaultContent">
+            <h1 class="event-title">{{ firstEvent.title }}</h1>
+            <h2 class="event-date">{{ firstEvent.date }}</h2>
+            <p class="event-description">
+                {{ firstEvent.description }}
+            </p>
+        </div>
+        <ng-template #defaultContent>
+            <div class="event-content">
+                <h1 class="event-title">La Joconde</h1>
+                <h2 class="event-date">1503 et 1506</h2>
+                <p class="event-description">
+                    La Joconde est le portrait d'une jeune femme, sur un fond de paysage montagneux aux horizons lointains et brumeux. Elle est disposée de trois quarts et représente jusqu'à mi-corps une jeune femme assise dans une loggia, les bras croisés, tournée de trois quarts vers le spectateur.
+                </p>
+            </div>
+        </ng-template>
+        <div class="preview-overlay">
+            <div class="preview-message">
+                <span class="icon-expand">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                </span>
+                <span>Click to explore the timeline</span>
+            </div>
+        </div>
+    </div>
+</div>

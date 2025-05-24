@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+/* Variables pour harmoniser les couleurs avec le dashboard */
+$primary-color: #6366f1;  /* Indigo-600 */
+$primary-hover: #4f46e5;  /* Indigo-700 */
+$danger-color: #ef4444;   /* Red-500 */
+$danger-hover: #dc2626;   /* Red-600 */
+$bg-color: #f9fafb;       /* Gray-50 */
+$text-color: #374151;     /* Gray-700 */
+
+/* Style pour le logo et les icônes */
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Style pour les inputs et boutons pour correspondre au dashboard */
+input, button {
+  transition: all 0.2s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: $primary-color;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Animation de transition pour les panneaux */
+.tab-content {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    position: fixed;
+    z-index: 50;
+    height: auto;
+    bottom: 0;
+    left: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding-bottom: 5rem;
+  }
+}

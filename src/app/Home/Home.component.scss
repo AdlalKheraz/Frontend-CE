@@ -1,0 +1,2106 @@
+:host {
+  --bg-transparent: rgba(10, 10, 20, 0.75);
+  --bg-lighter: rgba(20, 20, 30, 0.65);
+  --bg-darker: rgba(5, 5, 10, 0.8);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --highlight-color: rgba(94, 104, 241, 0.5);
+  --highlight-color-dark: rgba(80, 90, 220, 0.6);
+  --text-color: rgba(255, 255, 255, 0.9);
+  --text-color-muted: rgba(255, 255, 255, 0.6);
+  
+  display: block;
+}
+.home-container {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+.image-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: transparent;
+  background-size: cover;
+  background-position: center;
+  transition: all 1s ease;
+  overflow: hidden;
+  
+  app-time-line-scrolle {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 5;
+  }
+}
+
+.instructions {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 18px;
+  color: white;
+  z-index: 10;
+}
+
+.follow-button {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  color: white;
+  background-color: transparent;
+  border: 1px solid white;
+  width: 100px;
+  height: 100px;
+  aspect-ratio: 1;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 10;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease-out, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  &:active {
+    transform: translate(-50%, -50%) scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.trail {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(126, 142, 251, 0.6);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+/* Styles responsifs */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .image-container {
+    display: none;
+  }
+
+  .logged-in .image-container {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+/* Dynamic Island (style iPhone) - MINIMALISTE AMÉLIORÉ avec expansion du centre */
+.dynamic-island {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-transparent);
+  border-radius: 25px;
+  width: 110px;
+  height: 34px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border-color);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Effet de contour subtil */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 25px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  /* Container pour l'animation centrée */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-darker);
+    border-radius: 25px;
+    z-index: -1;
+    transform-origin: center;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Animation de scale pour les éléments internes */
+  .island-content {
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
+  }
+  
+  /* État normal */
+  &:not(.expanded) {
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                height 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                border-radius 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    .island-content > *:not(.island-icon) {
+      transform: scaleX(0);
+      opacity: 0;
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+  
+  /* État étendu */
+  &.expanded {
+    width: fit-content;
+    min-width: 300px;
+    max-width: 90%;
+    height: 40px;
+    background-color: var(--bg-transparent);
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                height 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                border-radius 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    &::before {
+      border-radius: 20px;
+    }
+    
+    .island-content > *:not(.island-icon) {
+      transform: scaleX(1);
+      opacity: 1;
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+  
+  &:hover:not(.expanded) {
+    transform: translateX(-50%) scale(1.03);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    background-color: var(--bg-darker);
+  }
+}
+
+.dynamic-pill {
+  width: 45px;
+  height: 4px;
+  background: var(--text-color-muted);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--highlight-color), transparent);
+    animation: shimmer 2s infinite;
+  }
+  
+  .expanded & {
+    animation: pulse 2s infinite alternate;
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  100% { opacity: 0.9; }
+}
+
+@keyframes shimmer {
+  0% { left: -20px; }
+  100% { left: 60px; }
+}
+
+.island-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 20px;
+  
+  .expanded & {
+    padding: 0 25px 0 20px;
+  }
+}
+
+.island-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+}
+
+.island-text {
+  margin-left: 15px;
+  color: white;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  opacity: 1;
+  gap: 12px;
+  transform-origin: left center;
+  will-change: transform, opacity;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.95;
+  position: relative;
+  cursor: pointer;
+  
+  .user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6e8efb, #4f5cff);
+    display: block;
+  }
+}
+
+/* Nouveaux styles pour les boutons de civilisation */
+.island-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.civilization-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-right: 15px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: calc(100% - 50px);
+  scrollbar-width: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.civ-btn {
+  background: rgba(50, 50, 70, 0.5);
+  border: none;
+  border-radius: 15px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+  
+  /* Effet de bordure subtile */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 15px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  &:hover {
+    background: rgba(70, 70, 90, 0.7);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  &.active {
+    background: rgba(94, 104, 241, 0.6);
+    color: white;
+    box-shadow: 0 2px 12px rgba(94, 104, 241, 0.3);
+  }
+  
+  &.more-btn {
+    width: 30px;
+    padding: 6px 0;
+    font-weight: bold;
+  }
+}
+
+.island-comment-btn,
+.island-search-btn {
+  background: var(--bg-lighter);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  margin-left: 5px;
+  
+  /* Effet de bordure subtile */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  &:hover {
+    background: var(--highlight-color);
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(94, 104, 241, 0.3);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Style pour les boutons désactivés */
+.island-search-btn.disabled,
+.island-search-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: rgba(50, 50, 70, 0.3);
+  display: none;
+  
+  &:hover {
+    background: rgba(50, 50, 70, 0.3);
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.comment-input:disabled {
+  background: rgba(50, 50, 70, 0.3);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Panel des civilisations - Style intégré à la dynamic island */
+/* REMOVED - Using only island-dropdown version */
+/* 
+.civilizations-panel {
+  position: fixed;
+  top: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  height: auto;
+  background-color: transparent;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  animation: none;
+  backdrop-filter: none;
+}
+*/
+
+.panel-content {
+  background-color: var(--bg-transparent);
+  border-radius: 25px;
+  padding: 20px;
+  width: 320px;
+  max-width: 90vw;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  animation: expandDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top center;
+  border: 1px solid var(--border-color);
+  
+  /* Effet de contour subtil identique à la dynamic island */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 25px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  h4 {
+    margin: 0 0 15px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0.8;
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-20px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.civ-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.civ-grid-btn {
+  background: var(--bg-lighter);
+  border: none;
+  border-radius: 15px;
+  padding: 8px 5px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  
+  /* Effet de bordure subtile */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 15px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  &:hover {
+    background: var(--highlight-color);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  &.active {
+    background: var(--highlight-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(94, 104, 241, 0.3);
+  }
+}
+
+/* Overlay pour fermer les commentaires en cliquant ailleurs */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 40;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Bouton commentaire et panneau - AMÉLIORÉ */
+.comment-fab {
+  display: none;
+}
+
+.comments-panel {
+  position: fixed;
+  top: 0;
+  right: -450px;
+  width: 450px;
+  max-width: 90vw;
+  height: 100vh;
+  background-color: var(--bg-transparent);
+  backdrop-filter: blur(12px);
+  color: white;
+  z-index: 45;
+  transition: all 0.35s cubic-bezier(0.3, 0.0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -5px 0 30px rgba(0, 0, 0, 0);
+  
+  &.open {
+    right: 0;
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.comments-header {
+  padding: 10px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  
+  h3 {
+    margin: 0 0 5px 0;
+    font-weight: 500;
+    font-size: 16px;
+  }
+  
+  .event-reference {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    color: #b3b3b3;
+    margin-bottom: 5px;
+    
+    .event-ref-title {
+      font-weight: 500;
+    }
+    
+    .event-ref-year {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+  }
+}
+
+.comments-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 25px 20px;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--highlight-color);
+    opacity: 0.5;
+    border-radius: 2px;
+    
+    &:hover {
+      background: var(--highlight-color-dark);
+    }
+  }
+}
+
+.comment-item {
+  display: flex;
+  margin-bottom: 20px;
+  animation: slideIn 0.3s ease-out;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7e8efb, #5f6cff);
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.comment-date {
+  font-size: 11px;
+  color: var(--text-color-muted);
+}
+
+.comment-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.comment-form {
+  display: flex;
+  align-items: center;
+  padding: 15px 25px;
+  background: var(--bg-darker);
+  &.no-auth{
+    display: none;
+  }
+}
+
+.comment-input {
+  flex: 1;
+  background: var(--bg-lighter);
+  border: none;
+  border-radius: 20px;
+  padding: 10px 15px;
+  color: white;
+  font-size: 13px;
+  outline: none;
+  transition: background 0.2s;
+  
+  &:focus {
+    background: var(--bg-darker);
+  }
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.send-comment {
+  background: var(--highlight-color);
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  
+  &:hover {
+    background: var(--highlight-color-dark);
+    transform: scale(1.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.home-container {
+  border: none;
+}
+
+/* Animation fadeIn */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Panel de recherche avancée */
+.search-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(5px);
+}
+
+.search-content {
+  width: 450px;
+  max-width: 95vw;
+  animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: var(--bg-transparent);
+}
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  
+  label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+  }
+  
+  input, select {
+    background: var(--bg-lighter);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 6px 10px;
+    color: white;
+    font-size: 12px;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+    height: 32px;
+    
+    &:focus {
+      border-color: var(--highlight-color);
+      background: var(--bg-darker);
+      box-shadow: 0 0 0 2px rgba(94, 104, 241, 0.2);
+    }
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+  
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 25px;
+  }
+}
+
+.period-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  input {
+    flex: 1;
+  }
+  
+  span {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+  }
+}
+
+.event-types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: rgba(94, 104, 241, 0.8);
+  }
+}
+
+.search-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+  
+  button {
+    border: none;
+    border-radius: 15px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    
+    /* Effet de bordure subtile */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 15px;
+      padding: 1px;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+  }
+}
+
+.search-reset {
+  background: var(--bg-lighter);
+  color: rgba(255, 255, 255, 0.7);
+  
+  &:hover {
+    background: var(--bg-darker);
+    color: white;
+  }
+}
+
+.search-submit {
+  background: var(--highlight-color);
+  color: white;
+  
+  &:hover {
+    background: var(--highlight-color-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(94, 104, 241, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+/* Panel des civilisations - Positionné sous le bouton des civilisations */
+/* REMOVED - Using only island-dropdown version */
+/*
+.civilizations-panel {
+  position: fixed;
+  top: 65px;
+  left: 50%;
+  transform: translateX(-25%); 
+  width: auto;
+  height: auto;
+  background-color: transparent;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  animation: none;
+  backdrop-filter: none;
+}
+*/
+
+.panel-content {
+  background-color: var(--bg-transparent);
+  border-radius: 25px;
+  padding: 20px;
+  width: 320px;
+  max-width: 90vw;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  animation: expandDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top center;
+  border: 1px solid var(--border-color);
+  
+  /* Effet de contour subtil identique à la dynamic island */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 25px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  h4 {
+    margin: 0 0 15px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0.8;
+  }
+}
+
+@keyframes expandDown {
+  from { 
+    opacity: 0; 
+    transform: scaleY(0.6);
+    transform-origin: top center;
+  }
+  to { 
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: top center;
+  }
+}
+
+/* Panel de recherche avancée - Positionné sous le bouton de recherche */
+.search-panel {
+  position: fixed;
+  top: 65px; 
+  left: 50%;
+  // transform: translateX(30%); /* Décalé vers la droite pour s'aligner avec le bouton de recherche */
+  width: auto;
+  height: auto;
+  background-color: transparent;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  animation: none;
+  backdrop-filter: none;
+}
+
+.search-content {
+  background-color: var(--bg-transparent);
+  border-radius: 25px;
+  padding: 20px;
+  width: 320px;
+  max-width: 90vw;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  animation: expandDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top center;
+  border: 1px solid var(--border-color);
+  
+  /* Effet de contour subtil identique à la dynamic island */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 25px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* Overlay semi-transparent pour les pop-ups */
+.popups-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.15);
+  z-index: 998;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(2px);
+}
+
+/* Style pour l'en-tête des panneaux */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.close-panel-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+}
+
+/* Menu utilisateur - Positionné sous le nom d'utilisateur */
+.user-menu {
+  position: absolute;
+  top: 35px;
+  left: 0;
+  z-index: 999;
+}
+
+.user-menu-content {
+  background-color: var(--bg-transparent);
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color);
+  visibility: hidden;
+  opacity: 0;
+  transform: scaleY(0.6);
+  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+  pointer-events: none;
+  
+  /* Effet de contour subtil */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  svg {
+    opacity: 0.7;
+    transition: all 0.3s;
+  }
+  
+  &:hover {
+    background-color: rgba(70, 70, 90, 0.6);
+    color: white;
+    
+    svg {
+      opacity: 1;
+    }
+  }
+  
+  &.logout {
+    color: rgba(255, 118, 118, 0.8);
+    
+    &:hover {
+      background-color: rgba(255, 80, 80, 0.2);
+      color: rgba(255, 118, 118, 1);
+    }
+  }
+}
+
+/* Correction du débordement des inputs dans le formulaire de recherche */
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  
+  input, select {
+    background: var(--bg-lighter);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 6px 10px;
+    color: white;
+    font-size: 12px;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+    height: 32px;
+    width: 100%;
+    box-sizing: border-box;
+    
+    &:focus {
+      border-color: var(--highlight-color);
+      background: var(--bg-darker);
+      box-shadow: 0 0 0 2px rgba(94, 104, 241, 0.2);
+    }
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+}
+
+.period-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  
+  input {
+    flex: 1;
+    min-width: 0; /* Empêche les inputs de déborder */
+  }
+  
+  span {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+}
+
+.panel-trigger-container:hover .user-menu-content,
+.panel-trigger-container:focus-within .user-menu-content,
+.panel-trigger-container .user-menu-content:hover {
+  visibility: visible;
+  opacity: 1;
+  transform: scaleY(1);
+  pointer-events: auto;
+}
+
+.panel-trigger-container {
+  position: relative;
+  z-index: 10;
+  
+  &:hover {
+    z-index: 11;
+  }
+}
+
+/* Élément unique pour afficher le popup des civilisations */
+.civ-selector-container {
+  position: fixed;
+  right: 30px;
+  top: 30px;
+  z-index: 1000;
+}
+
+.civ-selector {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 10px 16px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* Effet de contour subtil */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.civ-selector-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  
+  svg {
+    stroke: rgba(94, 104, 241, 0.9);
+    transition: transform 0.3s ease;
+  }
+  
+  span {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .civ-selector:hover & {
+    svg {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* Ajustement du panneau des civilisations */
+/* REMOVED - Using only island-dropdown version */
+/*
+.civilizations-panel {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  transform: none;
+  left: auto;
+  width: 320px;
+}
+*/
+
+/* Élément unique pour les civilisations dans la dynamic island */
+.civ-container {
+  flex: 1;
+  margin-right: 15px;
+}
+.user-trigger{
+  min-width: 120px;
+}
+.civ-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-lighter);
+  border-radius: 15px;
+  padding: 6px 12px;
+  color: var(--text-color);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  backdrop-filter: blur(4px);
+  
+  /* Effet de bordure subtile */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 15px;
+    padding: 1px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  
+  svg {
+    color: var(--highlight-color);
+    transition: transform 0.3s ease;
+  }
+  
+  .dropdown-icon {
+    opacity: 0.6;
+    margin-left: 4px;
+    transition: transform 0.3s;
+  }
+  
+  &:hover {
+    background: var(--highlight-color);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    
+    svg:first-child {
+      transform: translateY(-2px);
+    }
+    
+    .dropdown-icon {
+      transform: translateY(2px);
+    }
+  }
+}
+
+/* Style pour le panel des civilisations qui s'affiche dans la dynamic island */
+.island-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  z-index: 1000;
+  width: 100%;
+  min-width: 280px;
+}
+
+/* Supprimer les styles du précédent élément unique */
+.civ-selector-container,
+.civ-selector,
+.civ-selector-icon,
+.civilizations-panel.modern-panel {
+  display: none;
+}
+
+/* Améliorations des transitions entre popups */
+.island-dropdown,
+.search-panel,
+.user-menu-content {
+  animation: smoothFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: top center;
+}
+
+@keyframes smoothFadeIn {
+  0% { 
+    opacity: 0; 
+    transform: translateY(-10px) scale(0.97);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Style pour l'overlay plus subtil */
+.popups-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  z-index: 998;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: fadeOverlay 0.3s ease;
+}
+
+@keyframes fadeOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Effet hover pour les elements de menu */
+.menu-item {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 10px;
+  margin-bottom: 5px;
+  
+  &:hover {
+    background-color: rgba(80, 80, 120, 0.4);
+    transform: translateX(3px);
+  }
+  
+  &.logout-item {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Assurer que les popups ne disparaissent pas lors du mouvement de souris */
+.island-dropdown,
+.search-panel {
+  pointer-events: all !important;
+}
+
+/* Style pour créer un effet de profondeur */
+.civ-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.civ-grid-btn {
+  background: var(--bg-lighter);
+  border: none;
+  border-radius: 15px;
+  padding: 10px 5px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    background: var(--highlight-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  &.active {
+    background: var(--highlight-color);
+    color: white;
+    box-shadow: 0 0 15px rgba(94, 104, 241, 0.3);
+  }
+}
+
+/* Mise à jour des animations pour éviter le bug de disparition */
+@keyframes smoothFadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-8px) scale(0.98);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animation d'entrée plus douce pour les popups */
+.island-dropdown,
+.search-panel {
+  animation: smoothFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: top center;
+}
+
+@keyframes smoothFadeIn {
+  0% { 
+    opacity: 0; 
+    transform: translateY(-10px) scale(0.97);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Style pour l'overlay plus subtil */
+.popups-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  z-index: 998;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: fadeOverlay 0.3s ease;
+}
+
+@keyframes fadeOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Effet hover pour les elements de menu */
+.menu-item {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 10px;
+  margin-bottom: 5px;
+  
+  &:hover {
+    background-color: rgba(80, 80, 120, 0.4);
+    transform: translateX(3px);
+  }
+  
+  &.logout-item {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Styles pour l'overlay avec effet de flou */
+.details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 999;
+  animation: fadeBackdrop 0.3s ease-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+@keyframes fadeBackdrop {
+  from { 
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    background-color: rgba(0, 0, 0, 0);
+  }
+  to { 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Styles pour le panneau de détails */
+.details-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  max-height: 80vh;
+  background-color: rgba(20, 20, 30, 0.9);
+  border-radius: 15px;
+  z-index: 1000;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.details-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: white;
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  
+  .close-details-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.details-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.detail-item {
+  margin-bottom: 25px;
+  
+  h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Effet de flou pour le conteneur d'image */
+.image-container.blurred {
+  filter: blur(8px);
+  transition: filter 0.3s ease-out;
+  pointer-events: none; /* Permet aux clics de passer à travers pendant le flou */
+}
+
+/* Styles pour la mise en évidence du texte de l'événement */
+.event-highlight {
+  position: relative;
+  max-width: 850px;
+  width: 90%;
+  max-height: 90vh;
+  padding: 35px 45px;
+  background: linear-gradient(135deg, rgba(40, 40, 60, 0.85), rgba(25, 25, 35, 0.90));
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 
+              0 10px 15px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+  text-align: left;
+  animation: modalPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  transform: translateY(0);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.3s ease-out;
+  
+  &::before {
+    content: '';
+  position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(to bottom, 
+                rgba(94, 104, 241, 0.12),
+                transparent);
+    z-index: 0;
+  }
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 
+                0 15px 20px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+  }
+}
+
+@keyframes modalPopIn {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.9) translateY(30px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.01) translateY(-3px);
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
+                0 10px 15px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  }
+}
+
+.highlight-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.highlight-title {
+  font-size: 34px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: var(--text-color);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  position: relative;
+  display: inline-block;
+  animation: fadeSlideRight 0.5s 0.15s cubic-bezier(0.23, 1, 0.32, 1) both;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 70px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--highlight-color), transparent);
+    border-radius: 3px;
+  }
+}
+
+@keyframes fadeSlideRight {
+  0% {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.highlight-civilization {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--highlight-color), var(--highlight-color-dark));
+  color: var(--text-color);
+  padding: 7px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+  margin-bottom: 18px;
+  align-self: flex-start;
+  box-shadow: 0 4px 12px rgba(94, 104, 241, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  animation: floatIn 0.5s 0.1s cubic-bezier(0.23, 1, 0.32, 1) both;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+@keyframes floatIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.highlight-year {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 30px;
+  color: var(--text-color-muted);
+  position: relative;
+  padding-left: 20px;
+  animation: fadeSlideIn 0.5s 0.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--highlight-color);
+    box-shadow: 0 0 10px rgba(94, 104, 241, 0.5);
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.highlight-image {
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  border-radius: 18px;
+  margin-bottom: 30px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  animation: fadeUp 0.5s 0.25s cubic-bezier(0.23, 1, 0.32, 1) both;
+  transition: opacity 0.2s ease-out, transform 0.3s ease-out;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+    border-radius: 18px;
+    pointer-events: none;
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease-out;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.highlight-description {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--text-color);
+  margin: 0 0 35px 0;
+  letter-spacing: 0.3px;
+  animation: fadeIn 0.6s 0.3s both;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.2s ease-out;
+}
+
+.highlight-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  animation: fadeIn 0.6s 0.35s both;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, var(--highlight-color), var(--highlight-color-dark));
+  border: none;
+  border-radius: 30px;
+  padding: 14px 28px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 5px 15px rgba(94, 104, 241, 0.3);
+  overflow: hidden;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(94, 104, 241, 0.5);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(94, 104, 241, 0.3);
+  }
+  
+  svg {
+    opacity: 0.9;
+    transition: transform 0.3s;
+  }
+  
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+.highlight-content-wrapper {
+  max-height: calc(90vh - 70px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 15px;
+  
+  /* Styliser la scrollbar */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--highlight-color);
+    opacity: 0.6;
+    border-radius: 4px;
+    
+    &:hover {
+      background: var(--highlight-color-dark);
+    }
+  }
+}
+
+/* Styles responsifs */
+@media (max-width: 768px) {
+  .event-highlight {
+    width: 95%;
+    padding: 25px 30px;
+    max-height: 85vh;
+  }
+  
+  .highlight-content-wrapper {
+    max-height: calc(85vh - 50px);
+  }
+  
+  .highlight-title {
+    font-size: 26px;
+  }
+  
+  .highlight-year {
+    font-size: 16px;
+  }
+  
+  .highlight-description {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  
+  .highlight-image {
+    height: 240px;
+  }
+}
+
+.current-event-info {
+  padding: 10px 15px;
+  background-color: rgba(94, 104, 241, 0.1);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-left: 3px solid rgba(94, 104, 241, 0.5);
+  
+  p {
+  margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    
+    strong {
+      color: white;
+      font-weight: 500;
+    }
+  }
+}
+
+.highlight-content-wrapper {
+  max-height: calc(90vh - 60px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 10px;
+  
+  /* Styliser la scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--highlight-color);
+    opacity: 0.5;
+    border-radius: 3px;
+    
+    &:hover {
+      background: var(--highlight-color-dark);
+    }
+  }
+}
+.highlight-media {
+  margin: 20px 0;
+  
+  /* Conteneurs pour futurs médias */
+  .media-item {
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* Ratio 16:9 */
+    height: 0;
+    overflow: hidden;
+    
+    iframe {
+      position: absolute;
+  top: 0;
+  left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+

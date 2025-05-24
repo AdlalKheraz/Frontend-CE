@@ -1,0 +1,144 @@
+<div class="timeline-container" #timelineContainer (wheel)="onScroll($event)">
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Chargement des événements historiques enrichis...</p>
+    </div>
+    
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="error-container">
+        <p>{{ error }}</p>
+        <button (click)="loadEvents()">Réessayer</button>
+    </div>
+
+    <!-- Affichage normal (seulement si pas de chargement ni d'erreur) -->
+    <ng-container *ngIf="!loading && !error">
+        <!-- Sidebar avec les années -->
+        <ul class="timeline timeline-vertical timeline-years">
+            <li *ngFor="let event of filteredEvents; let i = index; let first = first; let last = last">
+                <hr *ngIf="!first" />
+                <div class="timeline-start">
+                    {{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}
+                </div>
+                <div class="timeline-middle" 
+                     [class.active]="event.active"
+                     (click)="onYearClick(i)">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        class="h-5 w-5">
+                        <path
+                            fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="timeline-end timeline-box bg-transparent ml-3" [class.active]="event.active">
+                    {{ event.title }}
+                </div>
+                <hr *ngIf="!last" />
+            </li>
+        </ul>
+        
+        <!-- Contenu principal avec l'événement actif -->
+        <div class="timeline-content">
+            <div *ngFor="let event of filteredEvents; let i = index"
+                 class="event-section"
+                 [class.active]="event.active"
+                 [style.--event-background]="event.medias && event.medias.length > 0 ? 'url(' + event.medias[0].url + ')' : ''">
+                
+                <div *ngIf="event.active" class="event-container">
+                    <h2 class="event-title">{{ event.title }}</h2>
+                    <div class="event-year">{{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}</div>
+                    <p class="event-description">{{ event.description }}</p>
+                    
+                    <!-- Galerie de médias -->
+                    <div *ngIf="event.medias && event.medias.length > 0" class="event-media-gallery">
+                        <div class="media-grid">
+                            <div *ngFor="let media of event.medias; let mediaIndex = index" 
+                                 class="media-item"
+                                 [class.media-image]="media.type === 'IMAGE'"
+                                 [class.media-video]="media.type === 'VIDEO'"
+                                 [class.media-audio]="media.type === 'AUDIO'">
+                                
+                                <!-- Image -->
+                                <!-- <div *ngIf="media.type === 'IMAGE'" class="media-image-container">
+                                    <img [src]="media.url" 
+                                         [alt]="media.title || event.title"
+                                         class="media-image-element"
+                                         (click)="openMediaModal(media, mediaIndex)">
+                                    <div class="media-overlay">
+                                        <span class="media-title-overlay">{{ media.title }}</span>
+                                    </div>
+                                </div>
+                                 -->
+                                <!-- Vidéo -->
+                                <div *ngIf="media.type === 'VIDEO'" class="media-video-container">
+                                    <video [src]="media.url" 
+                                           class="media-video-element"
+                                           controls
+                                           preload="metadata">
+                                        Votre navigateur ne supporte pas la lecture vidéo.
+                                    </video>
+                                    <div class="media-overlay">
+                                        <span class="media-title-overlay">{{ media.title }}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Audio -->
+                                <div *ngIf="media.type === 'AUDIO'" class="media-audio-container">
+                                    <div class="audio-placeholder">
+                                        <svg class="audio-icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                        </svg>
+                                        <span>{{ media.title || 'Audio' }}</span>
+                                    </div>
+                                    <audio [src]="media.url" 
+                                           class="media-audio-element"
+                                           controls>
+                                        Votre navigateur ne supporte pas la lecture audio.
+                                    </audio>
+                                </div>
+                                
+                                <!-- Description du média -->
+                                <div *ngIf="media.description" class="media-description">
+                                    {{ media.description }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- L'image principale est maintenant cachée car utilisée comme fond -->
+                    <div class="event-image" style="display: none;">
+                        <img [src]="event.image" alt="{{ event.title }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>
+
+<!-- Modal pour afficher les médias en grand -->
+<div *ngIf="selectedMedia" class="media-modal" (click)="closeMediaModal()">
+    <div class="media-modal-content" (click)="$event.stopPropagation()">
+        <button class="modal-close" (click)="closeMediaModal()">&times;</button>
+        
+        <img *ngIf="selectedMedia.type === 'IMAGE'" 
+             [src]="selectedMedia.url" 
+             [alt]="selectedMedia.title"
+             class="modal-media">
+        
+        <video *ngIf="selectedMedia.type === 'VIDEO'" 
+               [src]="selectedMedia.url" 
+               class="modal-media"
+               controls
+               autoplay>
+        </video>
+        
+        <div class="modal-info">
+            <h4>{{ selectedMedia.title }}</h4>
+            <p *ngIf="selectedMedia.description">{{ selectedMedia.description }}</p>
+        </div>
+    </div>
+</div>
