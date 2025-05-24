@@ -9,6 +9,7 @@ import { EventsComponent } from './admin/Events/Events.component';
 import { CommentsComponent } from './admin/Comments/Comments.component';
 import { ProfileComponent } from './Home/Profile/Profile.component';
 import { UsersComponent } from './admin/Users/Users.component';
+import { AdminGuard } from '@core/auth/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -22,7 +23,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    canActivate:[AuthGuard],
+    canActivate:[AdminGuard],
     children: [
       {path:'dashboard', component: DashboardComponent},
       {path: 'events', component: EventsComponent},

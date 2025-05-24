@@ -5,7 +5,7 @@ import { environment } from 'environments/environment';
 import { jwtDecode } from 'jwt-decode';
 import { BehaviorSubject, catchError, Observable, of, switchMap, throwError } from 'rxjs';
 
-type userToken = { name: string; email: string; given_name: string; family_name: string; sid: string, userId: string };
+type userToken = { name: string; email: string; given_name: string; family_name: string; sid: string, userId: string,role?: string; };
 export interface User {
   id?: string;
   name?: string;
