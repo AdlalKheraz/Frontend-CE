@@ -288,3 +288,27 @@
     max-width: 450px;
   }
 }
+
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

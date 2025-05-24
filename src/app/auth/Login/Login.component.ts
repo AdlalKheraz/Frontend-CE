@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit }
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
-import { EventService, HistoricalEvent } from '../../core/services/event.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { EventService, HistoricalEvent } from '../../core/services/event.service';
 
 @Component({
 	selector: 'app-login',
@@ -20,6 +20,8 @@ export class LoginComponent implements OnInit {
 	password = '';
 	isTransitioning = false;
 	firstEvent$: Observable<HistoricalEvent | null> | undefined;
+	errorMessage = '';
+	isLoading = false;
 
 	private router: Router = inject(Router);
 	private authService: AuthService = inject(AuthService);
@@ -38,18 +40,40 @@ this.firstEvent$ .subscribe(event => {console.log('Premier événement:', event)
 })
 		// Charger tous les événements pour récupérer le premier
 		this.eventService.loadAllEnrichedEvents().subscribe();
+		
+		// Vérifier si l'utilisateur est déjà connecté
+		this.authService.check().subscribe(isAuthenticated => {
+			if (isAuthenticated) {
+				this.router.navigate(['/home']);
+			}
+		});
 	}
 
 	onLogin(e: Event) {
 		e.preventDefault();
+		this.errorMessage = '';
+		
+		if (!this.email || !this.password) {
+			this.errorMessage = 'Veuillez remplir tous les champs';
+			this.cdr.markForCheck();
+			return;
+		}
+		
+		this.isLoading = true;
+		this.cdr.markForCheck();
+		
 		// Utiliser le service d'authentification pour se connecter
 		this.authService.signIn({ email: this.email, password: this.password }).subscribe({
 			next: () => {
 				// Donner le temps de voir l'animation avant la redirection
+				this.isLoading = false;
 				this.startTransitionToHome();
 			},
-			error: () => {
-				alert('Identifiants incorrects ou problème de connexion');
+			error: (error) => {
+				this.isLoading = false;
+				console.error('Erreur de connexion:', error);
+				this.errorMessage = error.error?.message || 'Identifiants incorrects ou problème de connexion';
+				this.cdr.markForCheck();
 			},
 		});
 	}

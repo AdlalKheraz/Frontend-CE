@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { LoadingState, StateData } from '../models/api.model';
@@ -22,34 +22,56 @@ export class CommentService {
   });
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('accessToken');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+    
+    // Créer des en-têtes de base même sans token
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
     });
+    
+    // Ajouter le token d'authentification s'il existe
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    } else {
+      console.warn('No token found in localStorage - requests may fail if authentication is required');
+    }
+    
+    return headers;
   }
   comments$ = this.commentsState.asObservable();
   
   constructor(private http: HttpClient) {}
 
   loadCommentsByEvent(eventId: string): Observable<Comment[]> {
+    if (!eventId) {
+      console.error('Event ID is missing or invalid');
+      this.commentsState.next({
+        loading: LoadingState.ERROR,
+        data: [],
+        error: 'ID d\'événement manquant ou invalide'
+      });
+      return throwError(() => new Error('Event ID is missing or invalid'));
+    }
+    
     this.commentsState.next({
       loading: LoadingState.LOADING,
       data: this.commentsState.value.data
     });
+    
+    console.log(`Loading comments for event: ${eventId}`);
     
     return this.http.get<Comment[]>(
       environment.ENDPOINT.commentsByEvent(eventId),
       { headers: this.getHeaders() }
     ).pipe(
       tap(response => {
-        if (response) {
-          this.commentsState.next({
-            loading: LoadingState.LOADED,
-            data: response
-          });
-        }
+        console.log(`Comments loaded for event ${eventId}:`, response);
+        this.commentsState.next({
+          loading: LoadingState.LOADED,
+          data: response
+        });
       }),
       catchError(error => {
+        console.error(`Error loading comments for event ${eventId}:`, error);
         this.commentsState.next({
           loading: LoadingState.ERROR,
           data: [],
@@ -150,11 +172,15 @@ export class CommentService {
       data: this.commentsState.value.data
     });
     
+    const headers = this.getHeaders();
+    console.log('Headers for loadAllComments:', headers);
+    
     return this.http.get<Comment[]>(
       environment.ENDPOINT.comments(),
-      { headers: this.getHeaders() }
+      { headers }
     ).pipe(
       tap(response => {
+        console.log('Comments loaded successfully:', response);
         if (response) {
           this.commentsState.next({
             loading: LoadingState.LOADED,
@@ -163,6 +189,7 @@ export class CommentService {
         }
       }),
       catchError(error => {
+        console.error('Error loading comments:', error);
         this.commentsState.next({
           loading: LoadingState.ERROR,
           data: [],

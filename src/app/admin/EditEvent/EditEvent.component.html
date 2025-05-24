@@ -17,8 +17,21 @@
           <span class="text-indigo-600 font-medium">Back to Events</span>
         </div>
 
-        <h1 class="text-3xl font-bold mb-8">New Event</h1>
+        <h1 class="text-3xl font-bold mb-8">Edit Event</h1>
 
+        <!-- Loading indicator -->
+        <div *ngIf="isLoading" class="flex justify-center items-center h-64">
+          <div class="loading loading-spinner loading-lg"></div>
+          <span class="ml-4 text-gray-600">Loading event data...</span>
+        </div>
+        
+        <!-- Error message -->
+        <div *ngIf="errorMessage" class="alert alert-error mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-[1.5rem] w-[1.5rem] stroke-current shrink-0" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div *ngIf="!isLoading && !errorMessage">
         <!-- Stepper -->
         <div class="mb-10">
           <ul class="steps steps-horizontal w-full">
@@ -55,7 +68,7 @@
           <form [formGroup]="eventForm">
             <div id="step1-content" class="bg-white rounded-lg p-8 shadow-sm">
               <h2 class="text-xl font-bold mb-4">Event details</h2>
-              <p class="text-gray-500 mb-8">Please fill Event information so we can get in touch.</p>
+                <p class="text-gray-500 mb-8">Update the event information.</p>
 
               <div class="space-y-6">
                 <!-- Title field -->
@@ -116,7 +129,7 @@
           <form [formGroup]="civilizationForm">
             <div id="step2-content" class="bg-white rounded-lg p-8 shadow-sm hidden">
               <h2 class="text-xl font-bold mb-4">Civilization details</h2>
-              <p class="text-gray-500 mb-8">Please select an existing civilization or create a new one.</p>
+                <p class="text-gray-500 mb-8">Select an existing civilization or create a new one.</p>
 
               <div class="space-y-6">
                 <div class="flex items-center mb-4">
@@ -166,11 +179,96 @@
           <form [formGroup]="mediaForm">
             <div id="step3-content" class="bg-white rounded-lg p-8 shadow-sm hidden">
               <h2 class="text-xl font-bold mb-4">Media details</h2>
-              <p class="text-gray-500 mb-8">Please add external media URLs related to this event.</p>
+                <p class="text-gray-500 mb-8">Add or modify media files related to this event.</p>
 
               <div class="space-y-8">
+                  <!-- Existing Media (if any) -->
+                  <div *ngIf="existingMedia.length > 0" class="mt-6">
+                    <h3 class="text-md font-medium mb-4">Uploaded Media Files</h3>
+                    
+                    <!-- Bouton de débogage -->
+                    <div class="mb-4">
+                      <button type="button" class="btn btn-xs" (click)="toggleDebugInfo()">
+                        {{ showDebugInfo ? 'Masquer' : 'Afficher' }} les infos de débogage
+                      </button>
+                </div>
+
+                    <!-- Liste des médias existants avec aperçu -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div *ngFor="let media of existingMedia; let i = index" class="border rounded-lg overflow-hidden" [class.opacity-50]="media.id && mediaToDelete.includes(media.id)">
+                        <div class="bg-gray-100 p-2 text-sm font-medium border-b flex justify-between items-center">
+                          <span class="truncate">{{ media.title || 'Untitled' }}</span>
+                          <div class="flex items-center gap-2">
+                            <span class="badge badge-sm" [ngClass]="{'badge-primary': media.type === 'IMAGE', 'badge-secondary': media.type === 'VIDEO'}">{{ media.type }}</span>
+                            <button type="button" class="btn btn-circle btn-xs btn-ghost text-red-500" (click)="toggleMediaToDelete(media.id)">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="p-2">
+                          <!-- Debug info -->
+                          <div *ngIf="showDebugInfo" class="text-xs text-gray-500 mb-2 p-2 bg-gray-100 rounded">
+                            <div><strong>ID:</strong> {{ media.id }}</div>
+                            <div><strong>URL:</strong> {{ media.url }}</div>
+                            <div><strong>Type:</strong> {{ media.type }}</div>
+                            <div><strong>URL complète:</strong> {{ getMediaUrl(media) }}</div>
+                            <div *ngIf="isYouTubeUrl(getMediaUrl(media))"><strong>YouTube:</strong> Oui</div>
+                          </div>
+                          
+                          <!-- Indicateur de suppression -->
+                          <div *ngIf="media.id && mediaToDelete.includes(media.id)" class="bg-red-100 text-red-700 text-xs p-1 mb-2 rounded flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Marked for deletion
+                            <button type="button" class="ml-auto text-xs underline" (click)="toggleMediaToDelete(media.id)">Cancel</button>
+                          </div>
+                          
+                          <!-- Aperçu pour les images -->
+                          <div *ngIf="media.type === 'IMAGE'" class="relative w-full h-32 bg-gray-100 rounded-md flex items-center justify-center">
+                            <img [src]="getMediaUrl(media)" class="w-full h-full object-contain rounded-md" (error)="handleImageError($event)" />
+                            <div *ngIf="!media.url" class="absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-sm">
+                              Aucune URL d'image
+                            </div>
+                          </div>
+                          
+                          <!-- Aperçu pour les vidéos -->
+                          <div *ngIf="media.type === 'VIDEO'" class="relative w-full h-32 bg-gray-100 rounded-md">
+                            <!-- Vidéo YouTube -->
+                            <iframe *ngIf="isYouTubeUrl(getMediaUrl(media))" 
+                                    [src]="getSafeYoutubeUrl(getMediaUrl(media))" 
+                                    class="w-full h-full rounded-md" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen>
+                            </iframe>
+                            
+                            <!-- Vidéo standard -->
+                            <video *ngIf="!isYouTubeUrl(getMediaUrl(media)) && media.url" 
+                                   [src]="getMediaUrl(media)" 
+                                   controls 
+                                   class="w-full h-full object-contain rounded-md" 
+                                   (error)="handleVideoError($event)">
+                            </video>
+                            
+                            <div *ngIf="!media.url" class="absolute inset-0 flex items-center justify-center bg-gray-200 text-gray-500 text-sm">
+                              Aucune URL de vidéo
+                            </div>
+                          </div>
+                          
+                          <!-- Description -->
+                          <p *ngIf="media.description" class="text-xs text-gray-500 mt-2 line-clamp-2">
+                            {{ media.description }}
+                          </p>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- External URLs Section -->
-                <div>
+                <div class="mt-8">
                   <div class="flex justify-between items-center mb-4">
                     <h3 class="text-md font-medium">External Media URLs</h3>
                     <button type="button" class="btn btn-sm btn-outline btn-primary" (click)="addExternalUrl()">
@@ -197,45 +295,45 @@
                                 <option value="VIDEO">Video</option>
                               </select>
                             </div>
-                            <div>
-                              <label class="block text-sm font-medium mb-1">Title</label>
-                              <input type="text" placeholder="Media title" class="input input-bordered w-full" formControlName="title" />
-                            </div>
-                            <div>
-                              <label class="block text-sm font-medium mb-1">Description</label>
-                              <input type="text" placeholder="Short description" class="input input-bordered w-full" formControlName="description" />
-                            </div>
-                          </div>
-                          
-                          <!-- Aperçu des médias externes -->
-                          <div class="mt-4">
-                            <div *ngIf="url.get('url')?.value" class="border rounded-lg overflow-hidden">
-                              <div class="bg-gray-100 p-2 text-sm font-medium border-b truncate">
-                                {{ url.get('title')?.value || 'External Media' }}
+                              <div>
+                                <label class="block text-sm font-medium mb-1">Title</label>
+                                <input type="text" placeholder="Media title" class="input input-bordered w-full" formControlName="title" />
                               </div>
-                              <div class="p-2">
-                                <!-- Aperçu pour les images -->
-                                <img *ngIf="url.get('type')?.value === 'IMAGE'" [src]="url.get('url')?.value" 
-                                     class="w-full h-32 object-cover rounded-md" 
-                                     (error)="handleImageError($event)" />
-                                
-                                <!-- Aperçu pour les vidéos YouTube -->
-                                <iframe *ngIf="url.get('type')?.value === 'VIDEO' && isYouTubeUrl(url.get('url')?.value)" 
-                                        [src]="getSafeYoutubeUrl(url.get('url')?.value)" 
-                                        class="w-full h-32 rounded-md" 
-                                        frameborder="0" 
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                        allowfullscreen>
-                                </iframe>
-                                
-                                <!-- Aperçu pour les vidéos standard -->
-                                <video *ngIf="url.get('type')?.value === 'VIDEO' && !isYouTubeUrl(url.get('url')?.value)" 
-                                       [src]="url.get('url')?.value" 
-                                       controls 
-                                       class="w-full h-32 object-cover rounded-md"
-                                       (error)="handleVideoError($event)">
-                                </video>
+                              <div>
+                                <label class="block text-sm font-medium mb-1">Description</label>
+                                <input type="text" placeholder="Short description" class="input input-bordered w-full" formControlName="description" />
                               </div>
+                            </div>
+                            
+                            <!-- Aperçu des médias externes -->
+                            <div class="mt-4">
+                              <div *ngIf="url.get('url')?.value" class="border rounded-lg overflow-hidden">
+                                <div class="bg-gray-100 p-2 text-sm font-medium border-b truncate">
+                                  {{ url.get('title')?.value || 'External Media' }}
+                                </div>
+                                <div class="p-2">
+                                  <!-- Aperçu pour les images -->
+                                  <img *ngIf="url.get('type')?.value === 'IMAGE'" [src]="url.get('url')?.value" 
+                                       class="w-full h-32 object-cover rounded-md" 
+                                       (error)="handleImageError($event)" />
+                                  
+                                  <!-- Aperçu pour les vidéos YouTube -->
+                                  <iframe *ngIf="url.get('type')?.value === 'VIDEO' && isYouTubeUrl(url.get('url')?.value)" 
+                                          [src]="getSafeYoutubeUrl(url.get('url')?.value)" 
+                                          class="w-full h-32 rounded-md" 
+                                          frameborder="0" 
+                                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                          allowfullscreen>
+                                  </iframe>
+                                  
+                                  <!-- Aperçu pour les vidéos standard -->
+                                  <video *ngIf="url.get('type')?.value === 'VIDEO' && !isYouTubeUrl(url.get('url')?.value)" 
+                                         [src]="url.get('url')?.value" 
+                                         controls 
+                                         class="w-full h-32 object-cover rounded-md"
+                                         (error)="handleVideoError($event)">
+                                  </video>
+                                </div>
                             </div>
                           </div>
                         </div>
@@ -265,12 +363,12 @@
                 </svg>
               </div>
             </div>
-            <h2 class="text-2xl font-bold mb-2">Ready to submit?</h2>
+              <h2 class="text-2xl font-bold mb-2">Ready to update?</h2>
             <p class="text-gray-500 mb-8">Please review all information before submitting.</p>
 
             <div *ngIf="isSubmitting" class="flex flex-col items-center justify-center py-4">
               <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-              <p class="text-indigo-600 font-medium">Creating your event...</p>
+                <p class="text-indigo-600 font-medium">Updating your event...</p>
             </div>
 
             <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
@@ -310,11 +408,19 @@
               <div>
                 <h3 class="font-medium text-gray-700 mb-2">Media</h3>
                 <div class="text-sm">
+                    <div *ngIf="existingMedia.length > 0">
+                      <div class="text-gray-500 mb-1">Existing media: {{ existingMedia.length }}</div>
+                    </div>
+                    
+                    <div *ngIf="mediaToDelete.length > 0" class="text-red-500 mb-1">
+                      <span>{{ mediaToDelete.length }} media(s) to be deleted</span>
+                  </div>
+
                   <div *ngIf="externalUrls.length > 0">
                     <div class="text-gray-500 mb-1">External URLs: {{ externalUrls.length }}</div>
                   </div>
 
-                  <div *ngIf="externalUrls.length === 0" class="text-gray-500">
+                    <div *ngIf="existingMedia.length === 0 && externalUrls.length === 0" class="text-gray-500">
                     No media files added
                   </div>
                 </div>
@@ -336,8 +442,9 @@
                     class="btn btn-primary bg-indigo-600 border-none hover:bg-indigo-700 px-8">
               <span *ngIf="isSubmitting" class="loading loading-spinner loading-xs mr-2"></span>
               <span *ngIf="currentStep < totalSteps">Next step</span>
-              <span *ngIf="currentStep === totalSteps">Submit</span>
+                <span *ngIf="currentStep === totalSteps">Update Event</span>
             </button>
+            </div>
           </div>
         </div>
       </div>

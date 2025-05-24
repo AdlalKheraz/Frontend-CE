@@ -3,11 +3,12 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService, UpdateRoleData, UpdateUserData, User } from '../../core/auth/auth.service';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 @Component({
   selector: 'app-Users',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, AdminSidebarComponent],
   templateUrl: './Users.component.html',
   styleUrl: './Users.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -43,6 +43,13 @@ export class SignUpComponent implements OnInit {
 
   ngOnInit() {
     this.eventService.loadAllEnrichedEvents().subscribe();
+    
+    // Vérifier si l'utilisateur est déjà connecté
+    this.authService.check().subscribe(isAuthenticated => {
+      if (isAuthenticated) {
+        this.router.navigate(['/home']);
+      }
+    });
   }
 
   onSignUp(event: Event) {
@@ -52,41 +59,62 @@ export class SignUpComponent implements OnInit {
     // Validation du formulaire
     if (!this.email || !this.password || !this.confirmPassword || !this.firstName || !this.lastName) {
       this.errorMessage = 'Tous les champs sont obligatoires';
+      this.cdr.markForCheck();
       return;
     }
 
     if (this.password !== this.confirmPassword) {
       this.errorMessage = 'Les mots de passe ne correspondent pas';
+      this.cdr.markForCheck();
       return;
     }
 
     // Activer l'indicateur de chargement
     this.isLoading.next(true);
+    this.cdr.markForCheck();
+
+    console.log('Tentative d\'inscription avec:', {
+      email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName
+    });
 
     // Utiliser le service d'authentification pour l'inscription
-    // Adaptation selon la structure attendue par l'API dans Postman
     this.authService.signUp({
       email: this.email,
       password: this.password,
       firstName: this.firstName,
       lastName: this.lastName
     }).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Inscription réussie:', response);
         this.isLoading.next(false);
         this.isSignedUp.next(true);
+        this.cdr.markForCheck();
         
         setTimeout(() => {
           this.authService.signIn({
             email: this.email,
             password: this.password
-          }).subscribe(() => {
-            this.startTransitionToHome();
+          }).subscribe({
+            next: () => {
+              console.log('Connexion automatique réussie');
+              this.startTransitionToHome();
+            },
+            error: (loginError) => {
+              console.error('Erreur lors de la connexion automatique:', loginError);
+              this.errorMessage = 'Inscription réussie mais échec de connexion automatique. Veuillez vous connecter manuellement.';
+              this.router.navigate(['/login']);
+              this.cdr.markForCheck();
+            }
           });
         }, 1500);
       },
       error: (error) => {
+        console.error('Erreur lors de l\'inscription:', error);
         this.isLoading.next(false);
-        this.errorMessage = error.error?.message || 'Erreur lors de l\'inscription';
+        this.errorMessage = error.error?.message || 'Erreur lors de l\'inscription. Veuillez réessayer.';
+        this.cdr.markForCheck();
       }
     });
   }

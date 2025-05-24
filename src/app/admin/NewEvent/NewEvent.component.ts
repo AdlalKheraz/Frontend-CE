@@ -1,17 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { CivilizationService, Civilization } from '../../core/services/civilization.service';
-import { ApiResponse } from '../../core/models/api.model';
-import { EventService, HistoricalEvent } from '../../core/services/event.service';
-import { MediaService, Media } from '../../core/services/media.service';
-import { Observable, finalize, firstValueFrom, tap } from 'rxjs';
+import { finalize, firstValueFrom } from 'rxjs';
+import { Civilization, CivilizationService } from '../../core/services/civilization.service';
+import { EventService } from '../../core/services/event.service';
+import { Media, MediaService } from '../../core/services/media.service';
+import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 @Component({
   selector: 'app-new-event',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, AdminSidebarComponent],
   templateUrl: './NewEvent.component.html',
   styleUrl: './NewEvent.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,19 +31,18 @@ export class NewEventComponent implements OnInit {
   successMessage = '';
   createdEventId: string | undefined;
   
-  // File upload
-  selectedFiles: File[] = [];
-  
   private civilizationService = inject(CivilizationService);
   private eventService = inject(EventService);
   private mediaService = inject(MediaService);
+  private sanitizer = inject(DomSanitizer);
   
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, public router: Router) {
     // Event form
     this.eventForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
-      date: ['', Validators.required]
+      date: ['', Validators.required],
+      location: ['']
     });
     
     // Civilization form
@@ -127,31 +127,6 @@ export class NewEventComponent implements OnInit {
     this.externalUrls.removeAt(index);
   }
   
-  // Handle file selection avec validation
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-      for (let i = 0; i < input.files.length; i++) {
-        const file = input.files[i];
-        
-        // Validation du type de fichier
-        if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
-          this.selectedFiles.push(file);
-        } else {
-          this.errorMessage = `Le fichier ${file.name} n'est pas un type de média valide.`;
-        }
-      }
-    }
-    
-    // Reset l'input pour permettre la re-sélection du même fichier
-    input.value = '';
-  }
-  
-  // Remove selected file
-  removeFile(index: number) {
-    this.selectedFiles.splice(index, 1);
-  }
-  
   // Récupérer le nom de la civilisation sélectionnée
   getSelectedCivilizationName(): string {
     const civilizationId = this.civilizationForm.get('civilizationId')?.value;
@@ -161,6 +136,71 @@ export class NewEventComponent implements OnInit {
     
     const selectedCivilization = this.civilizations.find(c => c.id === civilizationId);
     return selectedCivilization?.name || 'Aucune sélectionnée';
+  }
+
+  // Gérer les erreurs d'affichage d'images
+  handleImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/images/placeholder-image.png'; // Remplacer par une image par défaut
+    imgElement.alt = 'Image non disponible';
+    imgElement.classList.add('opacity-50');
+  }
+  
+  // Gérer les erreurs d'affichage de vidéos
+  handleVideoError(event: Event): void {
+    const videoElement = event.target as HTMLVideoElement;
+    const videoUrl = videoElement.src;
+    console.error(`Erreur de chargement de vidéo: ${videoUrl}`);
+    
+    // Masquer la vidéo
+    videoElement.style.display = 'none';
+    
+    // Trouver le parent pour ajouter le message d'erreur
+    const parentElement = videoElement.parentElement;
+    if (!parentElement) return;
+    
+    // Créer et afficher un message d'erreur s'il n'existe pas déjà
+    if (!parentElement.querySelector('.video-error-message')) {
+      const errorMsg = document.createElement('div');
+      errorMsg.className = 'video-error-message absolute inset-0 flex items-center justify-center bg-red-50 text-red-500 text-sm';
+      errorMsg.textContent = 'Vidéo non disponible';
+      parentElement.appendChild(errorMsg);
+    }
+  }
+
+  // Vérifier si une URL est une URL YouTube
+  isYouTubeUrl(url: string): boolean {
+    if (!url) return false;
+    
+    // Différents formats d'URL YouTube
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+    return youtubeRegex.test(url);
+  }
+  
+  // Obtenir une URL sécurisée pour l'iframe YouTube
+  getSafeYoutubeUrl(url: string): SafeResourceUrl {
+    if (!url) return this.sanitizer.bypassSecurityTrustResourceUrl('');
+    
+    // Transformer l'URL YouTube en URL embed
+    let embedUrl = url;
+    
+    // Format youtu.be
+    if (url.includes('youtu.be')) {
+      const videoId = url.split('/').pop();
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } 
+    // Format youtube.com/watch
+    else if (url.includes('youtube.com/watch')) {
+      const videoId = new URL(url).searchParams.get('v');
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    }
+    // Format youtube.com/embed - déjà au bon format
+    else if (!url.includes('youtube.com/embed')) {
+      console.warn('Format d\'URL YouTube non reconnu:', url);
+    }
+    
+    console.log('URL YouTube transformée:', embedUrl);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
   }
 
   handleButtonClick(): void {
@@ -308,28 +348,7 @@ export class NewEventComponent implements OnInit {
       const eventId = eventResponse.id as string;
       this.createdEventId = eventId;
       
-      // 3. Upload files avec gestion d'erreurs individuelle
-      const fileUploadPromises = this.selectedFiles.map(async (file, index) => {
-        try {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('eventId', eventId);
-          formData.append('type', file.type.includes('image') ? 'IMAGE' : 'VIDEO');
-          formData.append('title', file.name.split('.')[0]); // Utiliser le nom du fichier comme titre
-          
-          return await firstValueFrom(this.mediaService.uploadMedia(formData));
-        } catch (error) {
-          console.error(`Erreur lors de l'upload du fichier ${file.name}:`, error);
-          // Ne pas arrêter le processus pour les autres fichiers
-          return null;
-        }
-      });
-      
-      // Attendre tous les uploads
-      const uploadResults = await Promise.all(fileUploadPromises);
-      const successfulUploads = uploadResults.filter(result => result !== null);
-      
-      // 4. Add external URLs avec gestion d'erreurs individuelle
+      // 3. Add external URLs avec gestion d'erreurs individuelle
       const urlPromises = this.externalUrls.controls.map(async (urlControl, index) => {
         try {
           const media: Media = {
@@ -352,9 +371,6 @@ export class NewEventComponent implements OnInit {
       
       // Message de succès avec détails
       let message = 'Événement créé avec succès!';
-      if (this.selectedFiles.length > 0) {
-        message += ` ${successfulUploads.length}/${this.selectedFiles.length} fichiers uploadés.`;
-      }
       if (this.externalUrls.length > 0) {
         message += ` ${successfulUrls.length}/${this.externalUrls.length} URLs ajoutées.`;
       }
