@@ -46,7 +46,7 @@
             <div *ngFor="let event of filteredEvents; let i = index"
                  class="event-section"
                  [class.active]="event.active"
-                 [style.--event-background]="'url(' + event.media.url + ')'">
+                 [style.--event-background]="'url(' + event.media[0].url + ')'">
                 
                 <div *ngIf="event.active" class="event-container">
                     <h2 class="event-title">{{ event.title }}</h2>
