@@ -435,17 +435,17 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
         this.selectedCivilization = civ;
 
         // Si c'est une des 3 premières, on ne change rien
-        // if (this.displayedCivilizations.includes(civ)) {
-        //     return;
-        // }
+        if (this.displayedCivilizations.includes(civ)) {
+            return;
+        }
 
-        // // Sinon, on met la civilisation sélectionnée en premier
-        // const updatedCivs = [civ];
-        // for (let i = 0; i < 2 && i < this.civilizations.length - 1; i++) {
-        //     if (this.civilizations[i] !== civ) {
-        //         updatedCivs.push(this.civilizations[i]);
-        //     }
-        // }
+        // Sinon, on met la civilisation sélectionnée en premier
+        const updatedCivs = [civ];
+        for (let i = 0; i < 2 && i < this.civilizations.length - 1; i++) {
+            if (this.civilizations[i] !== civ) {
+                updatedCivs.push(this.civilizations[i]);
+            }
+        }
         // this.displayedCivs = updatedCivs;
 
         // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses événements
