@@ -34,5 +34,7 @@ export const environment = {
         media: () => `${environment.baseUrl}/api/media`,
         mediaByEvent: (eventId: string) => 
         `${environment.baseUrl}/api/media/event/${eventId}`,
+        mediaFiles: (filename: string) => `${environment.baseUrl}/api/media/files/${filename}`,
+        mediaUpload: () => `${environment.baseUrl}/api/media/upload`,
     }
 };

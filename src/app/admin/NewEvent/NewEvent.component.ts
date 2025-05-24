@@ -127,14 +127,24 @@ export class NewEventComponent implements OnInit {
     this.externalUrls.removeAt(index);
   }
   
-  // Handle file selection
+  // Handle file selection avec validation
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files) {
       for (let i = 0; i < input.files.length; i++) {
-        this.selectedFiles.push(input.files[i]);
+        const file = input.files[i];
+        
+        // Validation du type de fichier
+        if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+          this.selectedFiles.push(file);
+        } else {
+          this.errorMessage = `Le fichier ${file.name} n'est pas un type de média valide.`;
+        }
       }
     }
+    
+    // Reset l'input pour permettre la re-sélection du même fichier
+    input.value = '';
   }
   
   // Remove selected file
@@ -238,7 +248,7 @@ export class NewEventComponent implements OnInit {
     // Le texte du bouton est géré par Angular dans le HTML avec *ngIf
   }
   
-  // Submit the form
+  // Submit the form avec gestion des médias améliorée
   async submitForm() {
     if (this.currentStep !== this.totalSteps) {
       this.nextStep();
@@ -296,27 +306,61 @@ export class NewEventComponent implements OnInit {
       }
       
       const eventId = eventResponse.id as string;
+      this.createdEventId = eventId;
       
-      // 3. Upload files
-      for (const file of this.selectedFiles) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('eventId', eventId);
-        formData.append('type', file.type.includes('image') ? 'IMAGE' : 'VIDEO');
-        
-        await firstValueFrom(this.mediaService.uploadMedia(formData));
+      // 3. Upload files avec gestion d'erreurs individuelle
+      const fileUploadPromises = this.selectedFiles.map(async (file, index) => {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('eventId', eventId);
+          formData.append('type', file.type.includes('image') ? 'IMAGE' : 'VIDEO');
+          formData.append('title', file.name.split('.')[0]); // Utiliser le nom du fichier comme titre
+          
+          return await firstValueFrom(this.mediaService.uploadMedia(formData));
+        } catch (error) {
+          console.error(`Erreur lors de l'upload du fichier ${file.name}:`, error);
+          // Ne pas arrêter le processus pour les autres fichiers
+          return null;
+        }
+      });
+      
+      // Attendre tous les uploads
+      const uploadResults = await Promise.all(fileUploadPromises);
+      const successfulUploads = uploadResults.filter(result => result !== null);
+      
+      // 4. Add external URLs avec gestion d'erreurs individuelle
+      const urlPromises = this.externalUrls.controls.map(async (urlControl, index) => {
+        try {
+          const media: Media = {
+            url: urlControl.value.url,
+            type: urlControl.value.type,
+            eventId: eventId,
+            title: urlControl.value.title || `Media externe ${index + 1}`,
+            description: urlControl.value.description || ''
+          };
+          
+          return await firstValueFrom(this.mediaService.addMedia(media));
+        } catch (error) {
+          console.error(`Erreur lors de l'ajout de l'URL ${urlControl.value.url}:`, error);
+          return null;
+        }
+      });
+      
+      const urlResults = await Promise.all(urlPromises);
+      const successfulUrls = urlResults.filter(result => result !== null);
+      
+      // Message de succès avec détails
+      let message = 'Événement créé avec succès!';
+      if (this.selectedFiles.length > 0) {
+        message += ` ${successfulUploads.length}/${this.selectedFiles.length} fichiers uploadés.`;
+      }
+      if (this.externalUrls.length > 0) {
+        message += ` ${successfulUrls.length}/${this.externalUrls.length} URLs ajoutées.`;
       }
       
-      // 4. Add external URLs
-      for (const urlControl of this.externalUrls.controls) {
-        const media = {
-          ...urlControl.value,
-          eventId
-        };
-        
-        await firstValueFrom(this.mediaService.addMedia(media));
-      }
-      this.successMessage = 'Événement créé avec succès!';
+      this.successMessage = message;
+      
       setTimeout(() => {
         this.router.navigate(['/admin/events']);
       }, 2000);
