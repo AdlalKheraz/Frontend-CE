@@ -55,7 +55,6 @@
                     
                     <!-- Galerie de médias -->
                     <div *ngIf="event.medias && event.medias.length > 0" class="event-media-gallery">
-                        <h3 class="media-title">Médias associés</h3>
                         <div class="media-grid">
                             <div *ngFor="let media of event.medias; let mediaIndex = index" 
                                  class="media-item"
@@ -70,7 +69,7 @@
                                          class="media-image-element"
                                          (click)="openMediaModal(media, mediaIndex)">
                                     <div class="media-overlay">
-                                        <span class="media-title-overlay">{{ media.title }} {{media.url}}</span>
+                                        <span class="media-title-overlay">{{ media.title }}</span>
                                     </div>
                                 </div>
                                 
