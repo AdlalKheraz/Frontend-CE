@@ -4,6 +4,7 @@ import { Subscription, fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 import { LoadingState } from '../../core/models/api.model';
 import { EventService, HistoricalEvent } from '../../core/services/event.service';
+import { Civilization } from '../../core/services/civilization.service'; // Ajout de l'import
 
 // Modèle d'événement historique
 export interface TimelineEvent {
@@ -86,6 +87,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   
   selectedMedia: any = null;
   
+  @Input() civilizations: Civilization[] = []; // Ajouter cet input
+  
   constructor(
     private renderer: Renderer2, 
     private cdr: ChangeDetectorRef,
@@ -165,18 +168,21 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   // Mapper les événements historiques au format TimelineEvent
   private mapHistoricalEventsToTimelineEvents(events: HistoricalEvent[]): TimelineEvent[] {
     return events.map((event, index) => {
-      // Extraire l'année de la date (format attendu: YYYY-MM-DD)
       const year = new Date(event.date).getFullYear();
       
+      // Trouver le nom de la civilisation à partir de l'ID
+      const civilization = this.civilizations.find(civ => civ.id === event.civilizationId);
+      
       return {
-        id: index + 1, // Générer un ID si nécessaire
+        id: index + 1,
         year: year,
         title: event.title,
         description: event.description,
-        civilization: event.civilizationId, // Utiliser l'ID comme nom pour l'instant
-        image: event.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png', // Image par défaut
-        medias: event.medias || [], // ✅ Ajouter la propriété media manquante
-        active: index === 0 // Premier événement actif par défaut
+        // Utiliser le nom de la civilisation trouvée, sinon utiliser l'ID
+        civilization: civilization?.name || event.civilizationId,
+        image: event.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png',
+        medias: event.medias || [],
+        active: index === 0
       };
     });
   }
@@ -257,6 +263,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     if (this._selectedCivilization === 'Toutes') {
       this.filteredEvents = [...this.allEvents];
     } else {
+      // Maintenant on compare les noms de civilisation
       this.filteredEvents = this.allEvents.filter(
         event => event.civilization === this._selectedCivilization
       );
@@ -319,7 +326,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
         console.log('Aucun résultat trouvé pour les critères de recherche');
       }
       
-      // Mettre à jour les événements filtrés
+      // Mettre à jour les événements filtered
       this.filterEvents();
     } else {
       console.log('Format de résultats de recherche non valide ou vide');
