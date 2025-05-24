@@ -11,6 +11,7 @@ import { LoginComponent } from './auth/Login/Login.component';
 import { SignUpComponent } from './auth/SignUp/SignUp.component';
 import { HomeComponent } from './Home/Home.component';
 import { ProfileComponent } from './Home/Profile/Profile.component';
+import { CivilizationsComponent } from './admin/Civilizations/Civilizations.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -30,6 +31,7 @@ export const routes: Routes = [
       {path: 'events', component: EventsComponent},
       {path: 'users', component: UsersComponent},
       {path: 'comments', component: CommentsComponent},
+      {path: 'civilizations', component: CivilizationsComponent},
       {path: 'new-event', component: NewEventComponent},
       {path: 'edit-event/:id', component: EditEventComponent},
     ]

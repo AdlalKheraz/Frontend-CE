@@ -13,7 +13,7 @@ import { generateAvatar } from '@core/avatar/avatar.lib';
   styleUrl: './admin-sidebar.component.scss'
 })
 export class AdminSidebarComponent implements OnInit {
-  @Input() activePage: 'dashboard' | 'events' | 'users' | 'comments' | 'settings' = 'dashboard';
+  @Input() activePage: 'dashboard' | 'events' | 'users' | 'comments' | 'settings'|'civilizations' = 'dashboard';
   
   private router = inject(Router);
   private authService = inject(AuthService);

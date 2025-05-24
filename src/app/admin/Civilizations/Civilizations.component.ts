@@ -20,7 +20,7 @@ import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/adm
     AdminSidebarComponent
   ],
   templateUrl: './Civilizations.component.html',
-  styleUrls: ['./Civilizations.component.scss'],
+  styleUrl :'./Civilizations.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CivilizationsComponent implements OnInit, OnDestroy {

@@ -70,6 +70,17 @@
         <span>Comments</span>
       </a>
     </div>
+    <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'comments'}">
+      <a (click)="navigateTo('/admin/civilizations')" class="flex items-center space-x-2 cursor-pointer"
+         [ngClass]="{'text-indigo-700': activePage === 'comments', 'text-gray-600 hover:text-indigo-600': activePage !== 'comments'}">
+        <div class="w-[1.5rem] h-[1.5rem]">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        </div>
+        <span>civilizations</span>
+      </a>
+    </div>
 
     <!-- Settings -->
     <div class="px-4 py-3" [ngClass]="{'bg-indigo-100 rounded-r-lg border-l-4 border-indigo-500': activePage === 'settings'}">
