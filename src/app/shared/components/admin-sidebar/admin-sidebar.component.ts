@@ -10,7 +10,7 @@ import { generateAvatar } from '@core/avatar/avatar.lib';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './admin-sidebar.component.html',
-  styleUrls: ['./admin-sidebar.component.scss']
+  styleUrl: './admin-sidebar.component.scss'
 })
 export class AdminSidebarComponent implements OnInit {
   @Input() activePage: 'dashboard' | 'events' | 'users' | 'comments' | 'settings' = 'dashboard';
