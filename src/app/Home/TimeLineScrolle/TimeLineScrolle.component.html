@@ -46,7 +46,7 @@
             <div *ngFor="let event of filteredEvents; let i = index"
                  class="event-section"
                  [class.active]="event.active"
-                 [style.--event-background]="event.media && event.media.length > 0 ? 'url(' + event.media[0].url + ')' : ''">
+                 [style.--event-background]="event.medias && event.medias.length > 0 ? 'url(' + event.medias[0].url + ')' : ''">
                 
                 <div *ngIf="event.active" class="event-container">
                     <h2 class="event-title">{{ event.title }}</h2>
@@ -54,10 +54,10 @@
                     <p class="event-description">{{ event.description }}</p>
                     
                     <!-- Galerie de médias -->
-                    <div *ngIf="event.media && event.media.length > 0" class="event-media-gallery">
+                    <div *ngIf="event.medias && event.medias.length > 0" class="event-media-gallery">
                         <h3 class="media-title">Médias associés</h3>
                         <div class="media-grid">
-                            <div *ngFor="let media of event.media; let mediaIndex = index" 
+                            <div *ngFor="let media of event.medias; let mediaIndex = index" 
                                  class="media-item"
                                  [class.media-image]="media.type === 'IMAGE'"
                                  [class.media-video]="media.type === 'VIDEO'"
@@ -70,7 +70,7 @@
                                          class="media-image-element"
                                          (click)="openMediaModal(media, mediaIndex)">
                                     <div class="media-overlay">
-                                        <span class="media-title-overlay">{{ media.title }}</span>
+                                        <span class="media-title-overlay">{{ media.title }} {{media.url}}</span>
                                     </div>
                                 </div>
                                 

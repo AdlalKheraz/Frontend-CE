@@ -7,7 +7,7 @@ import { EventService, HistoricalEvent } from '../../core/services/event.service
 
 // Modèle d'événement historique
 export interface TimelineEvent {
-media: any;
+  medias: any;
   id: number;
   year: number; 
   title: string;
@@ -24,7 +24,7 @@ interface ComponentEvent {
   description: string;
   year: number;
   image: string;
-  media: any[];
+  medias: any[];
   civilization: string;
   active: boolean;
 }
@@ -72,88 +72,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   currentYear: number = 0;
   
   // Source de données pour tous les événements avec images placeholders
-  allEvents: TimelineEvent[] = [
-    {
-      id: 1,
-      year: 1914,
-      title: "La Joconde",
-      description: "La Joconde est le portrait d'une jeune femme, sur fond d'un paysage montagneux aux horizons lointains et brumeux. Elle est disposée de trois quarts et représentée jusqu'à la taille, bras et mains compris, regardant le spectateur, ce qui est relativement nouveau à l'époque et rompt avec les portraits jusque-là répandus, qui coupent le buste à hauteur des épaules ou de la poitrine et sont entièrement de profil",
-      civilization: "Renaissance",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/540px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
-      active: true,
-      media: undefined
-    },
-    {
-      id: 2,
-      year: 1918,
-      title: "Fin de la Première Guerre mondiale",
-      description: "Le 11 novembre 1918 marque la fin de la Première Guerre mondiale avec la signature de l'armistice entre l'Allemagne et les Alliés dans un wagon-restaurant aménagé dans la clairière de Rethondes, en forêt de Compiègne.",
-      civilization: "Américaine",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Armistice_Day%2C_1918_%28BOND-15%29.jpeg/640px-Armistice_Day%2C_1918_%28BOND-15%29.jpeg",
-      active: false,
-      media: undefined
-    },
-    {
-      id: 3,
-      year: 1939,
-      title: "Début de la Seconde Guerre mondiale",
-      description: "Le 1er septembre 1939, l'Allemagne nazie envahit la Pologne, déclenchant la Seconde Guerre mondiale. Deux jours plus tard, la France et le Royaume-Uni déclarent la guerre à l'Allemagne.",
-      civilization: "Américaine",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Bundesarchiv_Bild_183-H27337%2C_Moskau%2C_Stalin_und_Ribbentrop_im_Kreml.jpg/640px-Bundesarchiv_Bild_183-H27337%2C_Moskau%2C_Stalin_und_Ribbentrop_im_Kreml.jpg",
-      active: false,
-      media: undefined
-    },
-    {
-      id: 4,
-      year: 1945,
-      title: "Fin de la Seconde Guerre mondiale",
-      description: "La Seconde Guerre mondiale prend fin en Europe le 8 mai 1945 avec la capitulation de l'Allemagne nazie, puis dans le Pacifique le 2 septembre 1945 avec la reddition du Japon.",
-      civilization: "Américaine",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Surrender_of_Japan_-_USS_Missouri.jpg/640px-Surrender_of_Japan_-_USS_Missouri.jpg",
-      active: false,
-      media: undefined
-    },
-    {
-      id: 5,
-      year: 1962,
-      title: "Crise des missiles de Cuba",
-      description: "La crise des missiles de Cuba est un affrontement entre les États-Unis et l'Union soviétique, survenu du 16 au 28 octobre 1962, considéré comme le moment où la guerre froide a été la plus proche de basculer en guerre nucléaire.",
-      civilization: "Américaine",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Cuban-missile-crisis-map.png/640px-Cuban-missile-crisis-map.png",
-      active: false,
-      media: undefined
-    },
-    {
-      id: 6,
-      year: -2500,
-      title: "Construction des grandes pyramides",
-      description: "La grande pyramide de Gizeh est construite comme tombeau du pharaon Khéops. C'est la plus ancienne et la plus grande des pyramides de Gizeh.",
-      civilization: "Égyptienne",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kheops-Pyramid.jpg/640px-Kheops-Pyramid.jpg",
-      active: false,
-      media: undefined
-    },
-    {
-      id: 7,
-      year: -480,
-      title: "Bataille des Thermopyles",
-      description: "Un petit contingent de Grecs dirigé par le roi Léonidas de Sparte tente de retenir l'avancée de l'immense armée perse de Xerxès Ier.",
-      civilization: "Grecque",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Leonidas.jpg/640px-Leonidas.jpg",
-      active: false,
-      media: undefined
-    },
-    {
-      id: 8,
-      year: 117,
-      title: "Apogée de l'Empire romain",
-      description: "Sous le règne de l'empereur Trajan, l'Empire romain atteint sa plus grande extension territoriale, couvrant une grande partie de l'Europe, de l'Afrique du Nord et du Moyen-Orient.",
-      civilization: "Romaine",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png",
-      active: false,
-      media: undefined
-    }
-  ];
+  allEvents: TimelineEvent[] = [];
   
   // Événements filtrés à afficher
   filteredEvents: TimelineEvent[] = [];
@@ -207,14 +126,11 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     
     const subscription = this.eventService.events$.subscribe({
       next: (state) => {
-        console.log('🚀 ~ TimeLineScrolleComponent ~ loadEvents ~ state:', state)
         if (state.loading === LoadingState.LOADED) {
           // Vérifier si des données existent
           if (state.data && state.data.length > 0) {
-            console.log('🚀 ~ TimeLineScrolleComponent ~ loadEvents ~ state.data:', state.data)
             // Transformer les données du service en format TimelineEvent
             this.allEvents = this.mapHistoricalEventsToTimelineEvents(state.data);
-            console.log('🚀 ~ TimeLineScrolleComponent ~ loadEvents ~ allEvents:', this.allEvents)
           } else {
             // Aucun événement retourné
             this.allEvents = [];
@@ -246,7 +162,6 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   // Mapper les événements historiques au format TimelineEvent
   private mapHistoricalEventsToTimelineEvents(events: HistoricalEvent[]): TimelineEvent[] {
     return events.map((event, index) => {
-      console.log('🚀 ~ TimeLineScrolleComponent ~ returnevents.map ~ event:', event.media)
       // Extraire l'année de la date (format attendu: YYYY-MM-DD)
       const year = new Date(event.date).getFullYear();
       
@@ -257,7 +172,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
         description: event.description,
         civilization: event.civilizationId, // Utiliser l'ID comme nom pour l'instant
         image: event.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png', // Image par défaut
-        media: event.media || [], // ✅ Ajouter la propriété media manquante
+        medias: event.medias || [], // ✅ Ajouter la propriété media manquante
         active: index === 0 // Premier événement actif par défaut
       };
     });
@@ -426,7 +341,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       description: event.description,
       year: new Date(event.date).getFullYear(),
       image: this.getEventImage(event),
-      media: this.getEventMedia(event), // ✅ Ajouter la propriété media manquante
+      medias: this.getEventMedia(event), // ✅ Ajouter la propriété media manquante
       civilization: event.civilizationId,
       active: false
     }));
@@ -455,15 +370,15 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   // Méthode pour extraire l'image principale de l'événement
   private getEventImage(event: HistoricalEvent): string {
     // Si l'événement a des médias, prendre le premier
-    if (event.media && event.media.length > 0) {
-      return event.media[0].url || '/assets/default-event.jpg';
+    if (event.medias && event.medias.length > 0) {
+      return event.medias[0].url || '/assets/default-event.jpg';
     }
     return '/assets/default-event.jpg';
   }
   
   // Méthode pour extraire tous les médias de l'événement
   private getEventMedia(event: HistoricalEvent): any[] {
-    return event.media || [];
+    return event.medias || [];
   }
   
   // Méthode pour ouvrir le modal des médias

@@ -6,7 +6,7 @@ import { ApiResponse, LoadingState, StateData } from '../models/api.model';
 
 export interface HistoricalEvent {
   imageUrl: string;
-  media: any;
+  medias: any;
   id?: string;
   title: string;
   description: string;
