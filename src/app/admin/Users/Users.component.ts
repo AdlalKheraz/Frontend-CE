@@ -23,6 +23,9 @@ export class UsersComponent implements OnInit {
   newRole = '';
   showUserDetails = false;
   
+  // Propriétés pour les modals
+  // (aucune propriété nécessaire car nous utilisons les modals DaisyUI)
+  
   // Données pour l'édition d'un utilisateur
   editUserData: UpdateUserData = {
     firstName: '',
@@ -164,7 +167,13 @@ export class UsersComponent implements OnInit {
     this.authService.getUserById(id).subscribe({
       next: (user) => {
         this.selectedUser = user;
-        this.showUserDetails = true;
+        
+        // Open the modal dialog
+        const modal = document.getElementById('user_modal') as HTMLDialogElement;
+        if (modal) {
+          modal.showModal();
+        }
+        
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -180,7 +189,10 @@ export class UsersComponent implements OnInit {
 
   // Close user details modal
   closeUserDetails(): void {
-    this.showUserDetails = false;
+    const modal = document.getElementById('user_modal') as HTMLDialogElement;
+    if (modal) {
+      modal.close();
+    }
     this.selectedUser = null;
     this.cdr.markForCheck();
   }
@@ -189,14 +201,22 @@ export class UsersComponent implements OnInit {
   startEditRole(user: User): void {
     this.selectedUser = { ...user };
     this.newRole = user.role || 'USER';
-    this.isEditingRole = true;
+    
+    // Ouvrir le modal d'édition de rôle
+    const modal = document.getElementById('edit_role_modal') as HTMLDialogElement;
+    if (modal) {
+      modal.showModal();
+    }
+    
     this.cdr.markForCheck();
   }
 
   // Cancel editing user role
   cancelEditRole(): void {
-    this.isEditingRole = false;
-    this.selectedUser = null;
+    const modal = document.getElementById('edit_role_modal') as HTMLDialogElement;
+    if (modal) {
+      modal.close();
+    }
     this.cdr.markForCheck();
   }
 
@@ -209,7 +229,12 @@ export class UsersComponent implements OnInit {
     this.loading = true;
     this.authService.updateUserRole(this.selectedUser.id, roleData).subscribe({
       next: () => {
-        this.isEditingRole = false;
+        // Fermer le modal
+        const modal = document.getElementById('edit_role_modal') as HTMLDialogElement;
+        if (modal) {
+          modal.close();
+        }
+        
         this.showNotificationPopup('User role updated successfully', true);
         this.loadUsers(); // Reload to get updated list
       },
@@ -231,14 +256,22 @@ export class UsersComponent implements OnInit {
       lastName: user.lastName || '',
       email: user.email
     };
-    this.isEditingUser = true;
+    
+    // Ouvrir le modal d'édition d'utilisateur
+    const modal = document.getElementById('edit_user_modal') as HTMLDialogElement;
+    if (modal) {
+      modal.showModal();
+    }
+    
     this.cdr.markForCheck();
   }
 
   // Cancel editing user
   cancelEditUser(): void {
-    this.isEditingUser = false;
-    this.selectedUser = null;
+    const modal = document.getElementById('edit_user_modal') as HTMLDialogElement;
+    if (modal) {
+      modal.close();
+    }
     this.cdr.markForCheck();
   }
 
@@ -249,7 +282,12 @@ export class UsersComponent implements OnInit {
     this.loading = true;
     this.authService.updateUser(this.selectedUser.id, this.editUserData).subscribe({
       next: () => {
-        this.isEditingUser = false;
+        // Fermer le modal
+        const modal = document.getElementById('edit_user_modal') as HTMLDialogElement;
+        if (modal) {
+          modal.close();
+        }
+        
         this.showNotificationPopup('User information updated successfully', true);
         this.loadUsers(); // Reload to get updated list
       },
@@ -265,6 +303,18 @@ export class UsersComponent implements OnInit {
 
   // Edit user
   editUser(id: string): void {
+    // Si l'utilisateur est déjà sélectionné dans le modal, passer directement en mode édition
+    if (this.selectedUser && this.selectedUser.id === id) {
+      this.prepareEditUser();
+      // Ouvrir le modal d'édition d'utilisateur
+      const modal = document.getElementById('edit_user_modal') as HTMLDialogElement;
+      if (modal) {
+        modal.showModal();
+      }
+      this.cdr.markForCheck();
+      return;
+    }
+    
     this.loading = true;
     this.authService.getUserById(id).subscribe({
       next: (user) => {
@@ -283,11 +333,27 @@ export class UsersComponent implements OnInit {
   
   // Start delete confirmation
   confirmDeleteUser(id: string): void {
+    // Si l'utilisateur est déjà sélectionné dans le modal, ouvrir directement le modal de suppression
+    if (this.selectedUser && this.selectedUser.id === id) {
+      const modal = document.getElementById('delete_user_modal') as HTMLDialogElement;
+      if (modal) {
+        modal.showModal();
+      }
+      this.cdr.markForCheck();
+      return;
+    }
+    
     this.loading = true;
     this.authService.getUserById(id).subscribe({
       next: (user) => {
         this.selectedUser = user;
-        this.isConfirmingDelete = true;
+        
+        // Ouvrir le modal de confirmation de suppression
+        const modal = document.getElementById('delete_user_modal') as HTMLDialogElement;
+        if (modal) {
+          modal.showModal();
+        }
+        
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -303,8 +369,10 @@ export class UsersComponent implements OnInit {
   
   // Cancel delete confirmation
   cancelDeleteUser(): void {
-    this.isConfirmingDelete = false;
-    this.selectedUser = null;
+    const modal = document.getElementById('delete_user_modal') as HTMLDialogElement;
+    if (modal) {
+      modal.close();
+    }
     this.cdr.markForCheck();
   }
 
@@ -315,10 +383,119 @@ export class UsersComponent implements OnInit {
     this.loading = true;
     this.authService.deleteUser(this.selectedUser.id).subscribe({
       next: () => {
-        this.isConfirmingDelete = false;
+        // Fermer le modal
+        const modal = document.getElementById('delete_user_modal') as HTMLDialogElement;
+        if (modal) {
+          modal.close();
+        }
+        
         this.selectedUser = null;
         this.showNotificationPopup('User deleted successfully', true);
         this.loadUsers();
+      },
+      error: (error) => {
+        console.error('Error deleting user:', error);
+        this.error = error.message || 'Error deleting user';
+        this.loading = false;
+        this.showNotificationPopup('Error deleting user', false);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+  
+  // Méthodes pour les actions dans le modal
+  
+  // Préparer l'édition d'un utilisateur dans le modal
+  prepareEditUser(): void {
+    if (this.selectedUser) {
+      this.editUserData = {
+        firstName: this.selectedUser.firstName || '',
+        lastName: this.selectedUser.lastName || '',
+        email: this.selectedUser.email
+      };
+    }
+  }
+  
+  // Sauvegarder les modifications d'un utilisateur depuis le modal
+  saveUserChangesFromModal(): void {
+    if (!this.selectedUser?.id) return;
+    
+    this.loading = true;
+    this.authService.updateUser(this.selectedUser.id, this.editUserData).subscribe({
+      next: () => {
+        // Fermer le modal d'édition d'utilisateur
+        const editModal = document.getElementById('edit_user_modal') as HTMLDialogElement;
+        if (editModal) {
+          editModal.close();
+        }
+        this.showNotificationPopup('User information updated successfully', true);
+        
+        // Mettre à jour l'utilisateur sélectionné avec les nouvelles données
+        this.authService.getUserById(this.selectedUser!.id!).subscribe({
+          next: (user) => {
+            this.selectedUser = user;
+            this.loading = false;
+            this.cdr.markForCheck();
+          }
+        });
+        
+        this.loadUsers(); // Recharger la liste pour obtenir les données mises à jour
+      },
+      error: (error) => {
+        console.error('Error updating user:', error);
+        this.error = error.message || 'Error updating user';
+        this.loading = false;
+        this.showNotificationPopup('Error updating user information', false);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+  
+  // Sauvegarder le changement de rôle depuis le modal
+  saveRoleChangeFromModal(): void {
+    if (!this.selectedUser?.id || !this.newRole) return;
+    
+    const roleData: UpdateRoleData = { role: this.newRole };
+    
+    this.loading = true;
+    this.authService.updateUserRole(this.selectedUser.id, roleData).subscribe({
+      next: () => {
+        // Fermer le modal d'édition de rôle
+        const roleModal = document.getElementById('edit_role_modal') as HTMLDialogElement;
+        if (roleModal) {
+          roleModal.close();
+        }
+        this.showNotificationPopup('User role updated successfully', true);
+        
+        // Mettre à jour l'utilisateur sélectionné avec le nouveau rôle
+        if (this.selectedUser) {
+          this.selectedUser.role = this.newRole;
+        }
+        
+        this.loading = false;
+        this.cdr.markForCheck();
+        this.loadUsers(); // Recharger la liste pour obtenir les données mises à jour
+      },
+      error: (error) => {
+        console.error('Error updating user role:', error);
+        this.error = error.message || 'Error updating user role';
+        this.loading = false;
+        this.showNotificationPopup('Error updating user role', false);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+  
+  // Supprimer un utilisateur depuis le modal
+  deleteUserFromModal(): void {
+    if (!this.selectedUser?.id) return;
+    
+    this.loading = true;
+    this.authService.deleteUser(this.selectedUser.id).subscribe({
+      next: () => {
+        this.closeUserDetails(); // Fermer le modal
+        this.showNotificationPopup('User deleted successfully', true);
+        this.loadUsers(); // Recharger la liste
       },
       error: (error) => {
         console.error('Error deleting user:', error);
