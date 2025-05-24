@@ -141,6 +141,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
 
   // Chargement des événements depuis le service
   loadEvents() {
+    console.log('📥 Chargement des événements depuis le service');
     this.loading = true;
     this.error = null;
     
@@ -179,6 +180,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
     this.subscriptions.add(subscription);
     
     // Déclencher le chargement des événements
+    console.log('📥 Déclenchement du chargement des événements enrichis');
     this.eventService.loadAllEnrichedEvents().subscribe();
   }
   
@@ -376,21 +378,17 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   
   // Nouvelle méthode pour définir les événements enrichis
   setEnrichedEvents(events: HistoricalEvent[]): void {
+    console.log('🔄 Mise à jour des événements enrichis:', events.length, 'événements');
     this.enrichedEvents = events;
-    // Convertir les événements enrichis au format attendu par la timeline
-    this.events = events.map(event => ({
-      id: parseInt(event.id!) || 0, // Convertir string en number
-      title: event.title,
-      description: event.description,
-      year: new Date(event.date).getFullYear(),
-      image: this.getEventImage(event),
-      medias: this.getEventMedia(event), // ✅ Ajouter la propriété media manquante
-      civilization: event.civilizationId,
-      active: false
-    }));
     
-    this.filteredEvents = [...this.events];
-    this.updateActiveEvent();
+    // ✅ Utiliser la même logique de mapping que mapHistoricalEventsToTimelineEvents
+    this.allEvents = this.mapHistoricalEventsToTimelineEvents(events);
+    
+    console.log('🔄 AllEvents mis à jour:', this.allEvents.map(e => ({ title: e.title, civilization: e.civilization })));
+    
+    // Appliquer le filtrage avec la civilisation actuellement sélectionnée
+    this.filterEvents();
+    
     this.cdr.markForCheck();
   }
   updateActiveEvent() {

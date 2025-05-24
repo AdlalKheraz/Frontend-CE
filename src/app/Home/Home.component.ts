@@ -447,7 +447,6 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 updatedCivs.push(this.civilizations[i]);
             }
         }
-        // this.displayedCivs = updatedCivs;
 
         // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses événements
         if (civ !== 'Toutes') {
@@ -456,12 +455,38 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             if (selectedCiv && selectedCiv.id) {
                 // Charger les événements de cette civilisation
                 console.log('🏛️ Chargement des événements pour la civilisation:', selectedCiv.id);
-                this.eventService.loadEventsByCivilization(selectedCiv.id).subscribe();
+                this.eventService.loadEventsByCivilization(selectedCiv.id).subscribe({
+                    next: (events) => {
+                        console.log('🏛️ Événements chargés pour la civilisation:', events);
+                        // Transmettre immédiatement au timeline
+                        if (this.timelineComponent) {
+                            this.timelineComponent.selectedCivilization = civ;
+                        }
+                        this.cdr.markForCheck();
+                    },
+                    error: (error) => {
+                        console.error('🏛️ Erreur lors du chargement des événements:', error);
+                    }
+                });
             }
         } else {
             // ✅ IMPORTANT : Charger tous les événements enrichis quand "Toutes" est sélectionné
             console.log('🏛️ Chargement de tous les événements enrichis');
-            this.eventService.loadAllEnrichedEvents().subscribe();
+            this.eventService.loadAllEnrichedEvents().subscribe({
+                next: (events) => {
+                    console.log('🏛️ Tous les événements enrichis chargés:', events);
+                    // Transmettre immédiatement au timeline
+                    if (this.timelineComponent) {
+                        this.timelineComponent.selectedCivilization = civ;
+                        // Forcer le rechargement des données dans le timeline
+                        this.timelineComponent.setEnrichedEvents(events);
+                    }
+                    this.cdr.markForCheck();
+                },
+                error: (error) => {
+                    console.error('🏛️ Erreur lors du chargement de tous les événements:', error);
+                }
+            });
         }
         
         // Transmettre la civilisation sélectionnée au composant Timeline
