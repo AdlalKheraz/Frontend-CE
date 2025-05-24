@@ -201,4 +201,29 @@ export class MediaService {
       })
     );
   }
+
+  updateMedia(mediaId: string, media: Media): Observable<Media> {
+    return this.http.put<Media>(
+      `${environment.ENDPOINT.media()}/${mediaId}`,
+      media,
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(response => {
+        if (response) {
+          // Mettre à jour le média dans la liste
+          const currentData = this.mediaState.value.data || [];
+          const updatedData = currentData.map(m => m.id === mediaId ? response : m);
+          
+          this.mediaState.next({
+            loading: LoadingState.LOADED,
+            data: updatedData
+          });
+        }
+      }),
+      catchError(error => {
+        console.error(`Erreur lors de la mise à jour du média ${mediaId}:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
 }
