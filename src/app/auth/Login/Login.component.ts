@@ -34,7 +34,8 @@ export class LoginComponent implements OnInit {
 		this.firstEvent$ = this.eventService.events$.pipe(
 			map(state => (state.data && state.data.length > 0 ? state.data[0] : null))
 		);
-
+this.firstEvent$ .subscribe(event => {console.log('Premier événement:', event); // Afficher le premier événement dans la console
+})
 		// Charger tous les événements pour récupérer le premier
 		this.eventService.loadAllEnrichedEvents().subscribe();
 	}
