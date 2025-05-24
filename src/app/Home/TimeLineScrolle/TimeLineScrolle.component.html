@@ -53,73 +53,15 @@
                     <div class="event-year">{{ event.year < 0 ? event.year * -1 + ' av. J.-C.' : event.year }}</div>
                     <p class="event-description">{{ event.description }}</p>
                     
-                    <!-- Galerie de médias -->
-                    <div *ngIf="event.medias && event.medias.length > 0" class="event-media-gallery">
-                        <div class="media-grid">
-                            <div *ngFor="let media of event.medias; let mediaIndex = index" 
-                                 class="media-item"
-                                 [class.media-image]="media.type === 'IMAGE'"
-                                 [class.media-video]="media.type === 'VIDEO'"
-                                 [class.media-audio]="media.type === 'AUDIO'">
-                                
-                                <!-- Image -->
-                                <!-- <div *ngIf="media.type === 'IMAGE'" class="media-image-container">
-                                    <img [src]="media.url" 
-                                         [alt]="media.title || event.title"
-                                         class="media-image-element"
-                                         (click)="openMediaModal(media, mediaIndex)">
-                                    <div class="media-overlay">
-                                        <span class="media-title-overlay">{{ media.title }}</span>
-                                    </div>
-                                </div>
-                                 -->
-                                <!-- Vidéo -->
-                                <div *ngIf="media.type === 'VIDEO'" class="media-video-container">
-                                    <video [src]="media.url" 
-                                           class="media-video-element"
-                                           controls
-                                           preload="metadata">
-                                        Votre navigateur ne supporte pas la lecture vidéo.
-                                    </video>
-                                    <div class="media-overlay">
-                                        <span class="media-title-overlay">{{ media.title }}</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Audio -->
-                                <div *ngIf="media.type === 'AUDIO'" class="media-audio-container">
-                                    <div class="audio-placeholder">
-                                        <svg class="audio-icon" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                                        </svg>
-                                        <span>{{ media.title || 'Audio' }}</span>
-                                    </div>
-                                    <audio [src]="media.url" 
-                                           class="media-audio-element"
-                                           controls>
-                                        Votre navigateur ne supporte pas la lecture audio.
-                                    </audio>
-                                </div>
-                                
-                                <!-- Description du média -->
-                                <div *ngIf="media.description" class="media-description">
-                                    {{ media.description }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- L'image principale est maintenant cachée car utilisée comme fond -->
-                    <div class="event-image" style="display: none;">
-                        <img [src]="event.image" alt="{{ event.title }}">
-                    </div>
+                    <!-- Galerie de médias supprimée - seules les informations de l'événement sont affichées -->
+                    <!-- L'image principale est utilisée comme fond via [style.--event-background] -->
                 </div>
             </div>
         </div>
     </ng-container>
 </div>
 
-<!-- Modal pour afficher les médias en grand -->
+<!-- Modal pour afficher les médias en grand - conservé pour compatibilité -->
 <div *ngIf="selectedMedia" class="media-modal" (click)="closeMediaModal()">
     <div class="media-modal-content" (click)="$event.stopPropagation()">
         <button class="modal-close" (click)="closeMediaModal()">&times;</button>

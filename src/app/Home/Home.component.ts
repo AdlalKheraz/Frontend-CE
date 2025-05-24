@@ -1010,15 +1010,49 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     // Nouvelle méthode pour gérer les événements clavier
     handleKeyDown(event: KeyboardEvent): void {
         if (event.key === 'Escape') {
-            this.ngZone.run(() => {
-                // Fermer le popup de détails si ouvert
-                if (this.detailsVisible) {
-                    this.hideDetails();
-                }
-                
-                // Fermer d'autres panels si nécessaire
-                this.closeAllPanels();
-            });
+            this.closeAllPanels();
+            if (this.detailsVisible) {
+                this.hideDetails();
+            }
         }
+    }
+
+    // Méthode pour gérer les événements vidéo
+    onVideoEvent(event: Event): void {
+        event.stopPropagation();
+        console.log('Video event:', event.type);
+    }
+
+    // Méthode pour gérer le clic sur une vidéo
+    onVideoClick(event: Event, media: any): void {
+        event.stopPropagation();
+        const video = event.target as HTMLVideoElement;
+        
+        if (video.paused) {
+            video.play().catch(error => {
+                console.error('Erreur lors de la lecture de la vidéo:', error);
+            });
+        } else {
+            video.pause();
+        }
+    }
+
+    // Méthode pour vérifier si l'URL de la vidéo est valide
+    isValidVideoUrl(url: string): boolean {
+        if (!url) return false;
+        
+        // Vérifier les extensions vidéo courantes
+        const videoExtensions = ['.mp4', '.webm', '.ogg', '.avi', '.mov'];
+        const hasValidExtension = videoExtensions.some(ext => 
+            url.toLowerCase().includes(ext)
+        );
+        
+        // Vérifier les domaines de streaming courants
+        const streamingDomains = ['youtube.com', 'vimeo.com', 'dailymotion.com'];
+        const isStreamingUrl = streamingDomains.some(domain => 
+            url.toLowerCase().includes(domain)
+        );
+        
+        return hasValidExtension || isStreamingUrl || url.startsWith('blob:') || url.startsWith('data:');
     }
 }
