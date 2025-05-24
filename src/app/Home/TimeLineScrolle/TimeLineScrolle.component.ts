@@ -7,6 +7,7 @@ import { EventService, HistoricalEvent } from '../../core/services/event.service
 
 // Modèle d'événement historique
 export interface TimelineEvent {
+media: any;
   id: number;
   year: number; 
   title: string;
@@ -14,6 +15,18 @@ export interface TimelineEvent {
   image?: string;
   civilization: string;
   active?: boolean;
+}
+
+// Définir l'interface ComponentEvent au début du fichier
+interface ComponentEvent {
+  id: number; // Changer de string à number pour être compatible avec TimelineEvent
+  title: string;
+  description: string;
+  year: number;
+  image: string;
+  media: any[];
+  civilization: string;
+  active: boolean;
 }
 
 @Component({
@@ -25,6 +38,7 @@ export interface TimelineEvent {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimeLineScrolleComponent implements OnInit, OnDestroy {
+  events: ComponentEvent[] = [];
   @Input() set selectedCivilization(value: string) {
     if (value !== this._selectedCivilization) {
       this._selectedCivilization = value;
@@ -66,7 +80,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       description: "La Joconde est le portrait d'une jeune femme, sur fond d'un paysage montagneux aux horizons lointains et brumeux. Elle est disposée de trois quarts et représentée jusqu'à la taille, bras et mains compris, regardant le spectateur, ce qui est relativement nouveau à l'époque et rompt avec les portraits jusque-là répandus, qui coupent le buste à hauteur des épaules ou de la poitrine et sont entièrement de profil",
       civilization: "Renaissance",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/540px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
-      active: true
+      active: true,
+      media: undefined
     },
     {
       id: 2,
@@ -75,16 +90,18 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       description: "Le 11 novembre 1918 marque la fin de la Première Guerre mondiale avec la signature de l'armistice entre l'Allemagne et les Alliés dans un wagon-restaurant aménagé dans la clairière de Rethondes, en forêt de Compiègne.",
       civilization: "Américaine",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Armistice_Day%2C_1918_%28BOND-15%29.jpeg/640px-Armistice_Day%2C_1918_%28BOND-15%29.jpeg",
-      active: false
+      active: false,
+      media: undefined
     },
     {
       id: 3,
-      year: 1939, 
+      year: 1939,
       title: "Début de la Seconde Guerre mondiale",
       description: "Le 1er septembre 1939, l'Allemagne nazie envahit la Pologne, déclenchant la Seconde Guerre mondiale. Deux jours plus tard, la France et le Royaume-Uni déclarent la guerre à l'Allemagne.",
       civilization: "Américaine",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Bundesarchiv_Bild_183-H27337%2C_Moskau%2C_Stalin_und_Ribbentrop_im_Kreml.jpg/640px-Bundesarchiv_Bild_183-H27337%2C_Moskau%2C_Stalin_und_Ribbentrop_im_Kreml.jpg",
-      active: false
+      active: false,
+      media: undefined
     },
     {
       id: 4,
@@ -93,7 +110,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       description: "La Seconde Guerre mondiale prend fin en Europe le 8 mai 1945 avec la capitulation de l'Allemagne nazie, puis dans le Pacifique le 2 septembre 1945 avec la reddition du Japon.",
       civilization: "Américaine",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Surrender_of_Japan_-_USS_Missouri.jpg/640px-Surrender_of_Japan_-_USS_Missouri.jpg",
-      active: false
+      active: false,
+      media: undefined
     },
     {
       id: 5,
@@ -102,7 +120,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       description: "La crise des missiles de Cuba est un affrontement entre les États-Unis et l'Union soviétique, survenu du 16 au 28 octobre 1962, considéré comme le moment où la guerre froide a été la plus proche de basculer en guerre nucléaire.",
       civilization: "Américaine",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Cuban-missile-crisis-map.png/640px-Cuban-missile-crisis-map.png",
-      active: false
+      active: false,
+      media: undefined
     },
     {
       id: 6,
@@ -111,7 +130,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       description: "La grande pyramide de Gizeh est construite comme tombeau du pharaon Khéops. C'est la plus ancienne et la plus grande des pyramides de Gizeh.",
       civilization: "Égyptienne",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kheops-Pyramid.jpg/640px-Kheops-Pyramid.jpg",
-      active: false
+      active: false,
+      media: undefined
     },
     {
       id: 7,
@@ -120,7 +140,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       description: "Un petit contingent de Grecs dirigé par le roi Léonidas de Sparte tente de retenir l'avancée de l'immense armée perse de Xerxès Ier.",
       civilization: "Grecque",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Leonidas.jpg/640px-Leonidas.jpg",
-      active: false
+      active: false,
+      media: undefined
     },
     {
       id: 8,
@@ -129,7 +150,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       description: "Sous le règne de l'empereur Trajan, l'Empire romain atteint sa plus grande extension territoriale, couvrant une grande partie de l'Europe, de l'Afrique du Nord et du Moyen-Orient.",
       civilization: "Romaine",
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png",
-      active: false
+      active: false,
+      media: undefined
     }
   ];
   
@@ -139,6 +161,11 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   // État de chargement
   loading = true;
   error: string | null = null;
+  
+  // Événements enrichis
+  enrichedEvents: HistoricalEvent[] = [];
+  
+  selectedMedia: any = null;
   
   constructor(
     private renderer: Renderer2, 
@@ -225,7 +252,8 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
         title: event.title,
         description: event.description,
         civilization: event.civilizationId, // Utiliser l'ID comme nom pour l'instant
-        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png', // Image par défaut
+        image: event.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png', // Image par défaut
+        media: event.media || [], // ✅ Ajouter la propriété media manquante
         active: index === 0 // Premier événement actif par défaut
       };
     });
@@ -360,6 +388,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
           description: event.description || 'Aucune description disponible',
           civilization: event.civilizationId || 'Inconnue',
           image: event.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png/640px-Map_of_the_Roman_Empire_under_Trajan_%28AD_117%29.png',
+          media: event.media || [], // ✅ Ajouter la propriété media manquante
           active: index === 0 // Premier événement actif par défaut
         };
       });
@@ -381,5 +410,67 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
       return null;
     }
     return this.filteredEvents[this.activeEventIndex];
+  }
+  
+  // Nouvelle méthode pour définir les événements enrichis
+  setEnrichedEvents(events: HistoricalEvent[]): void {
+    this.enrichedEvents = events;
+    // Convertir les événements enrichis au format attendu par la timeline
+    this.events = events.map(event => ({
+      id: parseInt(event.id!) || 0, // Convertir string en number
+      title: event.title,
+      description: event.description,
+      year: new Date(event.date).getFullYear(),
+      image: this.getEventImage(event),
+      media: this.getEventMedia(event), // ✅ Ajouter la propriété media manquante
+      civilization: event.civilizationId,
+      active: false
+    }));
+    
+    this.filteredEvents = [...this.events];
+    this.updateActiveEvent();
+    this.cdr.markForCheck();
+  }
+  updateActiveEvent() {
+    // Implémentation de la méthode updateActiveEvent
+    if (this.filteredEvents.length > 0) {
+      // Réinitialiser tous les événements à inactif
+      this.filteredEvents.forEach(event => event.active = false);
+      
+      // Activer le premier événement par défaut
+      this.activeEventIndex = 0;
+      this.filteredEvents[0].active = true;
+      this.currentYear = this.filteredEvents[0].year;
+      
+      // Émettre l'ID de l'événement actif
+      const eventId = this.filteredEvents[0].id;
+      this.eventSelected.emit(typeof eventId === 'string' ? parseInt(eventId) : eventId);
+    }
+  }
+  
+  // Méthode pour extraire l'image principale de l'événement
+  private getEventImage(event: HistoricalEvent): string {
+    // Si l'événement a des médias, prendre le premier
+    if (event.media && event.media.length > 0) {
+      return event.media[0].url || '/assets/default-event.jpg';
+    }
+    return '/assets/default-event.jpg';
+  }
+  
+  // Méthode pour extraire tous les médias de l'événement
+  private getEventMedia(event: HistoricalEvent): any[] {
+    return event.media || [];
+  }
+  
+  // Méthode pour ouvrir le modal des médias
+  openMediaModal(media: any, index: number): void {
+    this.selectedMedia = media;
+    this.cdr.markForCheck();
+  }
+  
+  // Méthode pour fermer le modal des médias
+  closeMediaModal(): void {
+    this.selectedMedia = null;
+    this.cdr.markForCheck();
   }
 }

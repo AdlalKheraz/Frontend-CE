@@ -20,6 +20,8 @@ export const environment = {
         // Events Management
         events: () => `${environment.baseUrl}/api/events`,
         eventById: (id: string) => `${environment.baseUrl}/api/events/${id}`,
+        eventsEnriched: (eventId:string) => `${environment.baseUrl}/api/events/enriched`,
+        eventsEnrichedById: (eventId:string) => `${environment.baseUrl}/api/events/enriched/${eventId}`,
         eventsByCivilization: (civilizationId: string) => 
         `${environment.baseUrl}/api/events/civilization/${civilizationId}`,
         searchEvents: () => `${environment.baseUrl}/api/events/search`, // Nouvel endpoint

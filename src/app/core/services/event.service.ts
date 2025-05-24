@@ -5,6 +5,8 @@ import { environment } from '../../../environments/environment.development';
 import { ApiResponse, LoadingState, StateData } from '../models/api.model';
 
 export interface HistoricalEvent {
+  imageUrl: string;
+  media: any;
   id?: string;
   title: string;
   description: string;
@@ -93,6 +95,64 @@ export class EventService {
           loading: LoadingState.ERROR,
           data: null,
           error: error.message || 'Erreur lors du chargement de l\'événement'
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+  
+  loadEnrichedEventById(eventId: string): Observable<HistoricalEvent> {
+    this.selectedEventState.next({
+      loading: LoadingState.LOADING,
+      data: this.selectedEventState.value.data
+    });
+    
+    return this.http.get<HistoricalEvent>(
+      environment.ENDPOINT.eventsEnrichedById(eventId),
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(response => {
+        if (response) {
+          this.selectedEventState.next({
+            loading: LoadingState.LOADED,
+            data: response
+          });
+        }
+      }),
+      catchError(error => {
+        this.selectedEventState.next({
+          loading: LoadingState.ERROR,
+          data: null,
+          error: error.message || 'Erreur lors du chargement de l\'événement enrichi'
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  loadAllEnrichedEvents(): Observable<HistoricalEvent[]> {
+    this.eventsState.next({
+      loading: LoadingState.LOADING,
+      data: this.eventsState.value.data
+    });
+    
+    return this.http.get<HistoricalEvent[]>(
+      environment.ENDPOINT.eventsEnriched(''),
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(response => {
+        if (response) {
+          this.eventsState.next({
+            loading: LoadingState.LOADED,
+            data: response
+          });
+        }
+      }),
+      catchError(error => {
+        this.eventsState.next({
+          loading: LoadingState.ERROR,
+          data: [],
+          error: error.message || 'Erreur lors du chargement des événements enrichis'
         });
         return throwError(() => error);
       })

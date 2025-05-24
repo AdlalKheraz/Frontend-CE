@@ -8,6 +8,7 @@ import { LoadingState } from '@core/models/api.model'; // Importez également le
 import { Civilization, CivilizationService } from '@core/services/civilization.service'; // Ajout de cette ligne
 import { Comment, CommentService } from '@core/services/comment.service'; // Importez le service et l'interface
 import { FilterService } from '@core/services/filter.service';
+import { EventService } from '@core/services/event.service'; // Ajout de l'import
 import { Subscription } from 'rxjs';
 import { TimeLineScrolleComponent } from './TimeLineScrolle/TimeLineScrolle.component';
 import { generateAvatar } from '@core/avatar/avatar.lib';
@@ -93,6 +94,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     private civilizationService: CivilizationService=inject(CivilizationService)
     // Injecter le service
     private filterService = inject(FilterService);
+    private eventService = inject(EventService); // Injection du service
 
     private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -182,6 +184,9 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 this.cdr.markForCheck();
             })
         );
+
+        // Charger les événements enrichis au lieu des événements normaux
+        this.loadEnrichedEvents();
     }
 
     ngAfterViewInit(): void {
@@ -896,5 +901,23 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 event.preventDefault();
             }
         }
+    }
+
+    // Nouvelle méthode pour charger les événements enrichis
+    loadEnrichedEvents(): void {
+        this.eventService.loadAllEnrichedEvents().subscribe({
+            next: (enrichedEvents) => {
+                console.log('Événements enrichis chargés:', enrichedEvents);
+                // Transmettre les événements enrichis au composant Timeline
+                if (this.timelineComponent) {
+                    this.timelineComponent.setEnrichedEvents(enrichedEvents);
+                }
+                this.cdr.markForCheck();
+            },
+            error: (error) => {
+                console.error('Erreur lors du chargement des événements enrichis:', error);
+                this.cdr.markForCheck();
+            }
+        });
     }
 }
