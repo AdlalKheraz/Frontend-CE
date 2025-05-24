@@ -42,8 +42,12 @@
         </div>
     </div>
     
-    <!-- Grande image à droite avec texte descriptif -->
+    <!-- Image à droite cliquable qui montre un aperçu de la timeline home -->
     <div class="image-container" (click)="navigateToHome()" [ngClass]="{'expanding': isTransitioning}">
+        <!-- Image de fond dynamique basée sur l'événement -->
+        <div class="background-image" 
+             [style.background-image]="(firstEvent$ | async)?.medias[0].url ? 'url(' + (firstEvent$ | async)?.medias[0].url + ')' : 'url(assets/images/default-event-bg.jpg)'">
+        </div>
         
         <div class="event-content" *ngIf="firstEvent$ | async as firstEvent; else defaultContent">
             <h1 class="event-title">{{ firstEvent.title }}</h1>

@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Even
 import { Subscription, fromEvent } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 import { LoadingState } from '../../core/models/api.model';
-import { EventService, HistoricalEvent } from '../../core/services/event.service';
 import { Civilization } from '../../core/services/civilization.service'; // Ajout de l'import
+import { EventService, HistoricalEvent } from '../../core/services/event.service';
 
 // Modèle d'événement historique
 export interface TimelineEvent {
@@ -62,6 +62,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   @Output() eventSelected = new EventEmitter<number>();
 
   @ViewChild('timelineContainer') timelineContainer!: ElementRef;
+  @ViewChild('timelineTrack') timelineTrack!: ElementRef;
   
   private _selectedCivilization: string = 'Toutes';
   private subscriptions = new Subscription();
@@ -71,6 +72,7 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   
   activeEventIndex = 0;
   currentYear: number = 0;
+  timelineOffset: number = 0;
   
   // Source de données pour tous les événements avec images placeholders
   allEvents: TimelineEvent[] = [];
@@ -109,6 +111,19 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
             this.handleGlobalScroll(event);
           });
         });
+    });
+    
+    // Ajouter un écouteur pour le redimensionnement de la fenêtre
+    this.ngZone.runOutsideAngular(() => {
+      const resizeSubscription = fromEvent(window, 'resize')
+        .pipe(throttleTime(100))
+        .subscribe(() => {
+          this.ngZone.run(() => {
+            this.updateTimelineOffset();
+            this.cdr.detectChanges();
+          });
+        });
+      this.subscriptions.add(resizeSubscription);
     });
   }
   
@@ -228,68 +243,89 @@ export class TimeLineScrolleComponent implements OnInit, OnDestroy {
   }
   
   setActiveEvent(index: number) {
-    console.log('Setting active event:', index);
+    // Désactiver tous les événements
+    this.filteredEvents.forEach(event => event.active = false);
     
-    // Désactiver l'événement actuel
-    if (this.filteredEvents[this.activeEventIndex]) {
-      this.filteredEvents[this.activeEventIndex].active = false;
-    }
-    
-    // Mettre à jour l'index actif
-    this.activeEventIndex = index;
-    
-    // Activer le nouvel événement
-    if (this.filteredEvents[this.activeEventIndex]) {
-      this.filteredEvents[this.activeEventIndex].active = true;
-      this.currentYear = this.filteredEvents[this.activeEventIndex].year;
+    // Activer l'événement sélectionné
+    if (this.filteredEvents[index]) {
+      this.filteredEvents[index].active = true;
+      this.activeEventIndex = index;
+      this.currentYear = this.filteredEvents[index].year;
       
-      // Émettre l'ID de l'événement
-      const eventId = this.filteredEvents[this.activeEventIndex].id;
-      console.log(`Émission de l'ID d'événement: ${eventId}`);
-      this.eventSelected.emit(eventId);
+      // Calculer l'offset pour centrer l'événement actif
+      this.updateTimelineOffset();
+      
+      // Émettre l'événement sélectionné
+      this.eventSelected.emit(this.filteredEvents[index].id);
+      
+      // Forcer la détection des changements
+      this.cdr.detectChanges();
     }
+  }
+  
+  // Méthode pour calculer l'offset de la timeline
+  private updateTimelineOffset() {
+    if (!this.timelineTrack || !this.timelineContainer) return;
     
-    this.cdr.detectChanges();
+    // Utiliser la hauteur réelle du viewport (window) pour un centrage dynamique
+    const viewportHeight = window.innerHeight;
+    const centerPosition = viewportHeight / 2;
+    
+    // Obtenir la position du conteneur timeline par rapport au viewport
+    const containerRect = this.timelineContainer.nativeElement.getBoundingClientRect();
+    const containerTop = containerRect.top;
+    
+    // Calculer le centre relatif au conteneur timeline
+    const relativeCenterPosition = centerPosition - containerTop;
+    
+    // Hauteur approximative d'un item avec le nouveau style (padding + margin + contenu)
+    const itemHeight = 46; // 15px padding top + 15px padding bottom + 8px margin top + 8px margin bottom
+    
+    // Position de l'événement actif dans la liste (centre du dot)
+    const activeItemPosition = this.activeEventIndex * itemHeight + (itemHeight / 2);
+    
+    // Calculer l'offset pour que le centre du dot de l'événement actif soit exactement au centre du viewport
+    this.timelineOffset = relativeCenterPosition - activeItemPosition;
+    
+    // Optionnel: Limiter l'offset pour éviter que la timeline sorte trop des limites
+    const totalTimelineHeight = this.filteredEvents.length * itemHeight;
+    const containerHeight = this.timelineTrack.nativeElement.clientHeight;
+    const maxOffset = relativeCenterPosition - (itemHeight / 2);
+    const minOffset = relativeCenterPosition - totalTimelineHeight + (itemHeight / 2);
+    
+    // Appliquer les limites seulement si nécessaire pour éviter les espaces vides
+    if (totalTimelineHeight > containerHeight) {
+      this.timelineOffset = Math.max(minOffset, Math.min(maxOffset, this.timelineOffset));
+    }
   }
   
   filterEvents() {
-    if (this.allEvents.length === 0) {
-      this.filteredEvents = [];
-      this.error = 'Aucun événement à afficher';
-      this.cdr.detectChanges();
-      return;
-    }
-    
     if (this._selectedCivilization === 'Toutes') {
       this.filteredEvents = [...this.allEvents];
     } else {
-      // Maintenant on compare les noms de civilisation
-      this.filteredEvents = this.allEvents.filter(
-        event => event.civilization === this._selectedCivilization
+      this.filteredEvents = this.allEvents.filter(event => 
+        event.civilization === this._selectedCivilization
       );
     }
     
-    // Si après filtrage, il ne reste aucun événement
-    if (this.filteredEvents.length === 0) {
-      this.error = `Aucun événement trouvé pour la civilisation "${this._selectedCivilization}"`;
-      this.cdr.detectChanges();
-      return;
-    }
-    
-    // Réinitialiser l'erreur s'il y a des événements
-    this.error = null;
+    // Trier par année
+    this.filteredEvents.sort((a, b) => a.year - b.year);
     
     // Réinitialiser l'événement actif
-    this.activeEventIndex = 0;
-    this.filteredEvents.forEach((event, index) => {
-      event.active = index === 0;
-    });
-    
+    this.filteredEvents.forEach(event => event.active = false);
     if (this.filteredEvents.length > 0) {
+      this.filteredEvents[0].active = true;
+      this.activeEventIndex = 0;
       this.currentYear = this.filteredEvents[0].year;
+      
+      // Recalculer l'offset de la timeline
+      setTimeout(() => {
+        this.updateTimelineOffset();
+        this.cdr.detectChanges();
+      }, 0);
     }
     
-    this.cdr.detectChanges();
+    console.log('Événements filtrés:', this.filteredEvents);
   }
   
   onYearClick(index: number) {

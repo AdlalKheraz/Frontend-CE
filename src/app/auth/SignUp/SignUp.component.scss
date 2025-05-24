@@ -158,59 +158,83 @@
 
   .image-container {
     flex: 1;
+    position: relative;
     background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.9) 0%,
-    rgba(0, 0, 0, 0.6) 30%,
-    rgba(0, 0, 0, 0.3) 60%,
-    rgba(0, 0, 0, 0.4) 100%
-      ),
-      url('../../../../public/leonard-de-vinci-portrait-de-monna-lisa-dite-la-joconde.jpg');
+      to top,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.6) 30%,
+      rgba(0, 0, 0, 0.3) 60%,
+      rgba(0, 0, 0, 0.4) 100%
+  );
     background-size: cover;
     background-position: center;
-  color: white;
+    color: white;
     position: relative;
-  cursor: pointer;
-  overflow: hidden;
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), flex 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  
-  &:hover .preview-overlay {
-    opacity: 1;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.3s ease, flex 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    
+    &:hover {
+      transform: scale(1.01);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+      
+      .preview-overlay {
+        opacity: 1;
+      }
+    }
+    
+    &.expanding {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      flex: none;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      border-radius: 0;
+      transform: scale(1.2);
+      transition: transform 0.4s ease-out, width 0.4s ease-out, height 0.4s ease-out;
+      
+      .preview-overlay {
+        opacity: 0;
+        transition: opacity 0.1s ease;
+      }
+      
+      .event-content {
+        opacity: 0;
+        transition: opacity 0.1s ease;
+      }
+    }
   }
 
-  &.expanding {
+  .background-image {
     position: absolute;
     top: 0;
-    right: 0;
-    bottom: 0;
     left: 0;
-    transform: scale(1.2);
-    z-index: 10;
-    border-radius: 0;
-    
-    .preview-overlay {
-      opacity: 0;
-    }
-    
-    .event-content {
-      opacity: 0;
-      transform: translateY(50px);
-    }
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
   }
-}
 
-.event-content {
-  padding: 3rem;
-  max-width: 500px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  transition: transform 0.6s ease, opacity 0.6s ease;
-}
+  .event-content {
+    padding: 2rem;
+    max-width: 500px;
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    right: 2rem;
+    z-index: 2;
+    border-radius: 12px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    transition: transform 0.6s ease, opacity 0.6s ease;
+  }
 
 .event-title {
   font-size: 2.8rem;
@@ -334,4 +358,19 @@
 .transition-active .signup-form {
   transform: translateX(-100%);
   opacity: 0;
+}
+
+@keyframes expandToFullContainer {
+  0% {
+    transform: scale(1);
+    border-radius: 20px;
+  }
+  50% {
+    transform: scale(1.05);
+    border-radius: 10px;
+  }
+  100% {
+    transform: scale(1);
+    border-radius: 0;
+  }
 }

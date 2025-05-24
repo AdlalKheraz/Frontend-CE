@@ -130,9 +130,9 @@ export class SignUpComponent implements OnInit {
     this.isTransitioning = true;
     this.cdr.markForCheck();
     
-    // Laisser le temps à l'animation de se dérouler avant de naviguer
+    // Navigation plus rapide pour synchroniser avec l'animation
     setTimeout(() => {
       this.router.navigate(['/home']);
-    }, 1200);
+    }, 300);
   }
 }
