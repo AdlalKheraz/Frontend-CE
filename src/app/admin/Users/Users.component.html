@@ -213,7 +213,7 @@
   </div>
   
   <!-- User Details Modal -->
-  <dialog id="user_modal" class="modal">
+  <dialog id="user_modal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box w-11/12 max-w-3xl">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -244,7 +244,7 @@
               >
                 {{ selectedUser.role || 'USER' }}
               </span>
-            </div>
+             </div>
           </div>
           
           <div class="divider"></div>
@@ -296,7 +296,7 @@
               Delete User
             </button>
             <button 
-              class="btn btn-sm btn-primary"
+              class="btn btn-sm"
               (click)="closeUserDetails()"
             >
               Close
@@ -304,13 +304,12 @@
           </div>
         </div>
       </div>
-      
-      <!-- Contenu du modal principal - seulement les détails de l'utilisateur -->
     </div>
+    <div class="modal-backdrop" (click)="closeUserDetails()"></div>
   </dialog>
 
   <!-- Edit Role Modal -->
-  <dialog id="edit_role_modal" class="modal">
+  <dialog id="edit_role_modal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box w-11/12 max-w-md">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -351,10 +350,11 @@
         </div>
       </div>
     </div>
+    <div class="modal-backdrop" (click)="cancelEditRole()"></div>
   </dialog>
 
   <!-- Edit User Modal -->
-  <dialog id="edit_user_modal" class="modal">
+  <dialog id="edit_user_modal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box w-11/12 max-w-md">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -419,10 +419,11 @@
         </div>
       </div>
     </div>
+    <div class="modal-backdrop" (click)="cancelEditUser()"></div>
   </dialog>
 
   <!-- Delete Confirmation Modal -->
-  <dialog id="delete_user_modal" class="modal">
+  <dialog id="delete_user_modal" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box w-11/12 max-w-md">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -455,23 +456,14 @@
         </div>
       </div>
     </div>
+    <div class="modal-backdrop" (click)="cancelDeleteUser()"></div>
   </dialog>
 
   <!-- Notification Toast -->
-  <div *ngIf="showNotification" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-50">
-    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-lg flex items-start max-w-md">
-      <div class="flex-shrink-0 mr-3">
-        <svg *ngIf="notificationSuccess" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-        </svg>
-        <svg *ngIf="!notificationSuccess" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-        </svg>
-      </div>
+  <div *ngIf="showNotification" class="toast toast-bottom toast-center z-[1000]">
+    <div [class]="notificationSuccess ? 'alert alert-success' : 'alert alert-error'">
       <div>
-        <p class="text-sm font-medium" [class.text-green-700]="notificationSuccess" [class.text-red-700]="!notificationSuccess">
-          {{ notificationMessage }}
-        </p>
+        <span>{{ notificationMessage }}</span>
       </div>
     </div>
   </div>
