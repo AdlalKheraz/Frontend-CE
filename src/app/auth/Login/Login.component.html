@@ -31,7 +31,7 @@
     <div class="image-container" (click)="navigateToHome()" [ngClass]="{'expanding': isTransitioning}">
         <!-- Image de fond dynamique basée sur l'événement -->
         <div class="background-image" 
-             [style.background-image]="(firstEvent$ | async)?.medias[0].url ? 'url(' + (firstEvent$ | async)?.medias[0].url + ')' : 'url(assets/images/default-event-bg.jpg)'">
+             [style.background-image]="(firstEvent$ | async)?.medias[0].url ? 'url(' + (firstEvent$ | async)?.medias[0].url + ')' : 'url(public/leonard-de-vinci-portrait-de-monna-lisa-dite-la-joconde.jpg)'">
         </div>
         
         <div class="event-content" *ngIf="firstEvent$ | async as firstEvent; else defaultContent">

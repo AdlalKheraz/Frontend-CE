@@ -72,7 +72,6 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
       description: ['', Validators.required],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
-      imageUrl: [''],
       achievements: [[]],
       notableEvents: [[]]
     });

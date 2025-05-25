@@ -359,7 +359,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                     this.router.navigate(['/login']);
                 }, 500);
             } else {
-                this.text= this.text === 'Cliquer' ? 'Anuller' : 'Cliquer';
+                this.text= this.text === 'Cliquer' ? 'Annuler' : 'Cliquer';
                 
                 // ✅ Fermer la dynamic island avant d'afficher les détails
                 this.islandExpanded = false;
