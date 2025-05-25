@@ -161,6 +161,8 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
         next: () => {
           this.showDeleteConfirmation = false;
           this.civilizationToDelete = null;
+          this.loadCivilizations(); // Reload civilizations after deletion
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Error deleting civilization:', err);
@@ -197,6 +199,8 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
           next: () => {
             this.closeModal();
             this.isSubmitting = false;
+            this.loadCivilizations(); // Reload civilizations after update
+            this.cdr.markForCheck();
           },
           error: (error: Error) => {
             console.error('Error updating civilization:', error);
@@ -210,6 +214,8 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
           next: () => {
             this.closeModal();
             this.isSubmitting = false;
+            this.loadCivilizations(); // Reload civilizations after createCivilization
+            this.cdr.markForCheck();
           },
           error: (error: Error) => {
             console.error('Error creating civilization:', error);
