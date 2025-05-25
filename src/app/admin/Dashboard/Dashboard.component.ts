@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@app/core/auth/auth.service';
-import { CivilizationService } from '@app/core/services/civilization.service';
+import { Civilization, CivilizationService } from '@app/core/services/civilization.service';
 import { CommentService } from '@app/core/services/comment.service';
 import { EventService } from '@app/core/services/event.service';
-import { Subject, catchError, forkJoin, of, takeUntil } from 'rxjs';
+import { Subject, catchError, combineLatest, forkJoin, of, takeUntil } from 'rxjs';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 @Component({
@@ -38,6 +38,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     
     // Commentaires récents
     recentComments: any[] = [];
+    
+    // Civilisations chargées
+    civilizations: Civilization[] = [];
     
     // États de chargement
     loading = {
@@ -91,21 +94,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     private loadDashboardData(): void {
-        // Charger les statistiques générales
+        // Charger les statistiques générales et les civilisations
         this.loadOverviewStats();
         
-        // Charger les événements récents
+        // Charger les événements récents et les commentaires
         this.loadRecentEvents();
-        
-        // Charger les commentaires récents
         this.loadRecentComments();
         
-        // Charger les civilisations
-        this.loadCivilizations();
+        // Synchroniser le chargement des événements et civilisations pour générer les données
+        this.synchronizeEventsAndCivilizations();
     }
 
     private loadOverviewStats(): void {
         this.loading.overview = true;
+        this.loading.civilizations = true;
         
         // Utiliser forkJoin pour combiner plusieurs requêtes en une seule réponse
         forkJoin({
@@ -122,17 +124,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.totalComments = results.comments.length || 0;
                 this.totalCivilizations = results.civilizations.length || 0;
                 
+                // Stocker les civilisations
+                this.civilizations = results.civilizations;
+                
                 // Simuler les vues de page et favoris
                 this.totalPageViews = this.totalEvents * 15 + 100;
                 this.totalFavorites = Math.floor(this.totalEvents * 0.4);
                 
                 this.loading.overview = false;
+                this.loading.civilizations = false;
                 this.cdr.markForCheck();
             },
             error: (err) => {
                 console.error('Erreur lors du chargement des statistiques', err);
                 this.error = 'Erreur lors du chargement des données du dashboard';
                 this.loading.overview = false;
+                this.loading.civilizations = false;
                 this.cdr.markForCheck();
             }
         });
@@ -152,9 +159,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     
                     this.loading.events = false;
                     this.cdr.markForCheck();
-                    
-                    // Générer des données pour le graphique des événements par civilisation
-                    this.generateEventsPerCivilizationData(events);
                 },
                 error: (err) => {
                     console.error('Erreur lors du chargement des événements récents', err);
@@ -192,21 +196,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
             });
     }
 
-    private loadCivilizations(): void {
-        this.loading.civilizations = true;
-        
-        this.civilizationService.loadAllCivilizations()
-            .pipe(takeUntil(this.destroy$))
+    private synchronizeEventsAndCivilizations(): void {
+        combineLatest([
+            this.eventService.loadAllEnrichedEvents().pipe(catchError(() => of([]))),
+            this.civilizationService.loadAllCivilizations().pipe(catchError(() => of([])))
+        ]).pipe(takeUntil(this.destroy$))
             .subscribe({
-                next: (civilizations) => {
-                    // Stocker les civilisations pour utilisation ultérieure
-                    this.loading.civilizations = false;
-                    this.cdr.markForCheck();
+            next: ([events, civilizations]) => {
+                this.civilizations = civilizations;
+                this.generateEventsPerCivilizationData(events);
                 },
                 error: (err) => {
-                    console.error('Erreur lors du chargement des civilisations', err);
-                    this.loading.civilizations = false;
-                    this.cdr.markForCheck();
+                console.error('Erreur lors de la synchronisation des données', err);
                 }
             });
     }
@@ -223,13 +224,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
             eventCountsByCiv[civId]++;
         });
         
-        // Convertir en tableau pour l'affichage
+        // Convertir en tableau pour l'affichage avec les vrais noms des civilisations
         this.eventsPerCivilization = Object.entries(eventCountsByCiv).map(([id, count]) => ({
-            name: `Civilisation ${id}`,
+            name: this.getCivilizationName(id),
             count
         }));
         
+        // Trier par nombre d'événements décroissant
+        this.eventsPerCivilization.sort((a, b) => b.count - a.count);
+        
         this.cdr.markForCheck();
+    }
+
+    // Méthode pour obtenir le nom d'une civilisation par son ID
+    getCivilizationName(civilizationId: string | number): string {
+        if (!civilizationId || civilizationId === 'Autres') {
+            return 'Autres';
+        }
+        
+        const civilization = this.civilizations.find(civ => civ.id?.toString() === civilizationId.toString());
+        return civilization ? civilization.name : `Civilisation ${civilizationId}`;
     }
 
     // Navigation

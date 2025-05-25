@@ -3,10 +3,10 @@
     <div class="login-form">
         <div class="login-form-content">
             <h2 class="form-title">Email</h2>
-            <input type="email" name="email" [(ngModel)]="email" placeholder="Example@email.com" class="form-input" required/>
+            <input type="email" name="email" [(ngModel)]="email" placeholder="exemple@email.com" class="form-input" required/>
             
-            <h2 class="form-title">Password</h2>
-            <input type="password" name="password" [(ngModel)]="password" placeholder="at least 8 characters" class="form-input" required/>
+            <h2 class="form-title">Mot de passe</h2>
+            <input type="password" name="password" [(ngModel)]="password" placeholder="au moins 8 caractères" class="form-input" required/>
             
             <!-- Message d'erreur -->
             <div *ngIf="errorMessage" class="error-message">
@@ -14,15 +14,15 @@
             </div>
             
             <div class="form-actions">
-                <button type="button" class="sign-in-btn" (click)="onLogin($event)" [disabled]="isLoading">
-                    <span *ngIf="!isLoading">Sign in</span>
-                    <span *ngIf="isLoading" class="loading-spinner"></span>
-                </button>
+                            <button type="button" class="sign-in-btn" (click)="onLogin($event)" [disabled]="isLoading">
+                <span *ngIf="!isLoading">Se connecter</span>
+                <span *ngIf="isLoading" class="loading-spinner"></span>
+            </button>
             </div>
             
             <div class="register-link">
-                <span>Don't you have an account? </span>
-                <a routerLink="/register" class="sign-up-link">Sign up</a>
+                <span>Vous n'avez pas de compte ? </span>
+                <a routerLink="/register" class="sign-up-link">S'inscrire</a>
             </div>
         </div>
     </div>
@@ -60,7 +60,7 @@
                         <line x1="3" y1="21" x2="10" y2="14"></line>
                     </svg>
                 </span>
-                <span>Click to explore the timeline</span>
+                <span>Cliquez pour explorer la chronologie</span>
             </div>
         </div>
     </div>

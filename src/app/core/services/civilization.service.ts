@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, tap, throwError } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { ApiResponse, LoadingState, PaginatedResponse, StateData } from '../models/api.model';
+import { LoadingState, StateData } from '../models/api.model';
 
 export interface Civilization {
   id?: string;
@@ -49,8 +49,7 @@ export class CivilizationService {
     });
     
     return this.http.get<Civilization[]>(
-      environment.ENDPOINT.civilizations(),
-      { headers: this.getHeaders() }
+      environment.ENDPOINT.civilizations()
     ).pipe(
       tap(response => {
         if (response) {
@@ -78,8 +77,8 @@ export class CivilizationService {
     });
     
     return this.http.get<Civilization>(
-      environment.ENDPOINT.civilizationById(id),
-      { headers: this.getHeaders() }
+      environment.ENDPOINT.civilizationById(id)
+      // Remove headers for public endpoint
     ).pipe(
       tap(response => {
         if (response) {
@@ -192,8 +191,8 @@ export class CivilizationService {
     return this.http.get<Civilization[]>(
       environment.ENDPOINT.civilizations(),
       { 
-        headers: this.getHeaders(),
         params: httpParams
+        // Remove headers for public endpoint
       }
     ).pipe(
       tap(response => {

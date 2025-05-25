@@ -35,7 +35,7 @@
                                             <circle cx="12" cy="7" r="4"></circle>
                                         }
                                     </svg>
-                                    <span>{{ isAdmin ? 'Dashboard' : 'Profil' }}</span>
+                                    <span>{{ isAdmin ? 'Tableau de bord' : 'Profil' }}</span>
                                 </a>
                                 <a class="menu-item logout-item" (click)="logout()">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -138,7 +138,19 @@
 
                                 <!-- Vidéo principale -->
                                 <div *ngIf="timelineComponent.getActiveEvent().medias[0].type === 'VIDEO'" class="featured-video">
-                                    <video *ngIf="isValidVideoUrl(timelineComponent.getActiveEvent().medias[0].url)"
+                                    <!-- YouTube iframe -->
+                                    <div *ngIf="isYouTubeUrl(timelineComponent.getActiveEvent().medias[0].url)" class="youtube-container">
+                                        <iframe [src]="getSafeYoutubeUrl(timelineComponent.getActiveEvent().medias[0].url)"
+                                                class="main-media-element youtube-player"
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                allowfullscreen
+                                                loading="lazy">
+                                        </iframe>
+                                    </div>
+                                    
+                                    <!-- Vidéo standard -->
+                                    <video *ngIf="!isYouTubeUrl(timelineComponent.getActiveEvent().medias[0].url) && isValidVideoUrl(timelineComponent.getActiveEvent().medias[0].url)"
                                            [src]="timelineComponent.getActiveEvent().medias[0].url"
                                            class="main-media-element video-player"
                                            controls
@@ -219,9 +231,28 @@
 
                                     <!-- Miniature de vidéo -->
                                     <div *ngIf="media.type === 'VIDEO'" class="gallery-thumbnail video-thumbnail">
-                                        <video [src]="media.url" class="thumbnail-video" preload="metadata" muted>
+                                        <!-- YouTube thumbnail -->
+                                        <div *ngIf="isYouTubeUrl(media.url)" class="youtube-thumbnail-container">
+                                            <img [src]="getYouTubeThumbnail(media.url)" 
+                                                 [alt]="media.title || 'YouTube Video'"
+                                                 class="thumbnail-video youtube-thumb-image"
+                                                 (click)="openYouTubeVideo(media.url); $event.stopPropagation()">
+                                            <div class="youtube-play-overlay">
+                                                <svg class="youtube-play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M8 5v14l11-7z"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Vidéo standard thumbnail -->
+                                        <video *ngIf="!isYouTubeUrl(media.url)" 
+                                               [src]="media.url" 
+                                               class="thumbnail-video" 
+                                               preload="metadata" 
+                                               muted>
                                         </video>
-                                        <div class="thumbnail-overlay">
+                                        
+                                        <div class="thumbnail-overlay" *ngIf="!isYouTubeUrl(media.url)">
                                             <svg class="thumbnail-icon play-icon" viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M8 5v14l11-7z"/>
                                             </svg>
@@ -260,16 +291,6 @@
                                 <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
                             </svg>
                             Voir les commentaires
-                        </button>
-                        <button class="action-btn share-btn" (click)="$event.stopPropagation();">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="18" cy="5" r="3"></circle>
-                                <circle cx="6" cy="12" r="3"></circle>
-                                <circle cx="18" cy="19" r="3"></circle>
-                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                            </svg>
-                            Partager
                         </button>
                     </div>
                 </div>

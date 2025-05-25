@@ -156,7 +156,7 @@
 									"path": ["api", "civilizations"]
 								}
 							},
-							"description": "Récupère toutes les civilisations au format DTO (id, name, description, period) sans les événements associés"
+							"description": "Récupère toutes les civilisations au format DTO (id, name, description, startDate, endDate) sans les événements associés"
 						},
 						{
 							"name": "Get Civilization by ID",
@@ -169,7 +169,7 @@
 									"path": ["api", "civilizations", "{{civilizationId}}"]
 								}
 							},
-							"description": "Récupère une civilisation spécifique au format DTO (id, name, description, period) sans les événements associés"
+							"description": "Récupère une civilisation spécifique au format DTO (id, name, description, startDate, endDate) sans les événements associés"
 						}
 					]
 				},
@@ -647,7 +647,7 @@
 									"path": ["api", "civilizations"]
 								}
 							},
-							"description": "Crée une nouvelle civilisation et retourne un DTO avec (id, name, description, period)"
+							"description": "Crée une nouvelle civilisation et retourne un DTO avec (id, name, description, startDate, endDate)"
 						},
 						{
 							"name": "Update Civilization",
@@ -673,7 +673,7 @@
 									"path": ["api", "civilizations", "{{civilizationId}}"]
 								}
 							},
-							"description": "Met à jour une civilisation existante et retourne un DTO avec (id, name, description, period)"
+							"description": "Met à jour une civilisation existante et retourne un DTO avec (id, name, description, startDate, endDate)"
 						},
 						{
 							"name": "Delete Civilization",

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { SearchParams } from '@app/shared/interfaces/search-params.interface';
 import { AuthService } from '@core/auth/auth.service';
@@ -95,6 +96,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     // Injecter le service
     private filterService = inject(FilterService);
     private eventService = inject(EventService); // Injection du service
+    private sanitizer = inject(DomSanitizer);
 
     private cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
 
@@ -467,19 +469,19 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             console.warn('🏛️ Timeline component non disponible');
         }
 
-        // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses événements
+        // Si une civilisation spécifique est sélectionnée (pas "Toutes"), charger ses événements enrichis
         if (civ !== 'Toutes') {
             const selectedCiv = this.getCivilizationByName(civ);
             console.log('🏛️ Civilisation trouvée:', selectedCiv);
             if (selectedCiv && selectedCiv.id) {
-                // Charger les événements de cette civilisation
-                console.log('🏛️ Chargement des événements pour la civilisation:', selectedCiv.id);
-                this.eventService.loadEventsByCivilization(selectedCiv.id).subscribe({
+                // ✅ FIX: Charger les événements ENRICHIS de cette civilisation (avec médias)
+                console.log('🏛️ Chargement des événements enrichis pour la civilisation:', selectedCiv.id);
+                this.eventService.loadEnrichedEventsByCivilization(selectedCiv.id).subscribe({
                     next: (events) => {
-                        console.log('🏛️ Événements chargés pour la civilisation:', events.length, 'événements');
+                        console.log('🏛️ Événements enrichis chargés pour la civilisation:', events.length, 'événements');
                     },
                     error: (error) => {
-                        console.error('🏛️ Erreur lors du chargement des événements:', error);
+                        console.error('🏛️ Erreur lors du chargement des événements enrichis:', error);
                     }
                 });
             }
@@ -770,10 +772,10 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             
             // Attendre la fin de l'animation avant de changer l'état
             setTimeout(() => {
-                this.islandExpanded = false;
+            this.islandExpanded = false;
                 islandElement.classList.remove('closing');
-                this.cdr.markForCheck();
-                this.islandAnimationTimeout = null;
+            this.cdr.markForCheck();
+            this.islandAnimationTimeout = null;
             }, 400); // Durée réduite pour correspondre à l'animation CSS
         }
     }
@@ -940,12 +942,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
 
     // Méthode pour fermer le panneau des civilisations
     hideCivilizationsPanel(): void {
-        this.civilizationsPanelOpen = false;
+            this.civilizationsPanelOpen = false;
         // Si aucun autre panneau n'est ouvert, fermer l'island
         if (!this.userMenuOpen && !this.searchOpen) {
             this.islandExpanded = false;
         }
-        this.cdr.markForCheck();
+            this.cdr.markForCheck();
     }
 
     // Méthode pour afficher la recherche au survol
@@ -973,15 +975,15 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     closeAllPanels(): void {
         // Animer la fermeture des panneaux d'abord
         this.closeWithAnimation(() => {
-            this.civilizationsPanelOpen = false;
-            this.searchOpen = false;
-            this.userMenuOpen = false;
-            this.closeComments();
+        this.civilizationsPanelOpen = false;
+        this.searchOpen = false;
+        this.userMenuOpen = false;
+        this.closeComments();
             
             // Puis animer la fermeture de l'island
             this.animateIslandClose();
-            
-            this.cdr.markForCheck();
+        
+        this.cdr.markForCheck();
         });
     }
 
@@ -1003,8 +1005,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
                 }, 400); // Durée de l'animation de fermeture
             } else {
                 // Fallback si l'élément n'est pas trouvé
-                this.commentsOpen = false;
-                this.cdr.markForCheck();
+            this.commentsOpen = false;
+            this.cdr.markForCheck();
             }
         }
     }
@@ -1116,8 +1118,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
     handleKeyDown(event: KeyboardEvent): void {
         if (event.key === 'Escape') {
             this.closeAllPanels();
-            if (this.detailsVisible) {
-                this.hideDetails();
+                if (this.detailsVisible) {
+                    this.hideDetails();
             }
         }
     }
@@ -1152,13 +1154,53 @@ export class HomeComponent implements AfterViewInit, OnDestroy, OnInit {
             url.toLowerCase().includes(ext)
         );
         
-        // Vérifier les domaines de streaming courants
-        const streamingDomains = ['youtube.com', 'vimeo.com', 'dailymotion.com'];
+        // Vérifier les domaines de streaming courants (mais pas YouTube car on utilise iframe)
+        const streamingDomains = ['vimeo.com', 'dailymotion.com'];
         const isStreamingUrl = streamingDomains.some(domain => 
             url.toLowerCase().includes(domain)
         );
         
         return hasValidExtension || isStreamingUrl || url.startsWith('blob:') || url.startsWith('data:');
+    }
+
+    // Méthode pour vérifier si c'est une URL YouTube
+    isYouTubeUrl(url: string): boolean {
+        if (!url) return false;
+        return url.includes('youtube.com') || url.includes('youtu.be');
+    }
+
+    // Méthode pour obtenir l'URL YouTube sécurisée pour iframe
+    getSafeYoutubeUrl(url: string): SafeResourceUrl {
+        let embedUrl = url;
+        
+        // Convertir les URLs YouTube en format embed avec autoplay
+        if (url.includes('youtube.com/watch?v=')) {
+            const videoId = url.split('v=')[1]?.split('&')[0];
+            embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`;
+        } else if (url.includes('youtu.be/')) {
+            const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+            embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`;
+        }
+        
+        return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+    }
+
+    // Méthode pour obtenir la miniature YouTube
+    getYouTubeThumbnail(url: string): string {
+        let videoId = '';
+        
+        if (url.includes('youtube.com/watch?v=')) {
+            videoId = url.split('v=')[1]?.split('&')[0];
+        } else if (url.includes('youtu.be/')) {
+            videoId = url.split('youtu.be/')[1]?.split('?')[0];
+        }
+        
+        return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
+    }
+
+    // Méthode pour ouvrir une vidéo YouTube dans un nouvel onglet
+    openYouTubeVideo(url: string): void {
+        window.open(url, '_blank');
     }
 
     // Méthode pour obtenir la longueur d'une description (en mots)

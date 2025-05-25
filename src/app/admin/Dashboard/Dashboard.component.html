@@ -23,7 +23,7 @@
     <div *ngIf="!loading.overview || !loading.events || !loading.comments">
       <!-- Top Navigation -->
       <div class="flex justify-between items-center p-6">
-        <h1 class="text-2xl font-bold">Dashboard</h1>
+        <h1 class="text-2xl font-bold">Tableau de bord</h1>
         <div>
           <span class="text-sm text-gray-500">{{ formatDate(todayDate) }}</span>
         </div>
@@ -44,7 +44,7 @@
             <div class="bg-pink-100 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div class="w-10 h-10 rounded-full bg-pink-200 flex items-center justify-center">
-                  <div class="w-6 h-6 text-pink-500">
+                  <div class="w-5 h-5 text-pink-500">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -59,7 +59,7 @@
             <div class="bg-amber-50 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                  <div class="w-6 h-6 text-amber-500">
+                  <div class="w-5 h-5 text-amber-500">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -75,7 +75,7 @@
             <div class="bg-green-100 rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center">
-                  <div class="w-6 h-6 text-green-500">
+                  <div class="w-5 h-5 text-green-500">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                     </svg>
@@ -116,7 +116,11 @@
                 <tbody>
                   <tr *ngFor="let event of recentEvents" class="border-b border-gray-200">
                     <td class="py-2">{{ event.title }}</td>
-                    <td>Civilisation {{ event.civilizationId }}</td>
+                    <td>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        {{ getCivilizationName(event.civilizationId) }}
+                      </span>
+                    </td>
                     <td>{{ formatDate(event.date) }}</td>
                   </tr>
                 </tbody>
@@ -179,43 +183,91 @@
         </div>
         
         <!-- Events by Civilization -->
-        <div class="bg-white p-4 rounded-lg shadow mb-6">
-          <h2 class="text-lg font-bold mb-4">Événements par Civilisation</h2>
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h2 class="text-xl font-bold">Événements par Civilisation</h2>
+              <p class="text-sm text-gray-500">Répartition des événements historiques</p>
+            </div>
+            <a routerLink="/admin/civilizations" class="text-indigo-600 text-sm hover:underline">Gérer les civilisations</a>
+          </div>
           
           <!-- Loading indicator -->
           <div *ngIf="loading.civilizations || loading.events" class="flex justify-center items-center h-40">
             <div class="loading loading-spinner"></div>
           </div>
           
-          <!-- Civilizations data -->
-          <div *ngIf="!loading.civilizations && !loading.events && eventsPerCivilization.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div *ngFor="let civ of eventsPerCivilization" class="bg-gray-50 p-4 rounded-lg">
+          <!-- Top 3 Civilizations Summary -->
+          <div *ngIf="!loading.civilizations && !loading.events && eventsPerCivilization.length > 0" class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Top 3 des Civilisations</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div *ngFor="let civ of eventsPerCivilization.slice(0, 3); let i = index" 
+                   class="bg-gradient-to-r p-4 rounded-lg text-white"
+                   [ngClass]="{
+                     'from-yellow-400 to-yellow-600': i === 0,
+                     'from-gray-400 to-gray-600': i === 1,
+                     'from-orange-400 to-orange-600': i === 2
+                   }">
               <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-3">
+                      <span class="font-bold">{{ i + 1 }}</span>
+                    </div>
                 <div>
-                  <h3 class="font-semibold">{{ civ.name }}</h3>
-                  <p class="text-sm text-gray-600">{{ civ.count }} événements</p>
-                </div>
-                <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold">
-                  {{ civ.count }}
+                      <h4 class="font-semibold truncate">{{ civ.name }}</h4>
+                      <p class="text-sm opacity-90">{{ civ.count }} événements</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-2xl font-bold">{{ ((civ.count / totalEvents) * 100).toFixed(0) }}%</div>
+                  </div>
                 </div>
               </div>
-              <div class="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+            </div>
+          </div>
+          
+          <!-- All Civilizations data -->
+          <div *ngIf="!loading.civilizations && !loading.events && eventsPerCivilization.length > 0">
+            <h3 class="text-lg font-semibold mb-3">Toutes les Civilisations</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div *ngFor="let civ of eventsPerCivilization; let i = index" class="bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex-1">
+                    <h3 class="font-semibold text-gray-800 truncate">{{ civ.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ civ.count }} événement{{ civ.count > 1 ? 's' : '' }}</p>
+                  </div>
+                  <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
+                  {{ civ.count }}
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Proportion</span>
+                    <span>{{ ((civ.count / totalEvents) * 100).toFixed(1) }}%</span>
+              </div>
+                  <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div 
-                  class="h-full bg-indigo-500 rounded-full" 
+                      class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-500 ease-out" 
                   [style.width.%]="(civ.count / totalEvents) * 100"
                 ></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           
           <!-- No data message -->
           <div *ngIf="!loading.civilizations && !loading.events && eventsPerCivilization.length === 0" class="text-center py-10 text-gray-500">
-            <div class="w-10 h-10 mx-auto text-gray-400 mb-2">
+            <div class="w-16 h-16 mx-auto text-gray-400 mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
               </svg>
             </div>
-            <p>Aucune donnée sur les civilisations</p>
+            <h3 class="text-lg font-medium mb-2">Aucune donnée disponible</h3>
+            <p class="text-sm">Aucun événement n'a été trouvé pour les civilisations.</p>
+            <a routerLink="/admin/events" class="inline-flex items-center mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+              Ajouter des événements
+            </a>
           </div>
         </div>
       </div>

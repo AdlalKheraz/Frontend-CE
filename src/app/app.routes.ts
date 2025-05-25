@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AdminGuard } from '@core/auth/guards/admin.guard';
 import { AuthGuard } from '@core/auth/guards/auth.guard';
+import { CivilizationsComponent } from './admin/Civilizations/Civilizations.component';
 import { CommentsComponent } from './admin/Comments/Comments.component';
 import { DashboardComponent } from './admin/Dashboard/Dashboard.component';
 import { EditEventComponent } from './admin/EditEvent/EditEvent.component';
@@ -11,7 +12,6 @@ import { LoginComponent } from './auth/Login/Login.component';
 import { SignUpComponent } from './auth/SignUp/SignUp.component';
 import { HomeComponent } from './Home/Home.component';
 import { ProfileComponent } from './Home/Profile/Profile.component';
-import { CivilizationsComponent } from './admin/Civilizations/Civilizations.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -36,6 +36,6 @@ export const routes: Routes = [
       {path: 'edit-event/:id', component: EditEventComponent},
     ]
   },
-  // Rediriger toutes les autres routes vers la page de login
+  // Rediriger toutes les autres routes vers la page de connexion
   { path: '**', redirectTo: 'login' }
 ];

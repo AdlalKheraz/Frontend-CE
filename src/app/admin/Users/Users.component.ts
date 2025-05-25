@@ -15,6 +15,7 @@ import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/adm
 })
 export class UsersComponent implements OnInit {
   users: User[] = [];
+  filteredUsers: User[] = [];
   loading = false;
   error: string | null = null;
   selectedUser: User | null = null;
@@ -43,6 +44,10 @@ export class UsersComponent implements OnInit {
   notificationMessage = '';
   notificationSuccess = true;
 
+  // Propriétés de recherche et tri
+  searchTerm = '';
+  sortBy = 'name';
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -57,12 +62,12 @@ export class UsersComponent implements OnInit {
   get paginatedUsers(): User[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    return this.users.slice(startIndex, endIndex);
+    return this.filteredUsers.slice(startIndex, endIndex);
   }
 
   // Getter for total pages
   get totalPages(): number {
-    return Math.ceil(this.users.length / this.itemsPerPage);
+    return Math.ceil(this.filteredUsers.length / this.itemsPerPage);
   }
 
   // Getter for page number array
@@ -72,16 +77,16 @@ export class UsersComponent implements OnInit {
 
   // Getter for display info
   get displayInfo() {
-    if (this.users.length === 0) {
+    if (this.filteredUsers.length === 0) {
       return { start: 0, end: 0, total: 0 };
     }
     
     const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const endItem = Math.min(this.currentPage * this.itemsPerPage, this.users.length);
+    const endItem = Math.min(this.currentPage * this.itemsPerPage, this.filteredUsers.length);
     return {
       start: startItem,
       end: endItem,
-      total: this.users.length
+      total: this.filteredUsers.length
     };
   }
 
@@ -107,6 +112,66 @@ export class UsersComponent implements OnInit {
     }
   }
 
+  // Méthodes de recherche et tri
+  onSearchChange(): void {
+    this.applyFilters();
+    this.currentPage = 1; // Reset à la première page
+  }
+
+  sortUsers(sortType: string): void {
+    this.sortBy = sortType;
+    this.applyFilters();
+  }
+
+  getSortLabel(): string {
+    switch (this.sortBy) {
+      case 'name': return 'Nom A-Z';
+      case 'email': return 'Email A-Z';
+      case 'role': return 'Rôle';
+      case 'recent': return 'Plus récent';
+      default: return 'Nom A-Z';
+    }
+  }
+
+  private applyFilters(): void {
+    let filtered = [...this.users];
+
+    // Appliquer la recherche
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(user => 
+        (user.firstName?.toLowerCase().includes(searchLower) || false) ||
+        (user.lastName?.toLowerCase().includes(searchLower) || false) ||
+        (user.email?.toLowerCase().includes(searchLower) || false) ||
+        (user.role?.toLowerCase().includes(searchLower) || false)
+      );
+    }
+
+    // Appliquer le tri
+    switch (this.sortBy) {
+      case 'name':
+        filtered.sort((a, b) => {
+          const nameA = `${a.firstName || ''} ${a.lastName || ''}`.trim();
+          const nameB = `${b.firstName || ''} ${b.lastName || ''}`.trim();
+          return nameA.localeCompare(nameB);
+        });
+        break;
+      case 'email':
+        filtered.sort((a, b) => (a.email || '').localeCompare(b.email || ''));
+        break;
+      case 'role':
+        filtered.sort((a, b) => (a.role || 'USER').localeCompare(b.role || 'USER'));
+        break;
+      case 'recent':
+        // Tri par ID décroissant (plus récent en premier)
+        filtered.sort((a, b) => (b.id || '').localeCompare(a.id || ''));
+        break;
+    }
+
+    this.filteredUsers = filtered;
+    this.cdr.markForCheck();
+  }
+
   // Load all users
   loadUsers(): void {
     this.loading = true;
@@ -115,6 +180,10 @@ export class UsersComponent implements OnInit {
         this.users = users;
         this.loading = false;
         this.error = null;
+        
+        // Appliquer les filtres après le chargement
+        this.applyFilters();
+        
       this.currentPage = 1;
       this.cdr.markForCheck();
       },

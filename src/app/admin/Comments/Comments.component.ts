@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { LoadingState } from '../../core/models/api.model';
 import { CommentService, Comment as ServiceComment } from '../../core/services/comment.service';
+import { EventService, HistoricalEvent } from '../../core/services/event.service';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 interface Comment {
@@ -12,6 +13,7 @@ interface Comment {
   eventName: string;
   content: string;
   date: string;
+  rawDate: Date;
   authorEmail: string;
   eventId: string;
 }
@@ -30,6 +32,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   loading = false;
   error: string | null = null;
   selectedComment: Comment | null = null;
+  events: HistoricalEvent[] = [];
   
   // Suppression des stats de statut qui ne sont plus utilisées
 
@@ -43,6 +46,7 @@ export class CommentsComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private commentService: CommentService,
+    private eventService: EventService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -110,9 +114,10 @@ export class CommentsComponent implements OnInit, OnDestroy {
       return {
       id: comment.id || '',
         userName: this.extractUserName(comment.authorEmail || 'anonymous@user.com'),
-        eventName: `Event ${comment.eventId || 'unknown'}`,
+        eventName: this.getEventName(comment.eventId || 'unknown'),
         content: comment.content || 'No content',
       date: this.formatDate(comment.createdAt),
+        rawDate: new Date(comment.createdAt || new Date()),
         authorEmail: comment.authorEmail || 'anonymous@user.com',
         eventId: comment.eventId || 'unknown'
       };
@@ -129,6 +134,13 @@ export class CommentsComponent implements OnInit, OnDestroy {
     return new Date(dateString).toLocaleDateString('fr-FR');
   }
 
+  private getEventName(eventId: string): string {
+    if (!eventId || eventId === 'unknown') return 'Événement inconnu';
+    
+    const event = this.events.find(e => e.id === eventId);
+    return event ? event.title : `Événement ${eventId}`;
+  }
+
   private updateStats(): void {
     // Cette méthode est conservée mais vidée car les stats de statut ne sont plus nécessaires
   }
@@ -138,19 +150,23 @@ export class CommentsComponent implements OnInit, OnDestroy {
     this.error = null;
     this.cdr.markForCheck();
     
-    this.commentService.loadAllComments()
-      .pipe(takeUntil(this.destroy$))
+    // Charger les commentaires et les événements en parallèle
+    forkJoin({
+      comments: this.commentService.loadAllComments(),
+      events: this.eventService.loadAllEvents()
+    }).pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (comments) => {
-          console.log('Comments loaded in component:', comments);
-          // Les données sont automatiquement mises à jour via l'observable
+        next: (result: { comments: ServiceComment[], events: HistoricalEvent[] }) => {
+          console.log('Comments and events loaded:', result);
+          this.events = result.events;
+          // Les commentaires sont automatiquement mis à jour via l'observable
           this.loading = false;
           this.cdr.markForCheck();
         },
-        error: (error) => {
-          console.error('Erreur lors du chargement des commentaires:', error);
+        error: (error: any) => {
+          console.error('Erreur lors du chargement des données:', error);
           this.loading = false;
-          this.error = error.message || 'Erreur lors du chargement des commentaires';
+          this.error = error.message || 'Erreur lors du chargement des données';
           this.cdr.markForCheck();
         }
       });
@@ -213,10 +229,10 @@ export class CommentsComponent implements OnInit, OnDestroy {
     console.log(`Sorting comments by ${criterion}`);
     switch (criterion) {
       case 'newest':
-        this.filteredComments.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        this.filteredComments.sort((a, b) => b.rawDate.getTime() - a.rawDate.getTime());
         break;
       case 'oldest':
-        this.filteredComments.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        this.filteredComments.sort((a, b) => a.rawDate.getTime() - b.rawDate.getTime());
         break;
       case 'popular':
         // Logique de tri par popularité (par contenu le plus long pour l'exemple)

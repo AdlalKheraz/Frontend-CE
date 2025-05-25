@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
-import { ApiResponse, LoadingState, StateData } from '../models/api.model';
+import { LoadingState, StateData } from '../models/api.model';
 
 export interface HistoricalEvent {
   imageUrl: string;
@@ -182,6 +182,35 @@ export class EventService {
           loading: LoadingState.ERROR,
           data: [],
           error: error.message || 'Erreur lors du chargement des événements'
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  loadEnrichedEventsByCivilization(civilizationId: string): Observable<HistoricalEvent[]> {
+    this.eventsState.next({
+      loading: LoadingState.LOADING,
+      data: this.eventsState.value.data
+    });
+    
+    return this.http.get<HistoricalEvent[]>(
+      environment.ENDPOINT.eventsEnrichedByCivilization(civilizationId),
+      { headers: this.getHeaders() }
+    ).pipe(
+      tap(response => {
+        if (response) {
+          this.eventsState.next({
+            loading: LoadingState.LOADED,
+            data: response
+          });
+        }
+      }),
+      catchError(error => {
+        this.eventsState.next({
+          loading: LoadingState.ERROR,
+          data: [],
+          error: error.message || 'Erreur lors du chargement des événements enrichis par civilisation'
         });
         return throwError(() => error);
       })

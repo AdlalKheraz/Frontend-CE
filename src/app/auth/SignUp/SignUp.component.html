@@ -3,24 +3,24 @@
     <div class="signup-form">
         <div class="signup-form-content">
             <!-- Réorganisation des champs pour plus d'efficacité -->
-            <h2 class="form-title">First Name</h2>
-            <input type="text" name="firstName" [(ngModel)]="firstName" placeholder="Your first name" class="form-input" required/>
-            
-            <h2 class="form-title">Last Name</h2>
-            <input type="text" name="lastName" [(ngModel)]="lastName" placeholder="Your last name" class="form-input" required/>
+                    <h2 class="form-title">Prénom</h2>
+        <input type="text" name="firstName" [(ngModel)]="firstName" placeholder="Votre prénom" class="form-input" required/>
+        
+        <h2 class="form-title">Nom</h2>
+        <input type="text" name="lastName" [(ngModel)]="lastName" placeholder="Votre nom" class="form-input" required/>
             
             <h2 class="form-title">Email</h2>
-            <input type="email" name="email" [(ngModel)]="email" placeholder="Example@email.com" class="form-input" required/>
+            <input type="email" name="email" [(ngModel)]="email" placeholder="exemple@email.com" class="form-input" required/>
             
             <!-- Mettre les mots de passe sur la même ligne -->
             <div class="password-row">
                 <div class="password-field">
-                    <h2 class="form-title">Password</h2>
-                    <input type="password" name="password" [(ngModel)]="password" placeholder="at least 8 characters" class="form-input" required/>
+                    <h2 class="form-title">Mot de passe</h2>
+                    <input type="password" name="password" [(ngModel)]="password" placeholder="au moins 8 caractères" class="form-input" required/>
                 </div>
                 <div class="password-field">
-                    <h2 class="form-title">Confirm Password</h2>
-                    <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Confirm your password" class="form-input" required/>
+                    <h2 class="form-title">Confirmer le mot de passe</h2>
+                    <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Confirmez votre mot de passe" class="form-input" required/>
                 </div>
             </div>
             
@@ -31,13 +31,13 @@
             <div class="form-actions">
                 <button type="button" class="sign-up-btn" (click)="onSignUp($event)" [disabled]="isLoading | async">
                     <span *ngIf="isLoading | async" class="loading-spinner"></span>
-                    Sign up
+                    S'inscrire
                 </button>
             </div>
             
             <div class="login-link">
-                <span>Already have an account? </span>
-                <a routerLink="/login" class="sign-in-link">Sign in</a>
+                <span>Vous avez déjà un compte ? </span>
+                <a routerLink="/login" class="sign-in-link">Se connecter</a>
             </div>
         </div>
     </div>
@@ -75,7 +75,7 @@
                         <line x1="3" y1="21" x2="10" y2="14"></line>
                     </svg>
                 </span>
-                <span>Click to explore the timeline</span>
+                <span>Cliquez pour explorer la chronologie</span>
             </div>
         </div>
     </div>

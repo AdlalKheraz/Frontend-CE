@@ -11,7 +11,7 @@
 
     <!-- Error State -->
     <div *ngIf="error && !loading" class="alert alert-error mx-6 mt-6">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <span>{{ error }}</span>
@@ -21,7 +21,7 @@
     <div *ngIf="!loading && !error">
       <!-- Top Navigation -->
       <div class="flex justify-between items-center p-6">
-        <h1 class="text-2xl font-bold">Comments</h1>
+        <h1 class="text-2xl font-bold">Commentaires</h1>
         <button 
           (click)="refreshComments()" 
           class="btn btn-primary flex items-center gap-2"
@@ -35,27 +35,12 @@
       </div>
 
       <div class="px-6 pb-6">
-        <!-- Stats Card -->
-        <div class="bg-indigo-50 rounded-lg p-4 mb-6">
-            <div class="flex items-center justify-between">
-            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-            </div>
-            <div class="text-right">
-              <h3 class="text-3xl font-bold">{{ totalItems }}</h3>
-              <p class="text-gray-700">Total Comments</p>
-            </div>
-          </div>
-        </div>
-
         <!-- Comments Table -->
         <div class="bg-white p-4 rounded-lg shadow">
           <div class="flex justify-between items-center mb-4">
             <div>
-              <h2 class="text-lg font-bold">All Comments</h2>
-              <p class="text-sm text-green-500">{{ totalItems }} Total Comments</p>
+              <h2 class="text-lg font-bold">Tous les commentaires</h2>
+              <p class="text-sm text-green-500">{{ totalItems }} commentaires au total</p>
             </div>
             
             <div class="flex items-center gap-4">
@@ -69,22 +54,22 @@
                   type="text" 
                   (input)="onSearchChange($event)"
                   class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" 
-                  placeholder="Search comments..."
+                  placeholder="Rechercher des commentaires..."
                 >
               </div>
               
               <div class="dropdown dropdown-end">
                 <label tabindex="0" class="btn btn-ghost btn-sm normal-case">
-                  <span>Sort by: </span>
-                  <span class="font-semibold">Newest</span>
+                  <span>Trier par : </span>
+                  <span class="font-semibold">Plus récent</span>
                   <svg width="12px" height="12px" class="ml-1 fill-current opacity-60" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
                     <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
                   </svg>
                 </label>
                 <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                  <li><a (click)="sortComments('newest')">Newest</a></li>
-                  <li><a (click)="sortComments('oldest')">Oldest</a></li>
-                  <li><a (click)="sortComments('popular')">Popular</a></li>
+                  <li><a (click)="sortComments('newest')">Plus récent</a></li>
+                  <li><a (click)="sortComments('oldest')">Plus ancien</a></li>
+                  <li><a (click)="sortComments('popular')">Populaire</a></li>
                 </ul>
               </div>
             </div>
@@ -94,11 +79,11 @@
             <table class="table w-full">
               <thead>
                 <tr>
-                  <th class="text-left">User Name</th>
-                  <th class="text-left">Event</th>
-                  <th class="text-left">Comment</th>
+                  <th class="text-left">Nom d'utilisateur</th>
+                  <th class="text-left">Événement</th>
+                  <th class="text-left">Commentaire</th>
                   <th class="text-left">Date</th>
-                  <th class="text-left">Action</th>
+                  <th class="text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -118,13 +103,13 @@
                         class="px-3 py-1 bg-red-500 text-white rounded-md text-xs font-medium hover:bg-red-600 transition-colors"
                         title="Supprimer définitivement"
                       >
-                        Delete
+                        Supprimer
                       </button>
                       <button 
                         (click)="showCommentDetails(comment.id)"
                         class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-medium hover:bg-indigo-200 transition-colors"
                       >
-                        Details
+                        Détails
                       </button>
                     </div>
                   </td>
@@ -208,30 +193,30 @@
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
-      <h3 class="font-bold text-lg mb-2">Comment Details</h3>
+      <h3 class="font-bold text-lg mb-2">Détails du commentaire</h3>
       
       <div *ngIf="selectedComment" class="space-y-4">
         <div class="flex justify-between items-start">
           <div>
-            <p class="text-sm text-gray-500">From: <span class="font-medium text-gray-700">{{ selectedComment.userName }}</span></p>
-            <p class="text-sm text-gray-500">Email: <span class="font-medium text-gray-700">{{ selectedComment.authorEmail }}</span></p>
+            <p class="text-sm text-gray-500">De : <span class="font-medium text-gray-700">{{ selectedComment.userName }}</span></p>
+            <p class="text-sm text-gray-500">Email : <span class="font-medium text-gray-700">{{ selectedComment.authorEmail }}</span></p>
           </div>
           <div>
-            <p class="text-sm text-gray-500">Event: <span class="font-medium text-gray-700">{{ selectedComment.eventName }}</span></p>
-            <p class="text-sm text-gray-500">Date: <span class="font-medium text-gray-700">{{ selectedComment.date }}</span></p>
+            <p class="text-sm text-gray-500">Événement : <span class="font-medium text-gray-700">{{ selectedComment.eventName }}</span></p>
+            <p class="text-sm text-gray-500">Date : <span class="font-medium text-gray-700">{{ selectedComment.date }}</span></p>
           </div>
         </div>
         
         <div class="divider"></div>
         
         <div class="bg-gray-50 p-4 rounded-lg">
-          <h4 class="text-sm font-semibold text-gray-600 mb-2">Comment Content:</h4>
+          <h4 class="text-sm font-semibold text-gray-600 mb-2">Contenu du commentaire :</h4>
           <p class="whitespace-pre-line text-gray-800">{{ selectedComment.content }}</p>
         </div>
         
         <div class="flex justify-between items-center mt-4">
-          <p class="text-xs text-gray-500">Comment ID: {{ selectedComment.id }}</p>
-          <p class="text-xs text-gray-500">Length: {{ selectedComment.content.length }} characters</p>
+          <p class="text-xs text-gray-500">ID du commentaire : {{ selectedComment.id }}</p>
+          <p class="text-xs text-gray-500">Longueur : {{ selectedComment.content.length }} caractères</p>
         </div>
         
         <div class="flex justify-end gap-2 mt-4">
@@ -239,13 +224,13 @@
             (click)="deleteComment(selectedComment.id)"
             class="btn btn-sm btn-error"
           >
-            Delete Comment
+            Supprimer le commentaire
           </button>
           <button 
             class="btn btn-sm btn-primary"
             (click)="closeModal()"
           >
-            Close
+            Fermer
           </button>
         </div>
       </div>

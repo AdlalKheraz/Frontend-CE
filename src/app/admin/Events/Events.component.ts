@@ -1,25 +1,32 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { LoadingState } from '../../core/models/api.model';
+import { Civilization, CivilizationService } from '../../core/services/civilization.service';
 import { EventService, HistoricalEvent } from '../../core/services/event.service';
+import { Media, MediaService } from '../../core/services/media.service';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
-import { MediaService, Media } from '../../core/services/media.service';
-import { CivilizationService, Civilization } from '../../core/services/civilization.service';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-events',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdminSidebarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent],
   templateUrl: './Events.component.html',
   styleUrl: './Events.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventsComponent implements OnInit {
   events: HistoricalEvent[] = [];
+  filteredEvents: HistoricalEvent[] = [];
+  civilizations: Civilization[] = [];
   loading = false;
   error: string | null = null;
+  
+  // Propriétés de recherche et tri
+  searchTerm = '';
+  sortBy = 'newest';
   
   // Propriétés de pagination
   currentPage = 1;
@@ -43,18 +50,19 @@ export class EventsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEvents();
+    this.loadCivilizations();
   }
 
   // Getter pour les événements paginés
   get paginatedEvents(): HistoricalEvent[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    return this.events.slice(startIndex, endIndex);
+    return this.filteredEvents.slice(startIndex, endIndex);
   }
 
   // Getter pour le nombre total de pages
   get totalPages(): number {
-    return Math.ceil(this.events.length / this.itemsPerPage);
+    return Math.ceil(this.filteredEvents.length / this.itemsPerPage);
   }
 
   // Getter pour le tableau des numéros de page
@@ -64,16 +72,16 @@ export class EventsComponent implements OnInit {
 
   // Getter pour les informations d'affichage
   get displayInfo() {
-    if (this.events.length === 0) {
+    if (this.filteredEvents.length === 0) {
       return { start: 0, end: 0, total: 0 };
     }
     
     const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
-    const endItem = Math.min(this.currentPage * this.itemsPerPage, this.events.length);
+    const endItem = Math.min(this.currentPage * this.itemsPerPage, this.filteredEvents.length);
     return {
       start: startItem,
       end: endItem,
-      total: this.events.length
+      total: this.filteredEvents.length
     };
   }
 
@@ -106,6 +114,9 @@ export class EventsComponent implements OnInit {
       this.events = state.data || [];
       this.error = state.error || null;
       
+      // Appliquer les filtres après le chargement
+      this.applyFilters();
+      
       // Réinitialiser à la première page lors du chargement
       this.currentPage = 1;
       this.cdr.markForCheck();
@@ -119,6 +130,111 @@ export class EventsComponent implements OnInit {
         console.error('Erreur lors du chargement des événements:', error);
       }
     });
+  }
+
+  // Charger toutes les civilisations
+  loadCivilizations(): void {
+    this.civilizationService.loadAllCivilizations().subscribe({
+      next: (civilizations) => {
+        this.civilizations = civilizations;
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des civilisations:', error);
+      }
+    });
+  }
+
+  // Récupérer le nom de la civilisation par son ID
+  getCivilizationName(civilizationId: string): string {
+    const civilization = this.civilizations.find(civ => civ.id === civilizationId);
+    return civilization ? civilization.name : civilizationId;
+  }
+
+  // Formater la date au format dd/MM/yyyy
+  formatEventDate(dateString: string): string {
+    if (!dateString) return '';
+    
+    // Si c'est déjà au format dd/MM/yyyy, le retourner tel quel
+    if (dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      return dateString;
+    }
+    
+    // Si c'est le format ISO yyyy-mm-dd
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const parts = dateString.split('-');
+      const year = parts[0];
+      const month = parts[1];
+      const day = parts[2];
+      return `${day}/${month}/${year}`;
+    }
+    
+    // Pour les autres formats, essayer de parser avec Date
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return dateString; // Retourner la chaîne originale si la conversion échoue
+    }
+    
+    // Formater au format dd/MM/yyyy
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  }
+
+  // Méthodes de recherche et tri
+  onSearchChange(): void {
+    this.applyFilters();
+    this.currentPage = 1; // Reset à la première page
+  }
+
+  sortEvents(sortType: string): void {
+    this.sortBy = sortType;
+    this.applyFilters();
+  }
+
+  getSortLabel(): string {
+    switch (this.sortBy) {
+      case 'newest': return 'Plus récent';
+      case 'oldest': return 'Plus ancien';
+      case 'title': return 'Titre A-Z';
+      case 'civilization': return 'Civilisation';
+      default: return 'Plus récent';
+    }
+  }
+
+  private applyFilters(): void {
+    let filtered = [...this.events];
+
+    // Appliquer la recherche
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(event => 
+        event.title.toLowerCase().includes(searchLower) ||
+        event.description.toLowerCase().includes(searchLower) ||
+        this.getCivilizationName(event.civilizationId).toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Appliquer le tri
+    switch (this.sortBy) {
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        break;
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        break;
+      case 'title':
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'civilization':
+        filtered.sort((a, b) => this.getCivilizationName(a.civilizationId).localeCompare(this.getCivilizationName(b.civilizationId)));
+        break;
+    }
+
+    this.filteredEvents = filtered;
+    this.cdr.markForCheck();
   }
 
   // Navigation vers le Dashboard

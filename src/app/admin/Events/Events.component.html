@@ -6,7 +6,7 @@
   <div class="flex-1 flex flex-col">
     <!-- Header -->
     <div class="bg-white p-4 shadow-sm flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Events</h1>
+      <h1 class="text-2xl font-bold">Événements</h1>
     </div>
 
     <!-- Content -->
@@ -24,39 +24,58 @@
 
       <!-- Create Button -->
       <div (click)="createNewEvent()" class="flex items-center justify-center mx-auto bg-white rounded-full shadow px-6 py-3 mb-6 cursor-pointer hover:shadow-md transition-shadow w-max">
-        <div class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white mr-2">+</div>
+        <div class="w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-white mr-2">+</div>
         <span class="font-medium">Nouvel événement</span>
       </div>
 
       <!-- Events Table -->
       <div class="bg-white rounded-lg shadow-sm p-6" *ngIf="!loading">
         <div class="flex justify-between items-center mb-6">
+          <div>
           <h2 class="text-xl font-bold">Tous les événements</h2>
-          <div class="bg-emerald-50 text-emerald-600 px-4 py-1 rounded-full text-sm font-medium">Événements actifs</div>
+            <p class="text-sm text-emerald-600">{{ filteredEvents.length }} événements trouvés</p>
         </div>
 
-        <div class="flex justify-between items-center mb-6">
-          <div class="text-sm text-gray-500">
-            {{ events.length }} événements trouvés
+          <div class="flex items-center gap-4">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input 
+                type="text" 
+                [(ngModel)]="searchTerm"
+                (input)="onSearchChange()"
+                class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" 
+                placeholder="Rechercher des événements..."
+              >
           </div>
 
-          <div class="flex items-center text-sm">
-            <span class="text-gray-500">Trier par:</span>
-            <div class="flex items-center ml-2 font-medium">
-              Plus récent
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <polyline points="6 9 12 15 18 9"></polyline>
+            <div class="dropdown dropdown-end">
+              <label tabindex="0" class="btn btn-ghost btn-sm normal-case">
+                <span>Trier par: </span>
+                <span class="font-semibold">{{ getSortLabel() }}</span>
+                <svg width="12px" height="12px" class="ml-1 fill-current opacity-60" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
+                  <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
               </svg>
+              </label>
+              <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a (click)="sortEvents('newest')">Plus récent</a></li>
+                <li><a (click)="sortEvents('oldest')">Plus ancien</a></li>
+                <li><a (click)="sortEvents('title')">Titre A-Z</a></li>
+                <li><a (click)="sortEvents('civilization')">Civilisation</a></li>
+              </ul>
             </div>
           </div>
         </div>
 
         <!-- No events message -->
-        <div *ngIf="events.length === 0 && !error" class="text-center py-8 text-gray-500">
+        <div *ngIf="filteredEvents.length === 0 && !error" class="text-center py-8 text-gray-500">
           <p>Aucun événement trouvé</p>
         </div>
 
-        <div class="overflow-x-auto" *ngIf="events.length > 0">
+        <div class="overflow-x-auto" *ngIf="filteredEvents.length > 0">
           <table class="w-full">
             <thead>
               <tr class="border-b border-gray-200">
@@ -71,8 +90,8 @@
               <tr *ngFor="let event of paginatedEvents" class="border-b border-gray-200">
                 <td class="py-4 px-4 font-medium">{{ event.title }}</td>
                 <td class="py-4 px-4">{{ event.description }}</td>
-                <td class="py-4 px-4">{{ event.date }}</td>
-                <td class="py-4 px-4">{{ event.civilizationId }}</td>
+                <td class="py-4 px-4">{{ formatEventDate(event.date) }}</td>
+                <td class="py-4 px-4">{{ getCivilizationName(event.civilizationId) }}</td>
                 <td class="py-4 px-4">
                   <div class="flex space-x-2">
                     <button (click)="modifyEvent(event.id!)" class="px-4 py-1 text-sm border border-emerald-500 text-emerald-600 bg-emerald-50 rounded hover:bg-emerald-100 transition-colors">Modifier</button>
@@ -86,7 +105,7 @@
         </div>
 
         <!-- Pagination améliorée -->
-        <div class="flex items-center justify-between mt-6" *ngIf="events.length > itemsPerPage">
+        <div class="flex items-center justify-between mt-6" *ngIf="filteredEvents.length > itemsPerPage">
           <div class="text-sm text-gray-500">
             Affichage de <span class="font-medium">{{ displayInfo.start }}</span> à <span class="font-medium">{{ displayInfo.end }}</span> sur <span class="font-medium">{{ displayInfo.total }}</span> entrées
           </div>
@@ -144,7 +163,7 @@
     <div class="flex justify-between items-center p-6 border-b border-gray-200">
       <h2 class="text-2xl font-bold text-gray-900">Détails de l'événement</h2>
       <button (click)="closeDetailsPopup()" class="text-gray-400 hover:text-gray-600 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>

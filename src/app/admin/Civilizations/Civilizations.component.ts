@@ -1,12 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
-import { CivilizationService, Civilization } from '../../core/services/civilization.service';
-import { LoadingState, StateData } from '../../core/models/api.model';
+import { Civilization, CivilizationService } from '../../core/services/civilization.service';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 
 @Component({
@@ -27,10 +25,8 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
   private civilizationService = inject(CivilizationService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
-
-  // State observables
-  civilizationsState$ = this.civilizationService.civilizations$;
 
   // UI state
   showModal = false;
@@ -38,6 +34,8 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
   showViewModal = false;
   editMode = false;
   isSubmitting = false;
+  loading = false;
+  error: string | null = null;
 
   // Form and data
   civilizationForm!: FormGroup;
@@ -47,10 +45,15 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
   // Search parameters
   searchParams = {
     name: '',
-    region: '',
     startPeriod: null as number | null,
     endPeriod: null as number | null
   };
+
+  // Propriétés de recherche et tri
+  searchTerm = '';
+  sortBy = 'name';
+  filteredCivilizations: Civilization[] = [];
+  civilizations: Civilization[] = []; // Simple comme Users
 
   ngOnInit(): void {
     this.initForm();
@@ -69,7 +72,6 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
       description: ['', Validators.required],
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
-      region: [''],
       imageUrl: [''],
       achievements: [[]],
       notableEvents: [[]]
@@ -77,10 +79,25 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
   }
 
   loadCivilizations(): void {
+    this.loading = true;
+    this.error = null;
+    this.cdr.markForCheck();
+    
     this.civilizationService.loadAllCivilizations()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        error: (err) => console.error('Error loading civilizations:', err)
+        next: (civilizations) => {
+          this.civilizations = civilizations;
+          this.loading = false;
+          this.applyFilters();
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error loading civilizations:', err);
+          this.loading = false;
+          this.error = err.message || 'Erreur lors du chargement des civilisations';
+          this.cdr.markForCheck();
+        }
       });
   }
 
@@ -88,7 +105,6 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
     // Filter out null values
     const params: any = {};
     if (this.searchParams.name) params.name = this.searchParams.name;
-    if (this.searchParams.region) params.region = this.searchParams.region;
     if (this.searchParams.startPeriod) params.startPeriod = this.searchParams.startPeriod;
     if (this.searchParams.endPeriod) params.endPeriod = this.searchParams.endPeriod;
 
@@ -123,7 +139,6 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
       description: civilization.description,
       startDate: this.formatDateForInput(civilization.startDate),
       endDate: this.formatDateForInput(civilization.endDate),
-      region: civilization.region,
       imageUrl: civilization.imageUrl,
       achievements: civilization.achievements || [],
       notableEvents: civilization.notableEvents || []
@@ -215,11 +230,72 @@ export class CivilizationsComponent implements OnInit, OnDestroy {
     this.selectedCivilization = null;
   }
 
+  // Helper method to calculate duration between two dates
+  getDuration(startDate: string, endDate: string): number {
+    if (!startDate || !endDate) return 0;
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    return Math.abs(end.getFullYear() - start.getFullYear());
+  }
+
   // Helper method to format date for input fields
   private formatDateForInput(dateString: string): string {
     if (!dateString) return '';
 
     const date = new Date(dateString);
     return date.toISOString().split('T')[0];
+  }
+
+  // Méthodes de recherche et tri
+  onSearchChange(): void {
+    this.applyFilters();
+  }
+
+  sortCivilizations(sortType: string): void {
+    this.sortBy = sortType;
+    this.applyFilters();
+  }
+
+  getSortLabel(): string {
+    switch (this.sortBy) {
+      case 'name': return 'Nom A-Z';
+      case 'startDate': return 'Date début';
+      case 'endDate': return 'Date fin';
+      case 'duration': return 'Durée';
+      default: return 'Nom A-Z';
+    }
+  }
+
+  private applyFilters(): void {
+    let filtered = [...this.civilizations];
+
+    // Appliquer la recherche
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(civilization => 
+        civilization.name.toLowerCase().includes(searchLower) ||
+        (civilization.description?.toLowerCase().includes(searchLower) || false)
+      );
+    }
+
+    // Appliquer le tri
+    switch (this.sortBy) {
+      case 'name':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'startDate':
+        filtered.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+        break;
+      case 'endDate':
+        filtered.sort((a, b) => new Date(a.endDate).getTime() - new Date(b.endDate).getTime());
+        break;
+      case 'duration':
+        filtered.sort((a, b) => this.getDuration(a.startDate, a.endDate) - this.getDuration(b.startDate, b.endDate));
+        break;
+    }
+
+    this.filteredCivilizations = filtered;
   }
 }
