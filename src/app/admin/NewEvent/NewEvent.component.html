@@ -322,7 +322,7 @@
             </button>
             <div *ngIf="currentStep === 1"></div> <!-- Empty div for flex spacing when no previous button -->
 
-            <button id="nextBtn" (click)="handleButtonClick()" [disabled]="isSubmitting"
+            <button id="nextBtn" (click)="handleButtonClick()" [disabled]="isSubmitting||(externalUrls.controls.length<1&& currentStep===3)"
                     class="btn btn-primary bg-indigo-600 border-none hover:bg-indigo-700 px-8">
               <span *ngIf="isSubmitting" class="loading loading-spinner loading-xs mr-2"></span>
               <span *ngIf="currentStep < totalSteps">Étape suivante</span>
