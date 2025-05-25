@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -71,14 +71,7 @@ export class EditEventComponent implements OnInit {
     
     // Civilization form
     this.civilizationForm = this.fb.group({
-      civilizationId: ['', Validators.required],
-      createNew: [false],
-      newCivilization: this.fb.group({
-        name: [''],
-        description: [''],
-        startDate: [''],
-        endDate: ['']
-      })
+      civilizationId: ['', Validators.required]
     });
     
     // Media form
@@ -126,24 +119,8 @@ export class EditEventComponent implements OnInit {
     
     this.loadCivilizations();
     
-    // Enable/disable validation for new civilization based on createNew checkbox
-    this.civilizationForm.get('createNew')?.valueChanges.subscribe(createNew => {
-      const newCivGroup = this.civilizationForm.get('newCivilization') as FormGroup;
-      
-      if (createNew) {
-        newCivGroup.get('name')?.setValidators([Validators.required]);
-        newCivGroup.get('description')?.setValidators([Validators.required]);
-        this.civilizationForm.get('civilizationId')?.clearValidators();
-      } else {
-        newCivGroup.get('name')?.clearValidators();
-        newCivGroup.get('description')?.clearValidators();
-        this.civilizationForm.get('civilizationId')?.setValidators([Validators.required]);
-      }
-      
-      newCivGroup.get('name')?.updateValueAndValidity();
-      newCivGroup.get('description')?.updateValueAndValidity();
-      this.civilizationForm.get('civilizationId')?.updateValueAndValidity();
-    });
+    // La logique de validation pour la création de civilisation a été supprimée
+    // car nous n'avons plus besoin de cette fonctionnalité dans l'édition d'événement
   }
 
   // Remplir le formulaire avec les données de l'événement
@@ -158,8 +135,7 @@ export class EditEventComponent implements OnInit {
     // Sélectionner la civilisation
     if (event.civilizationId) {
       this.civilizationForm.patchValue({
-        civilizationId: event.civilizationId,
-        createNew: false
+        civilizationId: event.civilizationId
       });
     }
     
@@ -368,35 +344,14 @@ export class EditEventComponent implements OnInit {
     this.successMessage = '';
     
     try {
-      // 1. Récupérer ou créer une civilisation
+      // 1. Récupérer la civilisation sélectionnée
       let civilizationId: string = '';
       
-      if (this.civilizationForm.get('createNew')?.value) {
-        const newCivData = this.civilizationForm.get('newCivilization')?.value;
-        if (!newCivData) {
-          throw new Error('Données de civilisation manquantes');
-        }
-        
-        const newCivilization: Civilization = {
-          name: newCivData.name,
-          description: newCivData.description,
-          startDate: newCivData.startDate || null,
-          endDate: newCivData.endDate || null
-        };
-        
-        const civResponse = await firstValueFrom(this.civilizationService.createCivilization(newCivilization));
-        if (civResponse?.success && civResponse.data) {
-          civilizationId = civResponse.data.id || '';
-        } else {
-          throw new Error('Échec de la création de la civilisation');
-        }
-      } else {
-        const selectedCivId = this.civilizationForm.get('civilizationId')?.value;
-        if (!selectedCivId) {
-          throw new Error('Veuillez sélectionner une civilisation');
-        }
-        civilizationId = selectedCivId;
+      const selectedCivId = this.civilizationForm.get('civilizationId')?.value;
+      if (!selectedCivId) {
+        throw new Error('Veuillez sélectionner une civilisation');
       }
+      civilizationId = selectedCivId;
       
       // 2. Mettre à jour l'événement
       if (!civilizationId) {

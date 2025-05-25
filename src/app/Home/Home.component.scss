@@ -149,7 +149,7 @@
       animation: none;
       transform: translateX(-50%) scale(1.05);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
-      background-color: var(--bg-darker);
+    background-color: var(--bg-darker);
     }
   }
   
@@ -171,7 +171,7 @@
     }
     
     /* Animation du contenu lors de l'expansion */
-    .island-content {
+  .island-content {
       animation: contentFadeIn 0.4s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     
@@ -274,7 +274,7 @@
     transform: scale(0.9);
   }
   100% {
-    opacity: 1;
+      opacity: 1;
     transform: scale(1);
   }
 }

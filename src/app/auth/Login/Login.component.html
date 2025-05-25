@@ -14,10 +14,10 @@
             </div>
             
             <div class="form-actions">
-                            <button type="button" class="sign-in-btn" (click)="onLogin($event)" [disabled]="isLoading">
+                <button type="button" class="sign-in-btn" (click)="onLogin($event)" [disabled]="isLoading">
                 <span *ngIf="!isLoading">Se connecter</span>
-                <span *ngIf="isLoading" class="loading-spinner"></span>
-            </button>
+                    <span *ngIf="isLoading" class="loading-spinner"></span>
+                </button>
             </div>
             
             <div class="register-link">
